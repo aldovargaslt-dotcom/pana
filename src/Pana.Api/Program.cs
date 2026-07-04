@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Pana.Api.Application.Accounting;
+using Pana.Api.Application.Analytics;
 using Pana.Api.Application.Common;
+using Pana.Api.Application.Export;
 using Pana.Api.Application.Identity;
 using Pana.Api.Application.Inventory;
+using Pana.Api.Application.Operations;
 using Pana.Api.Application.Products;
 using Pana.Api.Application.Production;
 using Pana.Api.Application.Sales;
@@ -72,6 +75,9 @@ builder.Services.AddScoped<IDailyContextService, DailyContextService>();
 builder.Services.AddScoped<IWasteCategoryService, WasteCategoryService>();
 builder.Services.AddScoped<IRawMaterialService, RawMaterialService>();
 builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddScoped<IProductionCaptureService, ProductionCaptureService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IExportService, ExportService>();
 
 // ── Domain Events ─────────────────────────────────────────────
 builder.Services.AddSingleton<DomainEventDispatcher>();

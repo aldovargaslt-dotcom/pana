@@ -3,6 +3,7 @@ using Pana.Api.Domain.Accounting;
 using Pana.Api.Domain.Common;
 using Pana.Api.Domain.Identity;
 using Pana.Api.Domain.Inventory;
+using Pana.Api.Domain.Operations;
 using Pana.Api.Domain.Products;
 using Pana.Api.Domain.Production;
 using Pana.Api.Domain.Sales;
@@ -40,6 +41,8 @@ public class PanaDbContext : DbContext
     public DbSet<RawMaterial> RawMaterials => Set<RawMaterial>();
     public DbSet<Recipe> Recipes => Set<Recipe>();
     public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
+    public DbSet<DailyProduction> DailyProductions => Set<DailyProduction>();
+    public DbSet<DailyProductionLine> DailyProductionLines => Set<DailyProductionLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,6 +61,7 @@ public class PanaDbContext : DbContext
         modelBuilder.Entity<WasteCategory>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
         modelBuilder.Entity<RawMaterial>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
         modelBuilder.Entity<Recipe>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+        modelBuilder.Entity<DailyProduction>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         // JournalEntry → JournalEntryLine relationship
         modelBuilder.Entity<JournalEntry>()

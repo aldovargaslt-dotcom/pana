@@ -4,23 +4,20 @@
     var modalId = "product-form-" + Guid.NewGuid().ToString("N")[..6];
 }
 
-@* ── Modal wrapper ─────────────────────────────────────────── *@
+@* ── Modal wrapper (vanilla JS, no Alpine dependency) ───────── *@
 <div id="@modalId"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-     x-data="{ open: true }"
-     x-show="open"
-     x-transition.opacity.duration.200ms
-     @@keydown.escape.window="open = false">
+     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm fade-in"
+     onclick="if(event.target===this)this.remove()">
 
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-0 max-h-[85vh] flex flex-col scale-in"
-         @@click.outside="open = false">
+         onclick="event.stopPropagation()">
 
         @* Header *@
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
             <h2 class="text-lg font-semibold text-gray-800">
                 @(isCreate ? "Nuevo Producto" : "Editar Producto")
             </h2>
-            <button @@click="open = false"
+            <button onclick="document.getElementById('@modalId').remove()"
                     class="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -33,8 +30,8 @@
             <form hx-post="@(isCreate ? "/products/create" : $"/products/{Model.Id}/edit")"
                   hx-target="@(isCreate ? "#table-body-name" : $"#product-row-{Model.Id}")"
                   hx-swap="@(isCreate ? "innerHTML" : "outerHTML")"
-                  class="space-y-5"
-                  @@htmx:after-request="if(event.detail.successful) open = false">
+                  hx-on::after-request="if(event.detail.successful) document.getElementById('@modalId').remove()"
+                  class="space-y-5">
 
                 @if (!isCreate)
                 {
@@ -92,7 +89,7 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
-                    <button type="button" @@click="open = false"
+                    <button type="button" onclick="document.getElementById('@modalId').remove()"
                             class="inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm
                                    transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1
                                    px-4 py-2.5 text-gray-600 hover:bg-gray-100 cursor-pointer active:scale-[0.97]">
@@ -111,3 +108,17 @@
         </div>
     </div>
 </div>
+
+@* Close on Escape key *@
+<script>
+    (function() {
+        var modal = document.getElementById('@modalId');
+        if (!modal) return;
+        function onKey(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', onKey); } }
+        document.addEventListener('keydown', onKey);
+        // Clean up listener when modal is removed
+        new MutationObserver(function() {
+            if (!document.getElementById('@modalId')) document.removeEventListener('keydown', onKey);
+        }).observe(document.body, { childList: true, subtree: true });
+    })();
+</script>
