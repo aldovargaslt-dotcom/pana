@@ -62,6 +62,8 @@ public class SalesController : Controller
             if (form.Items == null || form.Items.Count == 0)
                 ModelState.AddModelError("Items", "Agregá al menos un producto.");
 
+            Response.Headers["HX-Retarget"] = "#modal-container";
+
             // Reload products for the form
             var productService = HttpContext.RequestServices.GetRequiredService<IProductService>();
             var products = await productService.GetAllAsync(ct);

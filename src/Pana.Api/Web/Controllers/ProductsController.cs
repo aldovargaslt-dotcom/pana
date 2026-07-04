@@ -57,7 +57,10 @@ public class ProductsController : Controller
         CancellationToken ct)
     {
         if (!ModelState.IsValid)
+        {
+            Response.Headers["HX-Retarget"] = "#modal-container";
             return PartialView("_Form", form);
+        }
 
         var request = new ProductRequest(form.Name, form.Sku, form.Price, form.Cost, form.Description);
         await productService.CreateAsync(request, ct);
@@ -91,7 +94,10 @@ public class ProductsController : Controller
         CancellationToken ct)
     {
         if (!ModelState.IsValid)
+        {
+            Response.Headers["HX-Retarget"] = "#modal-container";
             return PartialView("_Form", form);
+        }
 
         var request = new ProductRequest(form.Name, form.Sku, form.Price, form.Cost, form.Description);
         await productService.UpdateAsync(id, request, ct);
