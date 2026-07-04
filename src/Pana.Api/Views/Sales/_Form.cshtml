@@ -4,12 +4,12 @@
     var modalId = "sale-form-" + Guid.NewGuid().ToString("N")[..6];
 }
 
-@* ── Modal wrapper (vanilla JS, no Alpine dependency) ───────── *@
+@* ── Modal wrapper ─────────────────────────────────────────── *@
 <div id="@modalId"
-     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm fade-in"
+     style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)"
      onclick="if(event.target===this)this.remove()">
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl p-0 max-h-[85vh] flex flex-col scale-in"
+    <div style="background:white;border-radius:16px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);width:100%;max-width:36rem;max-height:85vh;display:flex;flex-direction:column"
          onclick="event.stopPropagation()">
 
         @* Header *@
@@ -166,6 +166,7 @@
 <script>
     (function() {
         var modal = document.getElementById('@modalId');
+        console.log('[Pana] Sale modal loaded:', '@modalId', modal);
         if (!modal) return;
         function onKey(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', onKey); } }
         document.addEventListener('keydown', onKey);

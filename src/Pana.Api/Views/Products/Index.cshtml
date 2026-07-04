@@ -26,6 +26,8 @@
             </div>
             <button hx-get="/products/create-form"
                     hx-target="#modal-container"
+                    hx-on::htmx:before-request="console.log('[Pana] Opening product form...')"
+                    hx-on::htmx:after-request="console.log('[Pana] Product form response:', event.detail.successful)"
                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600
                            text-white text-sm font-medium rounded-xl hover:from-brand-600 hover:to-brand-700
                            transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
