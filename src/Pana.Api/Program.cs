@@ -99,11 +99,11 @@ app.MapControllerRoute(
 
 app.MapHealthChecks("/health");
 
-// ── Auto-migrate on startup (all environments) ─────────────────
+// ── Auto-create database on startup (all environments) ─────────
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PanaDbContext>();
-    await db.Database.MigrateAsync();
+    await db.Database.EnsureCreatedAsync();
 }
 
 // Seed default tenant if it doesn't exist
