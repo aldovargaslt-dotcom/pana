@@ -81,7 +81,7 @@ public class SalesController : Controller
             form.Notes
         );
 
-        await salesService.CreateAsync(request, ct: ct);
+        await salesService.CreateAsync(request, soldByUserId: null, ct: ct);
 
         Response.Headers["HX-Trigger"] = "sale-created";
         // Reload the table
