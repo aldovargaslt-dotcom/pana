@@ -20,6 +20,10 @@ public class InventoryMovement : TenantEntity
     public Guid? SourceLocationId { get; private set; }
     public Guid? DestinationLocationId { get; private set; }
 
+    // ── Waste tracking ───────────────────────────────────────
+    public Guid? WasteCategoryId { get; private set; }
+    public Guid? WasteSubcategoryId { get; private set; }
+
     public static class Types
     {
         public const string StockIn = "StockIn";
@@ -42,7 +46,9 @@ public class InventoryMovement : TenantEntity
         Guid? referenceSaleId = null,
         Guid? performedByUserId = null,
         Guid? sourceLocationId = null,
-        Guid? destinationLocationId = null)
+        Guid? destinationLocationId = null,
+        Guid? wasteCategoryId = null,
+        Guid? wasteSubcategoryId = null)
         : base(tenantId)
     {
         if (movementType == Types.StockOut || movementType == Types.SaleDeduction || movementType == Types.ProductionOut)
@@ -62,5 +68,14 @@ public class InventoryMovement : TenantEntity
         PerformedByUserId = performedByUserId;
         SourceLocationId = sourceLocationId;
         DestinationLocationId = destinationLocationId;
+        WasteCategoryId = wasteCategoryId;
+        WasteSubcategoryId = wasteSubcategoryId;
+    }
+
+    public void SetWasteCategory(Guid? categoryId, Guid? subcategoryId = null)
+    {
+        WasteCategoryId = categoryId;
+        WasteSubcategoryId = subcategoryId;
+        MarkUpdated();
     }
 }

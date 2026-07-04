@@ -22,6 +22,8 @@ public class InventoryMovementConfiguration : IEntityTypeConfiguration<Inventory
         builder.Property(m => m.PerformedByUserId).HasColumnName("performed_by_user_id");
         builder.Property(m => m.CreatedAt).HasColumnName("created_at");
         builder.Property(m => m.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(m => m.WasteCategoryId).HasColumnName("waste_category_id");
+        builder.Property(m => m.WasteSubcategoryId).HasColumnName("waste_subcategory_id");
 
         builder.HasIndex(m => new { m.TenantId, m.ProductId });
         builder.HasIndex(m => m.CreatedAt);

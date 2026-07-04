@@ -4,6 +4,7 @@ using Pana.Api.Domain.Common;
 using Pana.Api.Domain.Identity;
 using Pana.Api.Domain.Inventory;
 using Pana.Api.Domain.Products;
+using Pana.Api.Domain.Production;
 using Pana.Api.Domain.Sales;
 
 namespace Pana.Api.Infrastructure.Data;
@@ -33,6 +34,12 @@ public class PanaDbContext : DbContext
     public DbSet<UnitOfMeasure> UnitOfMeasures => Set<UnitOfMeasure>();
     public DbSet<JournalEntry> JournalEntries => Set<JournalEntry>();
     public DbSet<JournalEntryLine> JournalEntryLines => Set<JournalEntryLine>();
+    public DbSet<DailyContext> DailyContexts => Set<DailyContext>();
+    public DbSet<WasteCategory> WasteCategories => Set<WasteCategory>();
+    public DbSet<WasteSubcategory> WasteSubcategories => Set<WasteSubcategory>();
+    public DbSet<RawMaterial> RawMaterials => Set<RawMaterial>();
+    public DbSet<Recipe> Recipes => Set<Recipe>();
+    public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +54,10 @@ public class PanaDbContext : DbContext
         modelBuilder.Entity<ReorderRule>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
         modelBuilder.Entity<UnitOfMeasure>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
         modelBuilder.Entity<JournalEntry>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+        modelBuilder.Entity<DailyContext>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+        modelBuilder.Entity<WasteCategory>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+        modelBuilder.Entity<RawMaterial>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+        modelBuilder.Entity<Recipe>().HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         // JournalEntry → JournalEntryLine relationship
         modelBuilder.Entity<JournalEntry>()
