@@ -1,0 +1,6 @@
+@model object[]
+
+@await Component.InvokeAsync("EmptyState", new {
+    title = "Todo en orden",
+    description = "No hay productos con stock bajo en este momento."
+})

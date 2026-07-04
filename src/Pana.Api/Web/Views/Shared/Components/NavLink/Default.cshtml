@@ -1,0 +1,10 @@
+@model Pana.Api.Web.Components.NavLinkData
+
+<a href="@Model.Href"
+   class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+          @(Model.IsActive
+              ? "bg-brand-50 text-brand-700"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900")">
+    <span class="flex-shrink-0">@Html.Raw(Model.Icon)</span>
+    @Model.Text
+</a>

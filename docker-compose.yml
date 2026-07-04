@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pana-db
+    environment:
+      POSTGRES_USER: pana
+      POSTGRES_PASSWORD: pana_dev
+      POSTGRES_DB: pana
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pana -d pana"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: ./src/Pana.Api
+      dockerfile: Dockerfile
+    container_name: pana-api
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=pana;Username=pana;Password=pana_dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

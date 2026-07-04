@@ -1,0 +1,25 @@
+@model Pana.Api.Web.ViewModels.SaleListViewModel
+
+<div class="space-y-6">
+    @* Header *@
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Ventas</h1>
+            <p class="text-gray-500 mt-1">@Model.TotalCount venta(s) registrada(s)</p>
+        </div>
+    </div>
+
+    @* Table *@
+    @await Component.InvokeAsync("DataTable", new {
+        columns = new List<Pana.Api.Web.Components.DataTableColumn>
+        {
+            new Pana.Api.Web.Components.DataTableColumn("id", "Venta"),
+            new Pana.Api.Web.Components.DataTableColumn("status", "Estado"),
+            new Pana.Api.Web.Components.DataTableColumn("items", "Items"),
+            new Pana.Api.Web.Components.DataTableColumn("total", "Total"),
+            new Pana.Api.Web.Components.DataTableColumn("created", "Fecha"),
+            new Pana.Api.Web.Components.DataTableColumn("actions", "", Width: "w-24")
+        },
+        hxGet = "/sales/table-rows"
+    })
+</div>

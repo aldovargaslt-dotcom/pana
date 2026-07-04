@@ -1,0 +1,45 @@
+@model Pana.Api.Web.Components.DataTableProps
+
+<div>
+    @if (Model.Searchable)
+    {
+        <div class="mb-4">
+            <input type="search"
+                   name="q"
+                   placeholder="Buscar..."
+                   hx-get="@Model.HxGet"
+                   hx-trigger="keyup changed delay:300ms"
+                   hx-target="#table-body-@(Model.Columns[0].Key)"
+                   hx-include="[name='q']"
+                   class="w-full max-w-xs px-4 py-2 border border-gray-200 rounded-lg text-sm
+                          focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
+                          placeholder-gray-400" />
+        </div>
+    }
+
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    @foreach (var col in Model.Columns)
+                    {
+                        <th class="px-4 py-3 text-left font-medium text-gray-600 @(col.Width != null ? col.Width : "")">
+                            @col.Label
+                            @if (col.Sortable)
+                            {
+                                <button class="ml-1 text-gray-400 hover:text-gray-600">↕</button>
+                            }
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody id="table-body-@(Model.Columns[0].Key)"
+                   hx-get="@Model.HxGet"
+                   hx-trigger="load"
+                   class="divide-y divide-gray-100">
+                @* Content loaded via HTMX *@
+                <tr><td colspan="@Model.Columns.Count" class="p-8 text-center text-gray-400"><div class="skeleton h-4 rounded w-full mx-auto"></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>

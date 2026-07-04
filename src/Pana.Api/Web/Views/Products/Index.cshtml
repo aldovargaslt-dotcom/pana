@@ -1,0 +1,33 @@
+@model Pana.Api.Web.ViewModels.ProductListViewModel
+
+<div class="space-y-6">
+    @* Header *@
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Productos</h1>
+            <p class="text-gray-500 mt-1">@Model.TotalCount producto(s) registrado(s)</p>
+        </div>
+        <pana-button variant="primary"
+                     hx-get="/products/create-form"
+                     hx-target="#modal-container">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Nuevo Producto
+        </pana-button>
+    </div>
+
+    @* Table *@
+    @await Component.InvokeAsync("DataTable", new {
+        columns = new List<Pana.Api.Web.Components.DataTableColumn>
+        {
+            new Pana.Api.Web.Components.DataTableColumn("name", "Nombre", Sortable: true),
+            new Pana.Api.Web.Components.DataTableColumn("sku", "SKU"),
+            new Pana.Api.Web.Components.DataTableColumn("price", "Precio"),
+            new Pana.Api.Web.Components.DataTableColumn("margin", "Margen"),
+            new Pana.Api.Web.Components.DataTableColumn("status", "Estado"),
+            new Pana.Api.Web.Components.DataTableColumn("actions", "", Width: "w-24")
+        },
+        hxGet = "/products/table-rows"
+    })
+</div>

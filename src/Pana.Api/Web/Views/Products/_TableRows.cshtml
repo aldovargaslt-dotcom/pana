@@ -1,0 +1,22 @@
+@model List<Pana.Api.Web.ViewModels.ProductRowViewModel>
+
+@if (Model.Count == 0)
+{
+    <tr>
+        <td colspan="6" class="p-12">
+            @await Component.InvokeAsync("EmptyState", new {
+                title = "Sin productos",
+                description = "Creá tu primer producto para empezar.",
+                actionLabel = "Nuevo Producto",
+                actionHxGet = "/products/create-form"
+            })
+        </td>
+    </tr>
+}
+else
+{
+    @foreach (var product in Model)
+    {
+        @await Html.PartialAsync("_TableRow", product)
+    }
+}

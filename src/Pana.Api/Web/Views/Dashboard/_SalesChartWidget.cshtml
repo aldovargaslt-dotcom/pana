@@ -1,0 +1,43 @@
+@model List<Pana.Api.Web.ViewModels.SalesChartData>
+@{
+    var labels = Model.Select(d => d.Day).ToList();
+    var values = Model.Select(d => d.Total).ToList();
+    var chartId = "chart-" + Guid.NewGuid().ToString("N")[..6];
+}
+
+<canvas id="@chartId" class="w-full h-64"></canvas>
+
+<script>
+    (function() {
+        const ctx = document.getElementById('@chartId');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Json.Serialize(labels),
+                datasets: [{
+                    label: 'Ventas',
+                    data: @Json.Serialize(values),
+                    backgroundColor: '#3b82f6',
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: v => '$' + v
+                        }
+                    }
+                }
+            }
+        });
+    })();
+</script>

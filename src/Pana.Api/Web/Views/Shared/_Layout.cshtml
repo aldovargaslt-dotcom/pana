@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Pana</title>
+
+    @* ── Tailwind CSS v4 (CDN) ──────────────────────────────── *@
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe',
+                            300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6',
+                            600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af',
+                            900: '#1e3a8a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    @* ── HTMX 2.0 ────────────────────────────────────────────── *@
+    <script src="https://unpkg.com/htmx.org@2.0.4"
+            integrity="sha384-HGfztofotfsh3F7eK3v3Fn6j5G5tZ7h4e/XjIfl2h/xp5jPXgDx1EBP1aXTeCbQ"
+            crossorigin="anonymous"></script>
+
+    @* ── Alpine.js ───────────────────────────────────────────── *@
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
+
+    @* ── Chart.js ────────────────────────────────────────────── *@
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+
+    @* ── Base styles ─────────────────────────────────────────── *@
+    <style>
+        /* HTMX animation classes */
+        .htmx-indicator { display: none; }
+        .htmx-request .htmx-indicator { display: inline; }
+        .htmx-request.htmx-indicator { display: inline; }
+
+        /* Smooth transitions */
+        .fade-in { animation: fadeIn 0.2s ease-in; }
+        @@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Skeleton loading */
+        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+
+    @RenderSection("Styles", required: false)
+</head>
+<body class="bg-gray-50 min-h-screen font-sans antialiased" x-data="appShell">
+
+    @* ── Sidebar ────────────────────────────────────────────── *@
+    <aside class="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 z-40
+                   transform -translate-x-full lg:translate-x-0 transition-transform"
+           :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
+        <div class="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
+            <div class="w-9 h-9 bg-brand-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">P</div>
+            <span class="font-semibold text-gray-800 text-lg">Pana</span>
+        </div>
+
+        <nav class="p-4 space-y-1">
+            <a href="/"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      @(ViewContext.HttpContext.Request.Path == "/" ? "bg-brand-50 text-brand-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900")">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+                Dashboard
+            </a>
+            <a href="/products"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      @(ViewContext.HttpContext.Request.Path.StartsWithSegments("/products") ? "bg-brand-50 text-brand-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900")">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                Productos
+            </a>
+            <a href="/sales"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                      @(ViewContext.HttpContext.Request.Path.StartsWithSegments("/sales") ? "bg-brand-50 text-brand-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900")">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Ventas
+            </a>
+        </nav>
+    </aside>
+
+    @* ── Overlay (mobile) ───────────────────────────────────── *@
+    <div class="fixed inset-0 bg-black/30 z-30 lg:hidden"
+         x-show="sidebarOpen"
+         x-transition.opacity
+         @@click="sidebarOpen = false"></div>
+
+    @* ── Main content ───────────────────────────────────────── *@
+    <main class="lg:ml-64 min-h-screen">
+        @* Top bar *@
+        <header class="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+            <button @@click="sidebarOpen = !sidebarOpen"
+                    class="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <div class="flex items-center gap-3 ml-auto">
+                <span class="text-sm text-gray-500">Default Bakery</span>
+                <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-700 font-medium text-sm">U</div>
+            </div>
+        </header>
+
+        @* Page content *@
+        <div class="p-6">
+            @RenderBody()
+        </div>
+    </main>
+
+    @* ── Modal container ────────────────────────────────────── *@
+    <div id="modal-container"></div>
+
+    @* ── Toast container ────────────────────────────────────── *@
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    @* ── Global Alpine state ────────────────────────────────── *@
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('appShell', () => ({
+                sidebarOpen: false
+            }));
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

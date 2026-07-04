@@ -1,0 +1,139 @@
+using System.Text;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Pana.Api.Application.Accounting;
+using Pana.Api.Application.Identity;
+using Pana.Api.Application.Inventory;
+using Pana.Api.Application.Products;
+using Pana.Api.Application.Sales;
+using Pana.Api.Domain.Common;
+using Pana.Api.Domain.Sales;
+using Pana.Api.Infrastructure.Data;
+using Serilog;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ── Logging ────────────────────────────────────────────────────
+builder.Host.UseSerilog((ctx, lc) => lc
+    .ReadFrom.Configuration(ctx.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"));
+
+// ── Database ───────────────────────────────────────────────────
+builder.Services.AddDbContext<PanaDbContext>((sp, options) =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.MigrationsAssembly(typeof(PanaDbContext).Assembly.FullName);
+    });
+});
+
+// ── JWT Authentication ─────────────────────────────────────────
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? Environment.GetEnvironmentVariable("JWT__KEY")
+    ?? throw new InvalidOperationException("JWT key is not configured. Set Jwt:Key in appsettings or JWT__KEY env var.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// ── Tenant Context ─────────────────────────────────────────────
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ITenantContext, TenantContext>();
+
+// ── Application Services ───────────────────────────────────────
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISalesService, SalesService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IStockLocationService, StockLocationService>();
+builder.Services.AddScoped<IReorderRuleService, ReorderRuleService>();
+builder.Services.AddScoped<IAccountingService, AccountingService>();
+
+// ── Domain Events ─────────────────────────────────────────────
+builder.Services.AddSingleton<DomainEventDispatcher>();
+builder.Services.AddHostedService<DomainEventBackgroundWorker>();
+builder.Services.AddScoped<IDomainEventHandler<SaleCompletedEvent>, SaleCompletedInventoryHandler>();
+
+// ── Validation ─────────────────────────────────────────────────
+builder.Services.AddValidatorsFromAssemblyContaining<ProductRequestValidator>();
+
+// ── Controllers & Views ────────────────────────────────────────
+builder.Services.AddControllersWithViews();
+
+// ── OpenAPI / Swagger ──────────────────────────────────────────
+builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new()
+    {
+        Title = "Pana API",
+        Version = "v1",
+        Description = "Business Platform — modular monolith for SMB operations."
+    });
+});
+
+// ── Health Checks ──────────────────────────────────────────────
+builder.Services.AddHealthChecks();
+
+var app = builder.Build();
+
+// ── Middleware Pipeline ────────────────────────────────────────
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseSerilogRequestLogging();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapOpenApi();
+app.MapControllers();
+
+// ── Web frontend fallback: / → Dashboard ──────────────────────
+app.MapControllerRoute(
+    name: "web",
+    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+
+app.MapHealthChecks("/health");
+
+// ── Auto-migrate on startup (development only) ─────────────────
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<PanaDbContext>();
+    await db.Database.EnsureCreatedAsync();
+}
+
+// Seed default tenant if it doesn't exist
+using (var seedScope = app.Services.CreateScope())
+{
+    var db = seedScope.ServiceProvider.GetRequiredService<PanaDbContext>();
+    var tenantExists = await db.Tenants.AnyAsync();
+    if (!tenantExists)
+    {
+        db.Tenants.Add(new Pana.Api.Domain.Common.Tenant("Default Bakery", "default-bakery"));
+        await db.SaveChangesAsync();
+    }
+}
+
+app.Run();
+

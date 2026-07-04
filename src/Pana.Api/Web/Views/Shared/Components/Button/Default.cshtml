@@ -1,0 +1,19 @@
+@model Pana.Api.Web.Components.ButtonProps
+
+<button type="@Model.Type"
+        class="inline-flex items-center justify-center gap-2 rounded-lg font-medium
+               transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1
+               @Model.CssClasses @Model.SizeClasses
+               @(Model.Disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer")"
+        @(Model.Disabled ? "disabled" : "")
+        @if (Model.HxGet != null) { <text>hx-get="@Model.HxGet"</text> }
+        @if (Model.HxPost != null) { <text>hx-post="@Model.HxPost"</text> }
+        @if (Model.HxTarget != null) { <text>hx-target="@Model.HxTarget"</text> }
+        @if (Model.HxConfirm != null) { <text>hx-confirm="@Model.HxConfirm"</text> }>
+
+    @if (Model.Icon != null)
+    {
+        @Html.Raw(Model.Icon)
+    }
+    @Model.Text
+</button>

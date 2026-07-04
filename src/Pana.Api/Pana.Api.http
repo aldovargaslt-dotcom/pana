@@ -1,0 +1,6 @@
+@Pana.Api_HostAddress = http://localhost:5202
+
+GET {{Pana.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
