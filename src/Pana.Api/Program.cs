@@ -99,7 +99,7 @@ app.MapControllerRoute(
 
 app.MapHealthChecks("/health");
 
-// ── Auto-create database and seed on startup ───────────────────
+// ── Database setup (auto-create + seed) ────────────────────────
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PanaDbContext>();
