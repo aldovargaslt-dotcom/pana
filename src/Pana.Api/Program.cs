@@ -82,17 +82,20 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddFluentValidationAutoValidation();
 
 // ── OpenAPI / Swagger ──────────────────────────────────────────
-builder.Services.AddOpenApi();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+if (builder.Environment.IsDevelopment())
 {
-    options.SwaggerDoc("v1", new()
+    builder.Services.AddOpenApi();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
     {
-        Title = "Pana API",
-        Version = "v1",
-        Description = "Business Platform — modular monolith for SMB operations."
+        options.SwaggerDoc("v1", new()
+        {
+            Title = "Pana API",
+            Version = "v1",
+            Description = "Business Platform — modular monolith for SMB operations."
+        });
     });
-});
+}
 
 // ── Health Checks ──────────────────────────────────────────────
 builder.Services.AddHealthChecks();
@@ -104,12 +107,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.MapOpenApi();
 }
 
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapOpenApi();
 app.MapControllers();
 
 // ── Web frontend fallback: / → Dashboard ──────────────────────
