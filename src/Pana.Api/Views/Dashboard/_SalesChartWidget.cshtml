@@ -11,6 +11,10 @@
     (function() {
         const ctx = document.getElementById('@chartId');
         if (!ctx) return;
+        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.7)');
+        gradient.addColorStop(1, 'rgba(139, 92, 246, 0.3)');
+
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -18,21 +22,38 @@
                 datasets: [{
                     label: 'Ventas',
                     data: @Json.Serialize(values),
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 8,
-                    borderSkipped: false
+                    backgroundColor: gradient,
+                    borderRadius: 10,
+                    borderSkipped: false,
+                    borderColor: 'rgba(99, 102, 241, 0.5)',
+                    borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e1b4b',
+                        titleColor: '#fff',
+                        bodyColor: '#c7d2fe',
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false
+                    }
                 },
                 scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9ca3af', font: { size: 11 } }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
                         ticks: {
+                            color: '#9ca3af',
+                            font: { size: 11 },
                             callback: v => '$' + v
                         }
                     }

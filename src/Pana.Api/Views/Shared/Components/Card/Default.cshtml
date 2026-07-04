@@ -1,13 +1,13 @@
 @model Pana.Api.Web.Components.CardProps
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 @Model.PaddingClasses">
+<div class="bg-white rounded-2xl shadow-card border border-gray-100 @Model.PaddingClasses hover:shadow-soft transition-shadow duration-300">
     @if (Model.Title != null)
     {
-        <div class="mb-3">
+        <div class="mb-4">
             <h3 class="font-semibold text-gray-800">@Model.Title</h3>
             @if (Model.Subtitle != null)
             {
-                <p class="text-sm text-gray-500">@Model.Subtitle</p>
+                <p class="text-xs text-gray-400 mt-0.5">@Model.Subtitle</p>
             }
         </div>
     }
@@ -15,9 +15,10 @@
     <div @if (Model.HxGet != null) { <text>hx-get="@Model.HxGet" hx-trigger="@Model.HxTrigger"</text> }>
         @if (Model.HxGet != null)
         {
-            <div class="space-y-2">
-                <div class="skeleton h-4 rounded w-3/4"></div>
-                <div class="skeleton h-4 rounded w-1/2"></div>
+            <div class="space-y-3">
+                <div class="skeleton h-4 w-3/4"></div>
+                <div class="skeleton h-4 w-1/2"></div>
+                <div class="skeleton h-3 w-2/3"></div>
             </div>
         }
     </div>

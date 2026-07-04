@@ -3,40 +3,192 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="max-w-6xl mx-auto p-4">
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">📊 Pana — @Model.TenantName</h1>
+<div class="max-w-7xl mx-auto space-y-6">
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-sm text-gray-500">Productos</p>
-            <p class="text-2xl font-bold">—</p>
+    @* ── Welcome header ─────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span class="text-gradient">Dashboard</span>
+                <span class="text-sm font-normal text-gray-400 bg-gray-100 rounded-full px-3 py-0.5">@Model.TenantName</span>
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Resumen general de tu negocio</p>
         </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-sm text-gray-500">Ventas del día</p>
-            <p class="text-2xl font-bold text-green-600">$0</p>
-        </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-sm text-gray-500">Margen</p>
-            <p class="text-2xl font-bold">—</p>
+        <div class="flex items-center gap-2 text-xs text-gray-400 bg-white rounded-lg px-3 py-1.5 shadow-card border border-gray-100">
+            <span class="pulse-dot"></span> Sistema en línea
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white rounded-lg shadow p-4">
-            <h2 class="font-semibold mb-3">Acciones rápidas</h2>
-            <div class="space-y-2">
-                <a href="/products" class="block px-4 py-2 bg-blue-600 text-white rounded-lg text-center hover:bg-blue-700">
-                    📦 Gestionar Productos
+    @* ── Stat cards row ─────────────────────────────────────── *@
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        @* Product count card *@
+        <div class="group bg-white rounded-2xl p-5 shadow-card border border-gray-100 hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Productos</p>
+                    <p class="text-3xl font-bold text-gray-900">—</p>
+                    <p class="text-xs text-gray-400 mt-1">en catálogo</p>
+                </div>
+                <div class="p-3 bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl text-brand-600
+                            group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+            </div>
+        </div>
+
+        @* Daily sales card *@
+        <div class="group bg-white rounded-2xl p-5 shadow-card border border-gray-100 hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Ventas hoy</p>
+                    <p class="text-3xl font-bold text-emerald-600">$0</p>
+                    <p class="text-xs text-gray-400 mt-1">en el día</p>
+                </div>
+                <div class="p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl text-emerald-600
+                            group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        @* Margin card *@
+        <div class="group bg-white rounded-2xl p-5 shadow-card border border-gray-100 hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Margen promedio</p>
+                    <p class="text-3xl font-bold text-amber-600">—</p>
+                    <p class="text-xs text-gray-400 mt-1">ganancia</p>
+                </div>
+                <div class="p-3 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl text-amber-600
+                            group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+            </div>
+        </div>
+
+        @* Orders card *@
+        <div class="group bg-white rounded-2xl p-5 shadow-card border border-gray-100 hover:shadow-soft transition-all duration-300 hover:-translate-y-0.5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1">Ventas totales</p>
+                    <p class="text-3xl font-bold text-purple-600">—</p>
+                    <p class="text-xs text-gray-400 mt-1">histórico</p>
+                </div>
+                <div class="p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl text-purple-600
+                            group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ── Widgets grid ───────────────────────────────────────── *@
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        @* Sales chart widget (spans 2 cols) *@
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-card border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="font-semibold text-gray-800">Ventas del día</h2>
+                    <p class="text-sm text-gray-400">Resumen de hoy</p>
+                </div>
+                <span class="text-xs text-gray-400 bg-gray-50 rounded-lg px-2.5 py-1">📊 Hoy</span>
+            </div>
+            <div class="h-64 flex items-center justify-center text-gray-300">
+                <div class="text-center">
+                    <svg class="w-12 h-12 mx-auto mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <p class="text-sm">Sin datos de ventas aún</p>
+                </div>
+            </div>
+        </div>
+
+        @* Recent sales widget *@
+        <div class="bg-white rounded-2xl shadow-card border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="font-semibold text-gray-800">Últimas ventas</h2>
+                    <p class="text-sm text-gray-400">Recientes</p>
+                </div>
+                <a href="/sales" class="text-xs text-brand-600 hover:text-brand-700 font-medium transition-colors">Ver todas →</a>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between py-2.5 border-b border-gray-50">
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Sin ventas</p>
+                        <p class="text-xs text-gray-400">—</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ── Quick actions & system status ──────────────────────── *@
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @* Quick actions *@
+        <div class="bg-white rounded-2xl shadow-card border border-gray-100 p-6">
+            <h2 class="font-semibold text-gray-800 mb-4">Acciones rápidas</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="/products"
+                   class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-brand-50 to-brand-100/50
+                          border border-brand-100 hover:border-brand-200 hover:shadow-sm transition-all duration-200 group">
+                    <div class="p-2.5 bg-brand-500 rounded-xl text-white group-hover:scale-110 transition-transform duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-brand-700">Productos</span>
                 </a>
-                <a href="/sales" class="block px-4 py-2 bg-green-600 text-white rounded-lg text-center hover:bg-green-700">
-                    🛒 Nueva Venta
+                <a href="/sales"
+                   class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/50
+                          border border-emerald-100 hover:border-emerald-200 hover:shadow-sm transition-all duration-200 group">
+                    <div class="p-2.5 bg-emerald-500 rounded-xl text-white group-hover:scale-110 transition-transform duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-emerald-700">Nueva venta</span>
+                </a>
+                <a href="/products"
+                   class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/50
+                          border border-amber-100 hover:border-amber-200 hover:shadow-sm transition-all duration-200 group">
+                    <div class="p-2.5 bg-amber-500 rounded-xl text-white group-hover:scale-110 transition-transform duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-amber-700">Nuevo producto</span>
+                </a>
+                <a href="/sales"
+                   class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100/50
+                          border border-purple-100 hover:border-purple-200 hover:shadow-sm transition-all duration-200 group">
+                    <div class="p-2.5 bg-purple-500 rounded-xl text-white group-hover:scale-110 transition-transform duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-purple-700">Reportes</span>
                 </a>
             </div>
         </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <h2 class="font-semibold mb-3">Estado del sistema</h2>
-            <p class="text-green-600">✅ API funcionando</p>
-            <p class="text-green-600">✅ Base de datos conectada</p>
+
+        @* System status *@
+        <div class="bg-white rounded-2xl shadow-card border border-gray-100 p-6">
+            <h2 class="font-semibold text-gray-800 mb-4">Estado del sistema</h2>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="pulse-dot"></span>
+                        <span class="text-sm text-gray-700">API funcionando</span>
+                    </div>
+                    <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">OK</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="pulse-dot"></span>
+                        <span class="text-sm text-gray-700">Base de datos conectada</span>
+                    </div>
+                    <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">OK</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full bg-gray-300 inline-block"></span>
+                        <span class="text-sm text-gray-700">Almacenamiento</span>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">N/A</span>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
