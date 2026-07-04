@@ -162,6 +162,19 @@
     </div>
 </div>
 
+@* Close on Escape key *@
+<script>
+    (function() {
+        var modal = document.getElementById('@modalId');
+        if (!modal) return;
+        function onKey(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', onKey); } }
+        document.addEventListener('keydown', onKey);
+        new MutationObserver(function() {
+            if (!document.getElementById('@modalId')) document.removeEventListener('keydown', onKey);
+        }).observe(document.body, { childList: true, subtree: true });
+    })();
+</script>
+
 <script>
     var saleItemCount = @((Model.Items?.Count ?? 1));
     function addSaleItem() {
