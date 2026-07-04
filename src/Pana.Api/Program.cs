@@ -81,35 +81,12 @@ builder.Services.AddControllersWithViews();
 // ── FluentValidation auto-validation ───────────────────────────
 builder.Services.AddFluentValidationAutoValidation();
 
-// ── OpenAPI / Swagger ──────────────────────────────────────────
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddOpenApi();
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(options =>
-    {
-        options.SwaggerDoc("v1", new()
-        {
-            Title = "Pana API",
-            Version = "v1",
-            Description = "Business Platform — modular monolith for SMB operations."
-        });
-    });
-}
-
 // ── Health Checks ──────────────────────────────────────────────
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
 // ── Middleware Pipeline ────────────────────────────────────────
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.MapOpenApi();
-}
-
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
