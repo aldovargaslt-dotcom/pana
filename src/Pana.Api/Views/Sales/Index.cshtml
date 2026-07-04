@@ -1,25 +1,41 @@
 @model Pana.Api.Web.ViewModels.SaleListViewModel
+@{
+    ViewData["Title"] = "Ventas";
+}
 
-<div class="space-y-6">
-    @* Header *@
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Ventas</h1>
-            <p class="text-gray-500 mt-1">@Model.TotalCount venta(s) registrada(s)</p>
-        </div>
+<div class="max-w-6xl mx-auto p-4">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold">🛒 Ventas</h1>
+        <span class="text-sm text-gray-500">@Model.TotalCount registradas</span>
     </div>
 
-    @* Table *@
-    @await Component.InvokeAsync("DataTable", new {
-        columns = new List<Pana.Api.Web.Components.DataTableColumn>
-        {
-            new Pana.Api.Web.Components.DataTableColumn("id", "Venta"),
-            new Pana.Api.Web.Components.DataTableColumn("status", "Estado"),
-            new Pana.Api.Web.Components.DataTableColumn("items", "Items"),
-            new Pana.Api.Web.Components.DataTableColumn("total", "Total"),
-            new Pana.Api.Web.Components.DataTableColumn("created", "Fecha"),
-            new Pana.Api.Web.Components.DataTableColumn("actions", "", Width: "w-24")
-        },
-        hxGet = "/sales/table-rows"
-    })
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Venta</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                @foreach (var s in Model.Sales)
+                {
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-mono">@s.Id.ToString()[..8]</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs rounded-full @(s.Status == "Completed" ? "bg-green-100 text-green-800" : s.Status == "Draft" ? "bg-yellow-100 text-yellow-800" : "bg-gray-100 text-gray-800")">@s.Status</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">@s.ItemCount</td>
+                        <td class="px-4 py-3">$@s.TotalAmount.ToString("F2")</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">@s.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/" class="inline-block mt-4 text-blue-600 hover:underline">← Volver al Dashboard</a>
 </div>
