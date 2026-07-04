@@ -1,5 +1,6 @@
 using System.Text;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -77,6 +78,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<ProductRequestValidator>();
 // ── Controllers & Views ────────────────────────────────────────
 builder.Services.AddControllersWithViews();
 
+// ── FluentValidation auto-validation ───────────────────────────
+builder.Services.AddFluentValidationAutoValidation();
+
 // ── OpenAPI / Swagger ──────────────────────────────────────────
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
@@ -115,22 +119,23 @@ app.MapControllerRoute(
 
 app.MapHealthChecks("/health");
 
-// ── Auto-migrate on startup (development only) ─────────────────
-if (app.Environment.IsDevelopment())
+// ── Auto-migrate on startup (all environments) ─────────────────
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PanaDbContext>();
-    await db.Database.EnsureCreatedAsync();
+    await db.Database.MigrateAsync();
 }
 
 // Seed default tenant if it doesn't exist
-using (var seedScope = app.Services.CreateScope())
 {
+    using var seedScope = app.Services.CreateScope();
     var db = seedScope.ServiceProvider.GetRequiredService<PanaDbContext>();
     var tenantExists = await db.Tenants.AnyAsync();
     if (!tenantExists)
     {
-        db.Tenants.Add(new Pana.Api.Domain.Common.Tenant("Default Bakery", "default-bakery"));
+        // Must match the hardcoded DefaultTenantId in TenantContext
+        var defaultTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        db.Tenants.Add(new Pana.Api.Domain.Common.Tenant(defaultTenantId, "Default Bakery", "default-bakery"));
         await db.SaveChangesAsync();
     }
 }

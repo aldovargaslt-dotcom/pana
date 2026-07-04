@@ -8,7 +8,7 @@ namespace Pana.Api.Api.Controllers;
 [Route("api/sales")]
 [Produces("application/json")]
 [Authorize]
-public class SalesController : ControllerBase
+public class SalesController : BaseApiController
 {
     private readonly ISalesService _salesService;
 
@@ -133,11 +133,5 @@ public class SalesController : ControllerBase
     {
         var summary = await _salesService.GetDailySummaryAsync(date, ct);
         return Ok(summary);
-    }
-
-    private Guid? GetCurrentUserId()
-    {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        return Guid.TryParse(userId, out var id) ? id : null;
     }
 }

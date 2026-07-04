@@ -17,6 +17,12 @@ public class Tenant : BaseEntity
         SetSlug(slug);
     }
 
+    public Tenant(Guid id, string name, string slug) : base(id)
+    {
+        SetName(name);
+        SetSlug(slug);
+    }
+
     public void SetName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))

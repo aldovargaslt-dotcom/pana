@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pana.Api.Application.Products;
 
@@ -6,6 +7,7 @@ namespace Pana.Api.Api.Controllers;
 [ApiController]
 [Route("api/products")]
 [Produces("application/json")]
+[Authorize]
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;

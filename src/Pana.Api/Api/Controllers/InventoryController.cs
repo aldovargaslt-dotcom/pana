@@ -8,7 +8,7 @@ namespace Pana.Api.Api.Controllers;
 [Route("api/inventory")]
 [Produces("application/json")]
 [Authorize]
-public class InventoryController : ControllerBase
+public class InventoryController : BaseApiController
 {
     private readonly IInventoryService _inventoryService;
 
@@ -73,11 +73,5 @@ public class InventoryController : ControllerBase
         var userId = GetCurrentUserId();
         var movement = await _inventoryService.AdjustAsync(request, userId, ct);
         return Ok(movement);
-    }
-
-    private Guid? GetCurrentUserId()
-    {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        return Guid.TryParse(userId, out var id) ? id : null;
     }
 }

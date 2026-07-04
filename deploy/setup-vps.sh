@@ -32,8 +32,7 @@ usermod -aG docker pana
 
 # ── 5. Clone repo ───────────────────────────────────────────
 echo "[5/7] Cloning repository..."
-# CHANGE THIS to your actual repo URL:
-REPO_URL="${REPO_URL:-https://github.com/YOUR_USER/pana.git}"
+REPO_URL="${REPO_URL:-https://github.com/aldovargaslt-dotcom/pana.git}"
 APP_DIR="/home/pana/app"
 
 if [ -d "$APP_DIR" ]; then
