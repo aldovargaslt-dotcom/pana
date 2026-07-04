@@ -18,5 +18,6 @@ jobs:
             cd /home/pana/app
             git pull
             cd deploy
-            docker compose -f docker-compose.prod.yml up -d --build api
+            docker compose -f docker-compose.prod.yml build --no-cache api
+            docker compose -f docker-compose.prod.yml up -d api
             echo "✅ Deploy complete"
