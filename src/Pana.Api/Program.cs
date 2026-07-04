@@ -99,21 +99,28 @@ app.MapControllerRoute(
 
 app.MapHealthChecks("/health");
 
-// ── Auto-create database on startup (all environments) ─────────
+// ── Auto-create database and seed on startup ───────────────────
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PanaDbContext>();
-    await db.Database.EnsureCreatedAsync();
-}
 
-// Seed default tenant if it doesn't exist
-{
-    using var seedScope = app.Services.CreateScope();
-    var db = seedScope.ServiceProvider.GetRequiredService<PanaDbContext>();
+    // EnsureCreated does nothing if DB already exists (created by PostgreSQL container).
+    // Check if tables actually exist first.
+    try
+    {
+        var _ = await db.Tenants.AnyAsync();
+    }
+    catch
+    {
+        // Tables don't exist — drop and recreate
+        await db.Database.EnsureDeletedAsync();
+    }
+
+    await db.Database.EnsureCreatedAsync();
+
     var tenantExists = await db.Tenants.AnyAsync();
     if (!tenantExists)
     {
-        // Must match the hardcoded DefaultTenantId in TenantContext
         var defaultTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         db.Tenants.Add(new Pana.Api.Domain.Common.Tenant(defaultTenantId, "Default Bakery", "default-bakery"));
         await db.SaveChangesAsync();
