@@ -616,6 +616,19 @@ document.addEventListener('alpine:init', () => {
             { value: 500, gradient: '#5c3d8c, #7e5db0' },
         ],
 
+        init() {
+            window.addEventListener('clear-cart', () => {
+                this.cart = [];
+                this.discount = 0;
+                this.promoCode = '';
+                this.customerName = '';
+                this.customerPhone = '';
+                this.scheduledDate = '';
+                this.depositAmount = 0;
+                this.internalNotes = '';
+            });
+        },
+
         get cashChange() {
             return this.cashReceived - this.total;
         },

@@ -80,7 +80,10 @@
         </div>
     </div>
 
-    <button onclick="window.location.reload()"
+    <button hx-get="/pos/order-panel"
+            hx-target="#order-panel"
+            hx-swap="innerHTML"
+            onclick="window.dispatchEvent(new CustomEvent('clear-cart'))"
             class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all duration-200
                    shadow-ambient hover:shadow-modal active:scale-[0.98]"
             style="background: var(--gradient-primary);">

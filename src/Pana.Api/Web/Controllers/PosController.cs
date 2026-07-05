@@ -64,6 +64,14 @@ public class PosController : Controller
         return PartialView("_ProductDetailModal", detail);
     }
 
+    [HttpGet("order-panel")]
+    public IActionResult OrderPanel()
+    {
+        return PartialView("_OrderPanel", new PosActiveOrderViewModel(
+            null, null, null, "Standard", new(), 0, 0, 0, 0, null, "Efectivo",
+            null, null, null, 0, null));
+    }
+
     [HttpPost("place-order")]
     public async Task<IActionResult> PlaceOrder(
         [FromServices] ISalesService salesService,
