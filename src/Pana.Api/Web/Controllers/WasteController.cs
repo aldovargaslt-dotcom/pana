@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pana.Api.Application.Inventory;
@@ -8,6 +9,7 @@ using Pana.Api.Web.ViewModels;
 
 namespace Pana.Api.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 [Route("waste")]
 public class WasteController : Controller
 {
@@ -41,18 +43,7 @@ public class WasteController : Controller
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> Index(
-        [FromServices] IWasteCategoryService wasteService,
-        [FromServices] PanaDbContext db,
-        CancellationToken ct)
-    {
-        var categories = await wasteService.GetAllAsync(ct);
-        var recentRecords = await GetRecentRecords(db, 20, ct);
-
-        ViewData["Title"] = "Desperdicios";
-
-        return View(new WasteIndexViewModel(categories, recentRecords));
-    }
+    public IActionResult Index() => Redirect("/inventory");
 
     [HttpGet("record-form")]
     public async Task<IActionResult> RecordForm(

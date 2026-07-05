@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pana.Api.Application.Production;
 using Pana.Api.Web.ViewModels;
 
 namespace Pana.Api.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 [Route("recipes")]
 public class RecipesController : Controller
 {

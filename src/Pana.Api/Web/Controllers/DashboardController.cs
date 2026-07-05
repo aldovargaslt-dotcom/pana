@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pana.Api.Application.Common;
 using Pana.Api.Application.Inventory;
@@ -7,6 +8,7 @@ using Pana.Api.Web.ViewModels;
 
 namespace Pana.Api.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 [Route("")]
 public class DashboardController : Controller
 {

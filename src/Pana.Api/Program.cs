@@ -57,7 +57,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("StaffOrAbove", policy => policy.RequireRole("Admin", "Manager", "Staff"));
+});
 
 // ── Tenant Context ─────────────────────────────────────────────
 builder.Services.AddHttpContextAccessor();

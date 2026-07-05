@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pana.Api.Application.Sales;
 using Pana.Api.Web.ViewModels;
 
 namespace Pana.Api.Web.Controllers;
 
+[Authorize]
 [Route("activity")]
 public class ActivityController : Controller
 {

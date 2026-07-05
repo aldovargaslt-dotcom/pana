@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pana.Api.Application.Analytics;
 using Pana.Api.Application.Products;
@@ -6,6 +7,7 @@ using Pana.Api.Web.ViewModels;
 
 namespace Pana.Api.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 [Route("reports")]
 public class ReportsController : Controller
 {
