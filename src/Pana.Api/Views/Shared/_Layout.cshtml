@@ -115,6 +115,19 @@
         .scale-in { animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         @@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
+        /* ── Modal overlay ─────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
         /* ── Skeleton loading ───────────────────────── */
         .skeleton {
             background: linear-gradient(110deg, #e5e7eb 8%, #f3f4f6 18%, #e5e7eb 33%);
@@ -362,92 +375,97 @@
       x-data="appShell">
 
     @* ═══════════════════════════════════════════════════════════
-       SIDEBAR — Glass Morphism (The Modern Hearth)
+       SIDEBAR — Glass Morphism, collapsible (The Modern Hearth)
        ═══════════════════════════════════════════════════════════ *@
-    <aside class="fixed left-0 top-0 h-full w-64 z-40
-                   transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out"
+    <aside class="fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-out
+                   -translate-x-full lg:translate-x-0"
            style="background: var(--sidebar-bg); backdrop-filter: blur(var(--glass-blur-sidebar)); -webkit-backdrop-filter: blur(var(--glass-blur-sidebar)); border-right: 1px solid var(--sidebar-border);"
-           :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
+           :class="{ 'translate-x-0': sidebarExpanded, 'w-64': sidebarExpanded, 'w-16': !sidebarExpanded }">
 
         @* Brand *@
-        <div class="flex items-center gap-3 px-6 py-6" style="background: rgba(28,28,25,0.02);">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg"
+        <div class="flex items-center gap-3 py-6 transition-all duration-300"
+             :class="sidebarExpanded ? 'px-6' : 'px-2 justify-center'"
+             style="background: rgba(28,28,25,0.02);">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
                  style="background: var(--gradient-primary);">
                 P
             </div>
-            <div>
+            <div x-show="sidebarExpanded" x-transition.duration.200ms>
                 <span class="font-bold text-lg tracking-tight" style="color: var(--primary);">Pana</span>
                 <p class="text-xs" style="color: var(--meta);">Business Platform</p>
             </div>
         </div>
 
         @* Navigation *@
-        <nav class="p-4 space-y-1.5">
+        <nav class="p-2 space-y-1">
             @* ── Admin section ──────────────────────────────── *@
             @if (User.IsInRole("Admin"))
             {
             <a href="/"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                      @(ViewContext.HttpContext.Request.Path == "/"
-                          ? ""
-                          : "")"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path == "/"
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
-                Dashboard
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Dashboard</span>
             </a>
             <a href="/products"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/products")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                Productos
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Productos</span>
             </a>
             <a href="/waste"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/waste")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                Desperdicios
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Desperdicios</span>
             </a>
             <a href="/raw-materials"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/raw-materials")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                Materias Primas
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Materias Primas</span>
             </a>
             <a href="/recipes"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/recipes")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                Recetas
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Recetas</span>
             </a>
             <a href="/reports"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/reports")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Reportes
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Reportes</span>
             </a>
 
             @* ── Divider ──────────────────────────────────── *@
@@ -457,42 +475,49 @@
             @* ── Staff section (all roles) ──────────────────── *@
             <a href="/inventory"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/inventory")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                Inventario
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Inventario</span>
             </a>
             <a href="/pos"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/pos")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                Punto de Venta
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Punto de Venta</span>
             </a>
             <a href="/activity"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/activity")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                Actividad
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Actividad</span>
             </a>
         </nav>
 
         @* Footer *@
-        <div class="absolute bottom-0 left-0 right-0 p-4" style="background: rgba(28,28,25,0.02);">
-            <div class="flex items-center gap-3 px-3 py-2 rounded-xl" style="background: rgba(28,28,25,0.03);">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+        <div class="absolute bottom-0 left-0 right-0 p-2 transition-all duration-300"
+             :class="sidebarExpanded ? 'p-4' : 'p-2'"
+             style="background: rgba(28,28,25,0.02);">
+            <div class="flex items-center gap-3 rounded-xl transition-all duration-300"
+                 :class="sidebarExpanded ? 'px-3 py-2' : 'p-2 justify-center'"
+                 style="background: rgba(28,28,25,0.03);">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                      style="background: var(--gradient-primary);">DB</div>
-                <div>
+                <div x-show="sidebarExpanded" x-transition.duration.200ms>
                     <p class="text-xs font-medium" style="color: var(--fg-2);">Default Bakery</p>
                     <p class="text-[10px] flex items-center gap-1" style="color: var(--meta);"><span class="pulse-dot"></span> Activo</p>
                 </div>
@@ -502,20 +527,22 @@
 
     @* ── Overlay (mobile) ───────────────────────────────────── *@
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 lg:hidden"
-         x-show="sidebarOpen"
+         x-show="sidebarExpanded"
          x-transition.opacity.duration.300ms
-         @@click="sidebarOpen = false"></div>
+         @@click="sidebarExpanded = false"></div>
 
     @* ═══════════════════════════════════════════════════════════
        MAIN CONTENT
        ═══════════════════════════════════════════════════════════ *@
-    <main class="lg:ml-64 min-h-screen flex flex-col">
+    <main class="min-h-screen flex flex-col transition-all duration-300"
+          :class="sidebarExpanded ? 'lg:ml-64' : 'lg:ml-16'">
 
         @* ── Top bar (glass morphism — The Modern Hearth) ──── *@
-        <header class="sticky top-0 z-20 px-6 py-3.5 flex items-center justify-between"
+        <header class="sticky top-0 z-20 px-4 md:px-6 py-3 flex items-center justify-between"
                 style="background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border-bottom: 1px solid var(--sidebar-border);">
-            <button @@click="sidebarOpen = !sidebarOpen"
-                    class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 transition-colors" style="color: var(--fg-2);">
+            <button @@click="sidebarExpanded = !sidebarExpanded"
+                    class="p-2 -ml-2 rounded-xl hover:bg-black/5 transition-colors" style="color: var(--fg-2);"
+                    title="Toggle sidebar">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
@@ -562,7 +589,10 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('appShell', () => ({
-                sidebarOpen: false,
+                sidebarExpanded: false,
+                toggleSidebar() {
+                    this.sidebarExpanded = !this.sidebarExpanded;
+                }
             }));
 
             // ── panaSelect — Custom dropdown replacing native <select> ──

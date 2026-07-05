@@ -1,8 +1,9 @@
 @model Pana.Api.Web.ViewModels.RecipeFormViewModel
 
-<div class="modal-overlay" _="on click if event.target == me remove me">
+<div class="modal-overlay" @@click.self="$el.remove()">
     <div class="modal-content surface-container-lowest rounded-2xl p-6 shadow-xl"
-         style="max-width: 520px; width: 90vw; background: var(--surface-container-lowest);">
+         style="max-width: 520px; width: 90vw; background: var(--surface-container-lowest);"
+         @@click.stop="">
 
         <header class="flex justify-between items-center mb-6">
             <h2 class="text-lg font-bold" style="color: var(--fg);">
@@ -12,7 +13,7 @@
                     style="color: var(--meta);"
                     onmouseover="this.style.background='var(--surface-container)'"
                     onmouseout="this.style.background='transparent'"
-                    _="on click remove closest .modal-overlay">
+                    @@click="$el.closest('.modal-overlay').remove()">
                 ✕
             </button>
         </header>
@@ -114,7 +115,7 @@
                         style="background: var(--surface-container); color: var(--fg-2);"
                         onmouseover="this.style.background='var(--surface-container-high)'"
                         onmouseout="this.style.background='var(--surface-container)'"
-                        _="on click remove closest .modal-overlay">
+                        @@click="$el.closest('.modal-overlay').remove()">
                     Cancelar
                 </button>
                 <button type="submit"

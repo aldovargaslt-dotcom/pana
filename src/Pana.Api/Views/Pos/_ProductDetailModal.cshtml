@@ -1,8 +1,7 @@
 @* Views/Pos/_ProductDetailModal.cshtml — Product detail / add-to-cart modal *@
 @model Pana.Api.Web.ViewModels.PosProductDetailViewModel
 
-<div class="modal-overlay" _="on click if event.target == me remove me"
-     style="z-index: 100;">
+<div class="modal-overlay" @@click.self="$el.remove()">
     <div class="modal-content rounded-2xl p-0 overflow-hidden scale-in"
          style="max-width: 420px; width: 92vw; background: var(--surface-container-lowest); box-shadow: var(--elev-modal);"
          @@click.stop="">
@@ -16,7 +15,7 @@
             @* Close button *@
             <button class="absolute top-3 right-3 w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
                     style="background: var(--surface-container-lowest); color: var(--fg-2); box-shadow: var(--elev-ambient);"
-                    _="on click remove closest .modal-overlay">
+                    @@click="$el.closest('.modal-overlay').remove()">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
@@ -95,38 +94,3 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('productDetailCart', (productId, productName, unitPrice) => ({
-        qty: 1,
-        notes: '',
-        get total() {
-            return this.qty * unitPrice;
-        },
-        addAndClose() {
-            // Dispatch event to POS cart
-            window.dispatchEvent(new CustomEvent('add-to-cart', {
-                detail: {
-                    productId: productId,
-                    productName: productName,
-                    unitPrice: unitPrice
-                }
-            }));
-            // Add quantity times
-            for (let i = 1; i < this.qty; i++) {
-                window.dispatchEvent(new CustomEvent('add-to-cart', {
-                    detail: {
-                        productId: productId,
-                        productName: productName,
-                        unitPrice: unitPrice
-                    }
-                }));
-            }
-            // Close modal
-            const overlay = document.querySelector('.modal-overlay');
-            if (overlay) overlay.remove();
-        }
-    }));
-});
-</script>
