@@ -35,3 +35,18 @@ public record LowStockAlertViewModel(
     decimal StockLevel,
     decimal MinimumLevel
 );
+
+public record KpiDrilldownViewModel(
+    string Title,
+    string Type,
+    List<DrilldownRowViewModel> Rows,
+    string ViewAllUrl
+);
+
+public record DrilldownRowViewModel(
+    Guid Id,
+    string Primary,
+    string Secondary,
+    DateTime Timestamp,
+    string Status
+);

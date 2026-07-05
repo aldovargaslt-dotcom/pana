@@ -34,10 +34,7 @@
                 <div>
                     <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Producto</label>
                     <select name="ProductId" required
-                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                            style="background: var(--surface-container-high); color: var(--fg);"
-                            onfocus="this.style.background='color-mix(in srgb, var(--danger) 8%, transparent)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--danger) 20%, transparent)'"
-                            onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
+                            class="pana-select pana-select-danger">
                         <option value="">Seleccionar producto...</option>
                         @foreach (var p in products!)
                         {
@@ -59,10 +56,7 @@
                 <div>
                     <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Categoría</label>
                     <select name="WasteCategoryId"
-                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                            style="background: var(--surface-container-high); color: var(--fg);"
-                            onfocus="this.style.background='color-mix(in srgb, var(--danger) 8%, transparent)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--danger) 20%, transparent)'"
-                            onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
+                            class="pana-select pana-select-danger">
                         <option value="">Sin categoría...</option>
                         @foreach (var cat in categories!)
                         {

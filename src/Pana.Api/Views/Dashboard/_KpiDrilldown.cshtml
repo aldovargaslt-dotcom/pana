@@ -1,0 +1,92 @@
+@* Views/Dashboard/_KpiDrilldown.cshtml — KPI drilldown detail panel *@
+@model Pana.Api.Web.ViewModels.KpiDrilldownViewModel
+@{
+    var iconSvg = Model.Type switch
+    {
+        "revenue" => "<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'/></svg>",
+        "orders" => "<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01'/></svg>",
+        "margin" => "<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 7h8m0 0v8m0-8l-8 8-4-4-6 6'/></svg>",
+        "products" => "<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'/></svg>",
+        _ => ""
+    };
+}
+
+<div id="kpi-drilldown-content"
+     class="rounded-2xl shadow-ambient overflow-hidden"
+     style="background: var(--surface-container-lowest);">
+
+    @* ── Header ──────────────────────────────────────────────── *@
+    <div class="flex items-center justify-between px-5 py-3"
+         style="background: var(--surface-container-low);">
+        <div class="flex items-center gap-2">
+            <span style="color: var(--tertiary);">@Html.Raw(iconSvg)</span>
+            <h3 class="text-sm font-semibold" style="color: var(--fg);">@Model.Title</h3>
+            <span class="text-xs rounded-full px-2 py-0.5" style="color: var(--meta); background: var(--surface-container);">
+                @Model.Rows.Count registros
+            </span>
+        </div>
+        <button onclick="closeKpiDrilldown()"
+                class="p-1.5 rounded-lg hover:bg-opacity-10 transition-colors"
+                style="color: var(--meta);"
+                aria-label="Cerrar drilldown">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+
+    @* ── Rows ────────────────────────────────────────────────── *@
+    @if (Model.Rows.Count == 0)
+    {
+        <div class="flex flex-col items-center justify-center py-10" style="color: var(--meta);">
+            <svg class="w-10 h-10 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+            <p class="text-sm font-medium">Sin datos aún</p>
+            <p class="text-xs mt-1">Los datos recientes aparecerán aquí</p>
+        </div>
+    }
+    else
+    {
+        <div class="divide-y" style="border-color: var(--surface-container-low);">
+            @foreach (var row in Model.Rows)
+            {
+                var statusColor = row.Status switch
+                {
+                    "Completed" or "OK" => ("var(--success)", "color-mix(in srgb, var(--success) 10%, transparent)"),
+                    "Voided" or "Bajo" => ("var(--danger)", "color-mix(in srgb, var(--danger) 10%, transparent)"),
+                    "Ready" => ("var(--success)", "color-mix(in srgb, var(--success) 10%, transparent)"),
+                    "Preparing" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 10%, transparent)"),
+                    "Confirmed" => ("var(--primary)", "color-mix(in srgb, var(--primary) 8%, transparent)"),
+                    "Draft" => ("var(--meta)", "var(--surface-container)"),
+                    _ => ("var(--meta)", "var(--surface-container)")
+                };
+
+                <div class="flex items-center justify-between px-5 py-3 hover:bg-opacity-50 transition-colors duration-150 group"
+                     style="background: transparent;"
+                     onmouseover="this.style.background='var(--surface-container-low)'"
+                     onmouseout="this.style.background='transparent'">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold tabular-nums truncate" style="color: var(--fg);">@row.Primary</p>
+                            <p class="text-xs" style="color: var(--meta);">
+                                @row.Secondary · @row.Timestamp.ToLocalTime().ToString("dd/MM HH:mm")
+                            </p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-semibold px-2 py-1 rounded-full shrink-0 ml-3"
+                          style="color: @statusColor.Item1; background: @statusColor.Item2;">
+                        @row.Status
+                    </span>
+                </div>
+            }
+        </div>
+    }
+
+    @* ── Footer with "Ver todo" link ─────────────────────────── *@
+    <div class="px-5 py-3 flex items-center justify-end"
+         style="background: var(--surface-container-low);">
+        <a href="@Model.ViewAllUrl"
+           class="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:gap-2.5"
+           style="color: var(--primary);">
+            Ver todo
+            <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+    </div>
+</div>

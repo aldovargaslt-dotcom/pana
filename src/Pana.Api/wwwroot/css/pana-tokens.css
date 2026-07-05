@@ -228,3 +228,34 @@
   /* ── Signature Gradient (buttons) ────────────────────────────── */
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-container));
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   KPI DRILLDOWN PANEL — slide-down reveal
+   ═══════════════════════════════════════════════════════════════ */
+
+.drilldown-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height var(--dur-slow) var(--ease-decelerate),
+              opacity var(--dur-normal) var(--ease-standard),
+              margin var(--dur-slow) var(--ease-decelerate);
+}
+
+.drilldown-panel.drilldown-open {
+  max-height: 600px;
+  opacity: 1;
+  margin-bottom: var(--space-5);
+}
+
+.drilldown-panel-inner {
+  padding-top: var(--space-1);
+}
+
+/* Loading spinner animation for drilldown */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}

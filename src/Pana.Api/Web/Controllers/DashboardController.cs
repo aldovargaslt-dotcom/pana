@@ -185,4 +185,106 @@ public class DashboardController : Controller
 
         return PartialView("_LowStockWidget", lowStock);
     }
+
+    // ── KPI Drilldown ───────────────────────────────────────────
+
+    [HttpGet("web/dashboard/widget/kpi-drilldown/{type}")]
+    public async Task<IActionResult> KpiDrilldown(
+        string type,
+        [FromServices] ISalesService salesService,
+        [FromServices] IProductService productService,
+        [FromServices] IInventoryService inventoryService,
+        CancellationToken ct)
+    {
+        object model = type switch
+        {
+            "revenue" => await BuildRevenueDrilldown(salesService, ct),
+            "orders" => await BuildOrdersDrilldown(salesService, ct),
+            "margin" => await BuildMarginDrilldown(salesService, ct),
+            "products" => await BuildProductsDrilldown(productService, inventoryService, ct),
+            _ => new KpiDrilldownViewModel("Desconocido", "metric", new List<DrilldownRowViewModel>(), "")
+        };
+
+        return PartialView("_KpiDrilldown", model);
+    }
+
+    private async Task<KpiDrilldownViewModel> BuildRevenueDrilldown(ISalesService salesService, CancellationToken ct)
+    {
+        var sales = await salesService.GetAllAsync(ct);
+        var rows = sales.Take(5).Select(s => new DrilldownRowViewModel(
+            s.Id,
+            s.TotalAmount.ToString("C0"),
+            s.Items.Count + " art.",
+            s.CreatedAt,
+            s.Status
+        )).ToList();
+
+        return new KpiDrilldownViewModel("Ventas recientes", "revenue", rows, "/sales");
+    }
+
+    private async Task<KpiDrilldownViewModel> BuildOrdersDrilldown(ISalesService salesService, CancellationToken ct)
+    {
+        var sales = await salesService.GetAllAsync(ct);
+        var rows = sales.Take(5).Select(s => new DrilldownRowViewModel(
+            s.Id,
+            "#" + sales.Take(5).ToList().IndexOf(s),
+            s.Items.Count + " artículo" + (s.Items.Count != 1 ? "s" : ""),
+            s.CreatedAt,
+            s.Status
+        )).ToList();
+
+        // Fix order numbering
+        for (int i = 0; i < rows.Count; i++)
+        {
+            rows[i] = rows[i] with { Primary = "Ord. " + (i + 1) };
+        }
+
+        return new KpiDrilldownViewModel("Órdenes recientes", "orders", rows, "/sales");
+    }
+
+    private async Task<KpiDrilldownViewModel> BuildMarginDrilldown(ISalesService salesService, CancellationToken ct)
+    {
+        var sales = await salesService.GetAllAsync(ct);
+        var rows = sales.Take(5).Select(s =>
+        {
+            var itemCount = s.Items.Count;
+            var avgPerItem = itemCount > 0 ? s.TotalAmount / itemCount : 0;
+            return new DrilldownRowViewModel(
+                s.Id,
+                s.TotalAmount.ToString("C0"),
+                "~" + avgPerItem.ToString("C0") + "/art.",
+                s.CreatedAt,
+                s.Status
+            );
+        }).ToList();
+
+        return new KpiDrilldownViewModel("Margen reciente", "margin", rows, "/sales");
+    }
+
+    private async Task<KpiDrilldownViewModel> BuildProductsDrilldown(
+        IProductService productService, IInventoryService inventoryService, CancellationToken ct)
+    {
+        var products = await productService.GetAllAsync(ct);
+        var stockLevels = await inventoryService.GetStockLevelsAsync(ct);
+        var stockMap = stockLevels.ToDictionary(s => s.ProductId, s => s.CurrentStock);
+
+        var rows = products
+            .Where(p => p.IsActive)
+            .OrderByDescending(p => p.CreatedAt)
+            .Take(5)
+            .Select(p =>
+            {
+                var stock = stockMap.TryGetValue(p.Id, out var s) ? s : 0;
+                return new DrilldownRowViewModel(
+                    p.Id,
+                    p.Name,
+                    stock + " en stock",
+                    p.CreatedAt,
+                    stock <= 5 ? "Bajo" : "OK"
+                );
+            })
+            .ToList();
+
+        return new KpiDrilldownViewModel("Productos recientes", "products", rows, "/products");
+    }
 }

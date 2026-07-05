@@ -63,6 +63,18 @@
         </div>
     </div>
 
+    @* ── KPI Drilldown panel (slide-down, hidden by default) ── *@
+    <div id="kpi-drilldown-panel"
+         class="drilldown-panel"
+         style="display: none;">
+        <div id="kpi-drilldown-panel-inner"
+             class="drilldown-panel-inner"
+             hx-get=""
+             hx-trigger=""
+             hx-swap="innerHTML">
+        </div>
+    </div>
+
     @* ── Main content grid ──────────────────────────────────── *@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         @* Sales trend chart (spans 2 cols on large screens) *@
@@ -152,3 +164,86 @@
 @* ── Toast container (defined in _Layout, confirmed here) ─── *@
 @* Toasts are handled by Alpine.js in _Layout.cshtml.
    Server sets X-Toast-Message header after mutations. *@
+
+@* ── KPI Drilldown JavaScript ─────────────────────────────── *@
+<script>
+    (function() {
+        let activeType = null;
+        const panel = document.getElementById('kpi-drilldown-panel');
+        const inner = document.getElementById('kpi-drilldown-panel-inner');
+
+        window.openKpiDrilldown = function(type, btn) {
+            if (activeType === type && panel.style.display !== 'none') {
+                closeKpiDrilldown();
+                return;
+            }
+
+            // Highlight the active card
+            document.querySelectorAll('#kpi-cards .group').forEach(c => {
+                c.style.outline = '';
+                c.style.outlineOffset = '';
+            });
+            const card = btn.closest('.group');
+            if (card) {
+                card.style.outline = '2px solid var(--primary)';
+                card.style.outlineOffset = '-2px';
+            }
+
+            // Load content via HTMX
+            const url = '/web/dashboard/widget/kpi-drilldown/' + type;
+            activeType = type;
+
+            // Show panel with loading state
+            inner.innerHTML = '<div class="rounded-2xl p-8 flex items-center justify-center" style="background: var(--surface-container-lowest);"><div class="flex items-center gap-3" style="color: var(--meta);"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><span class="text-sm">Cargando...</span></div></div>';
+            panel.style.display = 'block';
+            requestAnimationFrame(() => {
+                panel.classList.add('drilldown-open');
+            });
+
+            // Fire HTMX request
+            htmx.ajax('GET', url, { target: '#kpi-drilldown-panel-inner', swap: 'innerHTML' });
+        };
+
+        window.closeKpiDrilldown = function() {
+            activeType = null;
+            panel.classList.remove('drilldown-open');
+            document.querySelectorAll('#kpi-cards .group').forEach(c => {
+                c.style.outline = '';
+                c.style.outlineOffset = '';
+            });
+            setTimeout(() => {
+                if (!panel.classList.contains('drilldown-open')) {
+                    panel.style.display = 'none';
+                    inner.innerHTML = '';
+                }
+            }, 250);
+        };
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && panel.style.display !== 'none') {
+                closeKpiDrilldown();
+            }
+        });
+
+        // Re-attach after HTMX swaps the KPI cards
+        document.addEventListener('htmx:afterSwap', function(e) {
+            if (e.detail.target.id === 'kpi-cards') {
+                // Re-highlight if drilldown is open
+                if (activeType) {
+                    const buttons = document.querySelectorAll('#kpi-cards [onclick*="openKpiDrilldown"]');
+                    buttons.forEach(b => {
+                        const onclick = b.getAttribute('onclick') || '';
+                        if (onclick.includes("'" + activeType + "'")) {
+                            const card = b.closest('.group');
+                            if (card) {
+                                card.style.outline = '2px solid var(--primary)';
+                                card.style.outlineOffset = '-2px';
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    })();
+</script>
