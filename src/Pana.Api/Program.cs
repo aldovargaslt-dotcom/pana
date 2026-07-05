@@ -55,6 +55,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
+
+        // Read JWT from cookie for browser-based MVC requests
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var token = context.Request.Cookies["pana_token"];
+                if (!string.IsNullOrEmpty(token))
+                    context.Token = token;
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                // Redirect to login for browser requests (not API)
+                if (!context.Request.Path.StartsWithSegments("/api"))
+                {
+                    context.HandleResponse();
+                    context.Response.Redirect("/auth/login");
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization(options =>

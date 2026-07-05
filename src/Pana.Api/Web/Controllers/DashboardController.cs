@@ -8,7 +8,7 @@ using Pana.Api.Web.ViewModels;
 
 namespace Pana.Api.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize]
 [Route("")]
 public class DashboardController : Controller
 {
