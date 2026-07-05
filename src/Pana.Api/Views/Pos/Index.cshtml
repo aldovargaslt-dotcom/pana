@@ -214,7 +214,7 @@
        ORDER PANEL (right sidebar)
        ═══════════════════════════════════════════════════════ *@
     <div id="order-panel"
-         class="w-full lg:w-96 flex-shrink-0 rounded-2xl shadow-modal flex flex-col overflow-hidden"
+         class="w-full max-w-sm flex-shrink-0 rounded-2xl shadow-modal flex flex-col overflow-hidden"
          style="background: var(--surface-container-lowest);"
          x-on:add-to-cart-item.document="addToCartQty($event.detail.productId, $event.detail.productName, $event.detail.unitPrice, $event.detail.qty || 1)">
 
