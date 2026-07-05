@@ -778,6 +778,23 @@ document.addEventListener('alpine:init', () => {
             });
         }
     }));
+
+    // ── Re-init Alpine after HTMX swaps #order-panel ──
+    document.body.addEventListener('htmx:afterSwap', (evt) => {
+        if (evt.detail.target.id === 'order-panel') {
+            // Re-initialize Alpine directives in the new content
+            document.querySelector('[x-data="posCart"]').__x.$data.cart = [];
+            document.querySelector('[x-data="posCart"]').__x.$data.discount = 0;
+            document.querySelector('[x-data="posCart"]').__x.$data.promoCode = '';
+            document.querySelector('[x-data="posCart"]').__x.$data.customerName = '';
+            document.querySelector('[x-data="posCart"]').__x.$data.customerPhone = '';
+            document.querySelector('[x-data="posCart"]').__x.$data.scheduledDate = '';
+            document.querySelector('[x-data="posCart"]').__x.$data.depositAmount = 0;
+            document.querySelector('[x-data="posCart"]').__x.$data.internalNotes = '';
+            // Re-init Alpine on the swapped element so x-text, x-show, etc. work
+            if (window.Alpine) Alpine.initTree(evt.detail.target);
+        }
+    });
 });
 </script>
 }
