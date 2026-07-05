@@ -46,13 +46,13 @@
    *   Level 2 = Interactive cards
    *   Level 3 = Elevated critical content
    */
-  --bg:                           #fcf9f4;  /* Level 0 — primary canvas */
-  --surface:                      #fcf9f4;  /* alias — same as --bg */
+  --bg:                           #faf7f2;  /* Level 0 — primary canvas (warm cream) */
+  --surface:                      #faf7f2;  /* alias — same as --bg */
   --surface-container-lowest:     #ffffff;  /* product cards, white overlays */
-  --surface-container-low:        #f6f3ee;  /* Level 1 — large bg blocks */
-  --surface-container:            #f0ede9;  /* Level 2 — cards, interactive */
-  --surface-container-high:       #ebe8e3;  /* input fields, data areas */
-  --surface-container-highest:    #e5e2dd;  /* Level 3 — critical elevated */
+  --surface-container-low:        #f0ece6;  /* Level 1 — large bg blocks */
+  --surface-container:            #e8e3db;  /* Level 2 — cards, interactive */
+  --surface-container-high:       #e0dad1;  /* input fields, data areas */
+  --surface-container-highest:    #d6cfc4;  /* Level 3 — critical elevated */
 
   /* ── Foreground (Tonal Text Ladder) ────────────────────────────
    * Warm dark tones — never pure black, always slightly brown.
@@ -182,13 +182,13 @@
    * "Tonal Layering" creates depth without structural lines.
    */
   --elev-flat:      none;
-  --elev-ambient:   0px 4px 16px rgba(28, 28, 25, 0.04),
-                    0px 12px 32px rgba(28, 28, 25, 0.06);
-  --elev-modal:     0px 20px 60px rgba(28, 28, 25, 0.12),
-                    0px 0px 0px 1px rgba(28, 28, 25, 0.04);
+  --elev-ambient:   0px 2px 8px rgba(28, 28, 25, 0.06),
+                    0px 8px 24px rgba(28, 28, 25, 0.08);
+  --elev-modal:     0px 20px 60px rgba(28, 28, 25, 0.15),
+                    0px 0px 0px 1px rgba(28, 28, 25, 0.06);
 
   /* ── Glass Morphism ──────────────────────────────────────────── */
-  --glass-bg:       rgba(252, 249, 244, 0.80);  /* --surface at 80% */
+  --glass-bg:       rgba(250, 247, 242, 0.80);  /* --surface at 80% */
   --glass-blur:     12px;
   --glass-blur-sidebar: 16px;
 

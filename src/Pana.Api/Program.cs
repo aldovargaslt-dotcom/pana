@@ -100,6 +100,7 @@ var app = builder.Build();
 
 // ── Middleware Pipeline ────────────────────────────────────────
 app.UseSerilogRequestLogging();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
