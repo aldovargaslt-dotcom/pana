@@ -99,7 +99,6 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 // ── Middleware Pipeline ────────────────────────────────────────
-app.UseStaticFiles();
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -117,8 +116,18 @@ app.MapHealthChecks("/health");
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<PanaDbContext>();
 
-    // EnsureCreated creates tables if they don't exist.
-    // With managed PostgreSQL, we cannot drop/create databases — only tables.
+    // EnsureCreated does nothing if DB already exists (created by PostgreSQL container).
+    // Check if tables actually exist first.
+    try
+    {
+        var _ = await db.Tenants.AnyAsync();
+    }
+    catch
+    {
+        // Tables don't exist — drop and recreate
+        await db.Database.EnsureDeletedAsync();
+    }
+
     await db.Database.EnsureCreatedAsync();
 
     var tenantExists = await db.Tenants.AnyAsync();
