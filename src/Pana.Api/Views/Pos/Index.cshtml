@@ -459,6 +459,114 @@
             </div>
         </template>
     </form>
+
+    @* ── Cash Payment Modal ──────────────────────────────────── *@
+    <div x-show="showCashModal" x-transition.opacity.duration.200ms
+         class="fixed inset-0 z-50 flex items-center justify-center"
+         style="background: rgba(28,28,25,0.4); backdrop-filter: blur(4px);"
+         @@click.self="showCashModal = false"
+         x-data="cashPayment">
+        <div class="rounded-3xl shadow-modal overflow-hidden scale-in"
+             style="max-width: 480px; width: 94vw; background: var(--surface-container-lowest);"
+             @@click.stop="">
+
+            @* ── Header ───────────────────────────────────────── *@
+            <div class="px-6 py-4 flex items-center justify-between"
+                 style="background: var(--surface-container-low);">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                         style="background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success);">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold" style="color: var(--fg);">Cobro en efectivo</h3>
+                        <p class="text-xs" style="color: var(--meta);">Seleccioná los billetes recibidos</p>
+                    </div>
+                </div>
+                <button @@click="showCashModal = false"
+                        class="w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+                        style="color: var(--meta);"
+                        onmouseover="this.style.background='var(--surface-container)'"
+                        onmouseout="this.style.background='transparent'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            @* ── Total to pay ─────────────────────────────────── *@
+            <div class="px-6 py-4 text-center" style="background: var(--surface-container-lowest);">
+                <p class="text-xs font-semibold uppercase tracking-wider mb-1" style="color: var(--muted);">Total a cobrar</p>
+                <p class="text-4xl font-extrabold tabular-nums" style="color: var(--primary);"
+                   x-text="'$' + total.toFixed(2)"></p>
+            </div>
+
+            @* ── Bill buttons grid ────────────────────────────── *@
+            <div class="px-6 pb-2">
+                <p class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--muted);">Billetes recibidos</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <template x-for="bill in bills" :key="bill.value">
+                        <button @@click="addBill(bill.value)"
+                                class="flex flex-col items-center gap-1 py-3 px-2 rounded-2xl transition-all duration-150
+                                       hover:shadow-ambient hover:-translate-y-0.5 active:scale-95"
+                                style="background: var(--surface-container-low);">
+                            @* Bill illustration *@
+                            <div class="w-full aspect-[2.6/1] rounded-lg flex items-center justify-center relative overflow-hidden mb-0.5"
+                                 :style="'background: linear-gradient(135deg, ' + bill.gradient + ');'">
+                                <span class="text-white font-extrabold drop-shadow-sm"
+                                      :style="'font-size: ' + (bill.value >= 500 ? '0.9rem' : bill.value >= 100 ? '1rem' : '1.15rem') + ';'"
+                                      x-text="'$' + bill.value"></span>
+                                @* Decorative corners *@
+                                <span class="absolute top-1 left-1.5 text-[8px] font-bold opacity-40 text-white" x-text="bill.value"></span>
+                                <span class="absolute bottom-1 right-1.5 text-[8px] font-bold opacity-40 text-white" x-text="bill.value"></span>
+                            </div>
+                            <span class="text-xs font-bold" style="color: var(--fg-2);" x-text="'$' + bill.value"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            @* ── Received / Change display ────────────────────── *@
+            <div class="px-6 py-3 space-y-2">
+                <div class="flex items-center justify-between py-2 px-4 rounded-xl"
+                     style="background: var(--surface-container-low);">
+                    <span class="text-sm font-medium" style="color: var(--fg-2);">Recibido</span>
+                    <span class="text-xl font-bold tabular-nums" style="color: var(--fg);"
+                          x-text="'$' + received.toFixed(2)"></span>
+                </div>
+                <div class="flex items-center justify-between py-2 px-4 rounded-xl"
+                     :style="change >= 0
+                         ? 'background: color-mix(in srgb, var(--success) 10%, transparent);'
+                         : 'background: color-mix(in srgb, var(--danger) 8%, transparent);'">
+                    <span class="text-sm font-medium"
+                          :style="change >= 0 ? 'color: var(--success);' : 'color: var(--danger);'"
+                          x-text="change >= 0 ? 'Cambio a devolver' : 'Faltante'"></span>
+                    <span class="text-xl font-bold tabular-nums"
+                          :style="change >= 0 ? 'color: var(--success);' : 'color: var(--danger);'"
+                          x-text="change >= 0 ? '$' + change.toFixed(2) : '$' + Math.abs(change).toFixed(2)"></span>
+                </div>
+            </div>
+
+            @* ── Action buttons ───────────────────────────────── *@
+            <div class="px-6 pb-6 pt-2 flex gap-3">
+                <button @@click="resetBills(); showCashModal = false"
+                        class="flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-200"
+                        style="color: var(--fg-2); background: var(--surface-container-low);">
+                    Cancelar
+                </button>
+                <button @@click="confirmCashPayment"
+                        :disabled="received < total"
+                        class="flex-[2] py-3 rounded-xl text-white font-bold transition-all duration-200
+                               shadow-ambient hover:shadow-modal active:scale-[0.98]
+                               disabled:opacity-40 disabled:cursor-not-allowed"
+                        style="background: var(--gradient-primary);">
+                    <span x-show="received >= total">Confirmar cobro</span>
+                    <span x-show="received < total" class="inline-flex items-center gap-2">
+                        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                        Esperando pago
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -482,6 +590,46 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
+    // ── cashPayment — bill calculator modal ──
+    Alpine.data('cashPayment', () => ({
+        received: 0,
+
+        bills: [
+            { value: 10,  gradient: '#a07020, #c8962e' },
+            { value: 20,  gradient: '#3a5fc8, #5b7fe0' },
+            { value: 50,  gradient: '#c44b6b, #e8658a' },
+            { value: 100, gradient: '#c8903e, #e0b860' },
+            { value: 200, gradient: '#2d8c4a, #3db860' },
+            { value: 500, gradient: '#5c3d8c, #7e5db0' },
+        ],
+
+        get change() {
+            return this.received - this.total;
+        },
+
+        addBill(value) {
+            this.received += value;
+        },
+
+        resetBills() {
+            this.received = 0;
+        },
+
+        confirmCashPayment() {
+            if (this.received < this.total) return;
+            this.showCashModal = false;
+            this.resetBills();
+            this.submitOrder();
+        },
+
+        init() {
+            this.received = 0;
+            this.$watch('showCashModal', (val) => {
+                if (val) this.received = 0;
+            });
+        }
+    }));
+
     Alpine.data('posCart', () => ({
         cart: [],
         activeCategory: 'all',
@@ -497,6 +645,7 @@ document.addEventListener('alpine:init', () => {
         scheduledDate: '',
         depositAmount: 0,
         internalNotes: '',
+        showCashModal: false,
 
         get subtotal() {
             return this.cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
@@ -595,6 +744,15 @@ document.addEventListener('alpine:init', () => {
                 alert('Ingresá el nombre del cliente para la pre-orden.');
                 return;
             }
+            // Intercept cash payments — show bill calculator modal
+            if (this.paymentMethod === 'Efectivo') {
+                this.showCashModal = true;
+                return;
+            }
+            this.submitOrder();
+        },
+
+        submitOrder() {
             const form = document.getElementById('place-order-form');
             form.querySelector('[name="OrderType"]').value = this.orderType;
             form.querySelector('[name="PaymentMethod"]').value = this.paymentMethod;
