@@ -30,8 +30,8 @@ public class AuthController : Controller
         Response.Cookies.Append("pana_token", result.Token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = false, // HTTP in dev/staging — set to true behind HTTPS
+            SameSite = SameSiteMode.Lax,
             Expires = DateTime.UtcNow.AddDays(7)
         });
 
