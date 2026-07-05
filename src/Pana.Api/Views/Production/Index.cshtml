@@ -1,0 +1,188 @@
+@model Pana.Api.Application.Operations.DailyProductionDto?
+@{
+    ViewData["Title"] = "Producción Diaria";
+    var products = ViewBag.Products as List<dynamic>;
+}
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span class="text-gradient">Producción Diaria</span>
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">
+                @DateTime.Now.ToString("dddd, d 'de' MMMM")
+                @if (Model?.IsClosed == true)
+                {
+                    <span class="text-emerald-600 font-medium ml-2">· Día cerrado</span>
+                }
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            @if (Model?.IsClosed != true)
+            {
+                <button onclick="addProductionRow()"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600
+                               text-white text-sm font-medium rounded-xl hover:from-brand-600 hover:to-brand-700
+                               transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Agregar producto
+                </button>
+                <form method="post" action="/production/close" class="inline">
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600
+                                   text-white text-sm font-medium rounded-xl hover:from-emerald-600 hover:to-emerald-700
+                                   transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Cerrar día
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    @if (Model?.IsClosed == true)
+    {
+        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 text-center">
+            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h2 class="text-lg font-semibold text-emerald-800">Día cerrado</h2>
+            <p class="text-sm text-emerald-600 mt-1">La producción de hoy ya fue registrada y el inventario actualizado.</p>
+        </div>
+        @if (Model.Lines.Count > 0)
+        {
+            <div class="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-100">
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase">Producto</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Inicial</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Producción</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Devolución</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Disponible</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        @foreach (var line in Model.Lines)
+                        {
+                            <tr>
+                                <td class="px-6 py-3 font-medium text-gray-800">@line.ProductName</td>
+                                <td class="px-6 py-3 text-right text-gray-600">@line.Inicial</td>
+                                <td class="px-6 py-3 text-right text-gray-600">@line.Produccion</td>
+                                <td class="px-6 py-3 text-right text-red-500">@line.Devolucion</td>
+                                <td class="px-6 py-3 text-right font-semibold text-gray-800">@line.Disponible</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+    else
+    {
+        <form method="post" action="/production/upsert" id="production-form"
+              class="bg-white rounded-2xl shadow-card border border-gray-100 p-6 space-y-4">
+            <div id="production-rows" class="space-y-3">
+                @if (Model?.Lines != null)
+                {
+                    for (int i = 0; i < Model.Lines.Count; i++)
+                    {
+                        var line = Model.Lines[i];
+                        <div class="production-row flex items-end gap-3 p-4 bg-gray-50 rounded-xl">
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
+                                <select name="lines[@i].ProductId" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300">
+                                    @foreach (var p in products!)
+                                    {
+                                        <option value="@p.Id" selected="@(p.Id == line.ProductId)">@p.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Inicial</label>
+                                <input type="number" name="lines[@i].Inicial" value="@line.Inicial" min="0" step="0.01"
+                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Producción</label>
+                                <input type="number" name="lines[@i].Produccion" value="@line.Produccion" min="0" step="0.01"
+                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">Devolución</label>
+                                <input type="number" name="lines[@i].Devolucion" value="@line.Devolucion" min="0" step="0.01"
+                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                            </div>
+                            <button type="button" onclick="this.closest('.production-row').remove()"
+                                    class="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors" title="Quitar">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600
+                               text-white text-sm font-semibold rounded-xl hover:from-brand-600 hover:to-brand-700
+                               transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Guardar producción
+                </button>
+            </div>
+        </form>
+    }
+</div>
+
+@if (Model?.IsClosed != true)
+{
+    <template id="production-row-template">
+        <div class="production-row flex items-end gap-3 p-4 bg-gray-50 rounded-xl">
+            <div class="flex-1">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
+                <select name="lines[IDX].ProductId" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300">
+                    @foreach (var p in products!)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="w-24">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Inicial</label>
+                <input type="number" name="lines[IDX].Inicial" value="0" min="0" step="0.01"
+                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+            </div>
+            <div class="w-24">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Producción</label>
+                <input type="number" name="lines[IDX].Produccion" value="0" min="0" step="0.01"
+                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+            </div>
+            <div class="w-24">
+                <label class="block text-xs font-medium text-gray-500 mb-1">Devolución</label>
+                <input type="number" name="lines[IDX].Devolucion" value="0" min="0" step="0.01"
+                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+            </div>
+            <button type="button" onclick="this.closest('.production-row').remove()"
+                    class="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors" title="Quitar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    </template>
+
+    <script>
+        var prodRowCount = @((Model?.Lines?.Count ?? 0));
+        function addProductionRow() {
+            var tmpl = document.getElementById('production-row-template');
+            if (!tmpl) return;
+            var clone = tmpl.content.cloneNode(true);
+            clone.querySelectorAll('[name]').forEach(function(el) {
+                el.name = el.name.replace(/IDX/, prodRowCount);
+            });
+            document.getElementById('production-rows').appendChild(clone);
+            prodRowCount++;
+        }
+    </script>
+}
