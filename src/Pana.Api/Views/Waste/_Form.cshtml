@@ -33,14 +33,39 @@
 
                 <div>
                     <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Producto</label>
-                    <select name="ProductId" required
-                            class="pana-select pana-select-danger">
+                <div x-data="panaSelect" class="pana-select-wrapper">
+                    <select x-ref="native" name="ProductId" required class="sr-only" data-pana-variant="danger">
                         <option value="">Seleccionar producto...</option>
                         @foreach (var p in products!)
                         {
                             <option value="@p.Id">@p.Name</option>
                         }
                     </select>
+                    <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                            class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open, 'pana-select-trigger-danger': _variant === 'danger' }">
+                        <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                        <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                         class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                        <div class="pana-select-search">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                            <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                        </div>
+                        <div x-ref="optionsList" class="pana-select-options">
+                            <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                                <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                                     @@mouseenter="highlightIndex = i" tabindex="0"
+                                     class="pana-select-option"
+                                     :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                                    <span x-text="opt.label"></span>
+                                    <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                            </template>
+                            <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                        </div>
+                    </div>
+                </div>
                 </div>
 
                 <div>
@@ -55,14 +80,39 @@
 
                 <div>
                     <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Categoría</label>
-                    <select name="WasteCategoryId"
-                            class="pana-select pana-select-danger">
+                <div x-data="panaSelect" class="pana-select-wrapper">
+                    <select x-ref="native" name="WasteCategoryId" class="sr-only" data-pana-variant="danger">
                         <option value="">Sin categoría...</option>
                         @foreach (var cat in categories!)
                         {
                             <option value="@cat.Id">@cat.Name</option>
                         }
                     </select>
+                    <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                            class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open, 'pana-select-trigger-danger': _variant === 'danger' }">
+                        <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                        <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                         class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                        <div class="pana-select-search">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                            <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                        </div>
+                        <div x-ref="optionsList" class="pana-select-options">
+                            <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                                <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                                     @@mouseenter="highlightIndex = i" tabindex="0"
+                                     class="pana-select-option"
+                                     :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                                    <span x-text="opt.label"></span>
+                                    <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                            </template>
+                            <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                        </div>
+                    </div>
+                </div>
                 </div>
 
                 <div>

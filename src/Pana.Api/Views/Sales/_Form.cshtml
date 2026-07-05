@@ -53,8 +53,8 @@
                             <div class="sale-item-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
                                 <div class="flex-1">
                                     <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
-                                    <select name="Items[@i].ProductId"
-                                            class="pana-select">
+                                <div x-data="panaSelect" class="pana-select-wrapper">
+                                    <select x-ref="native" name="Items[@i].ProductId" class="sr-only">
                                         <option value="">Seleccionar...</option>
                                         @foreach (var p in products!)
                                         {
@@ -62,6 +62,31 @@
                                             <!option value="@p.Id" @(selected ? "selected" : "") data-price="@p.Price">@p.Name — $@p.Price.ToString("F2")</!option>
                                         }
                                     </select>
+                                    <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                                            class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                                        <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                                        <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                                    </button>
+                                    <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                                         class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                                        <div class="pana-select-search">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                                            <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                                        </div>
+                                        <div x-ref="optionsList" class="pana-select-options">
+                                            <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                                                <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                                                     @@mouseenter="highlightIndex = i" tabindex="0"
+                                                     class="pana-select-option"
+                                                     :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                                                    <span x-text="opt.label"></span>
+                                                    <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                                </div>
+                                            </template>
+                                            <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                                        </div>
+                                    </div>
+                                </div>
                                 </div>
                                 <div class="w-28">
                                     <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Cantidad</label>
@@ -99,18 +124,43 @@
                         <div class="sale-item-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
                             <div class="flex-1">
                                 <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
-                                <select name="Items[0].ProductId"
-                                        class="pana-select">
+                            <div x-data="panaSelect" class="pana-select-wrapper">
+                                <select x-ref="native" name="Items[0].ProductId" class="sr-only">
                                     <option value="">Seleccionar...</option>
                                     @foreach (var p in products!)
                                     {
                                         <!option value="@p.Id" data-price="@p.Price">@p.Name — $@p.Price.ToString("F2")</!option>
                                     }
                                 </select>
+                                <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                                        class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                                    <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                                    <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                                </button>
+                                <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                                     class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                                    <div class="pana-select-search">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                                        <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                                    </div>
+                                    <div x-ref="optionsList" class="pana-select-options">
+                                        <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                                            <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                                                 @@mouseenter="highlightIndex = i" tabindex="0"
+                                                 class="pana-select-option"
+                                                 :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                                                <span x-text="opt.label"></span>
+                                                <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                            </div>
+                                        </template>
+                                        <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="w-28">
-                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Cantidad</label>
-                                <input type="number" name="Items[0].Quantity" value="1"
+                        </div>
+                        <div class="w-28">
+                            <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Cantidad</label>
+                            <input type="number" name="Items[0].Quantity" value="1"
                                        min="1" required
                                        class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
                                        style="background: var(--surface-container-high); color: var(--fg);"
@@ -218,14 +268,39 @@
     <div class="sale-item-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
         <div class="flex-1">
             <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
-            <select name="Items[0].ProductId"
-                    class="pana-select">
+        <div x-data="panaSelect" class="pana-select-wrapper">
+            <select x-ref="native" name="Items[0].ProductId" class="sr-only">
                 <option value="">Seleccionar...</option>
                 @foreach (var p in products!)
                 {
                     <!option value="@p.Id" data-price="@p.Price">@p.Name — $@p.Price.ToString("F2")</!option>
                 }
             </select>
+            <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                    class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                 class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                <div class="pana-select-search">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                    <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                </div>
+                <div x-ref="optionsList" class="pana-select-options">
+                    <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                        <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                             @@mouseenter="highlightIndex = i" tabindex="0"
+                             class="pana-select-option"
+                             :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                            <span x-text="opt.label"></span>
+                            <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                    </template>
+                    <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                </div>
+            </div>
+        </div>
         </div>
         <div class="w-28">
             <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Cantidad</label>

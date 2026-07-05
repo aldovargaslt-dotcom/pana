@@ -53,7 +53,7 @@ These are never on the chopping block:
 
 ## Architecture
 
-**Modular Monolith** — one ASP.NET Core app, modules as folders. See [ADR-001](New%20folder/adr.md#adr-001-modular-monolith-over-microservices) for rationale.
+**Modular Monolith** — one ASP.NET Core app, modules as folders. See [ADR-001](design/adr.md#adr-001-modular-monolith-over-microservices) for rationale.
 
 ```
 Pana.Api/
@@ -72,7 +72,7 @@ Pana.Api/
 
 ### Key Architectural Decisions
 
-All ADRs are in [New folder/adr.md](New%20folder/adr.md):
+All ADRs are in [design/adr.md](design/adr.md):
 - **ADR-001**: Modular Monolith over Microservices
 - **ADR-002**: PostgreSQL as the single database (no Redis, no MongoDB)
 - **ADR-003**: Multi-tenancy via `tenant_id` column + EF global query filters
@@ -85,7 +85,7 @@ All ADRs are in [New folder/adr.md](New%20folder/adr.md):
 
 ### Multi-Tenancy (CRITICAL)
 
-- **Every business-data table** has a `tenant_id` column. See [ADR-003](New%20folder/adr.md#adr-003-multi-tenancy-via-tenant_id-column).
+- **Every business-data table** has a `tenant_id` column. See [ADR-003](design/adr.md#adr-003-multi-tenancy-via-tenant_id-column).
 - EF Core **global query filters** enforce tenant isolation automatically.
 - **No query may bypass the tenant filter.** Always use `PanaDbContext` — never raw SQL connections.
 - The current hardcoded default tenant is `00000000-0000-0000-0000-000000000001`. The `Tenants` table itself is NOT tenant-filtered.
@@ -116,14 +116,14 @@ Entities are **not anemic** — they encapsulate behavior:
 **No `Stock` table.** Stock is `SUM(Quantity)` of `InventoryMovement` rows:
 - Append-only (insert only, never update/delete).
 - Movement types: `StockIn`, `StockOut`, `Adjustment`, `SaleDeduction`, `Transfer`, `ProductionIn`, `ProductionOut`.
-- Outgoing = negative quantities. See [ADR-005](New%20folder/adr.md#adr-005-inventory-as-a-movement-ledger).
+- Outgoing = negative quantities. See [ADR-005](design/adr.md#adr-005-inventory-as-a-movement-ledger).
 
 ### Domain Events
 
 `Channel<T>` + `IHostedService` — in-process, fire-and-forget:
 - `DomainEventDispatcher` publishes, `DomainEventBackgroundWorker` dispatches to handlers.
 - Handlers implement `IDomainEventHandler<T>`.
-- Events are **lost on process restart** (acceptable for phase 1). See [ADR-004](New%20folder/adr.md#adr-004-in-process-domain-events-channelt--ihostedservice).
+- Events are **lost on process restart** (acceptable for phase 1). See [ADR-004](design/adr.md#adr-004-in-process-domain-events-channelt--ihostedservice).
 
 ### Validation & Errors
 
@@ -163,8 +163,49 @@ Push back. Every new NuGet package must justify:
 
 ---
 
+## Workflow Protocol (CRITICAL)
+
+Every feature implementation MUST follow this protocol. These gates exist to prevent the #1 bug source: shipping code that doesn't match expectations.
+
+### Gate A — Spec Confirmation (BEFORE any code)
+
+After reading a spec or feature request, restate what you understand in **3-5 bullet points** and ask for confirmation:
+
+> "Here's what I understand we're building:
+> - [concrete deliverable 1]
+> - [concrete deliverable 2]
+> - [concrete deliverable 3]
+> Confirm this is correct before I start?"
+
+**Do not write a single line of code until the user confirms.** This prevents the "that's not what I asked for" class of bugs.
+
+### Gate B — QA Pre-Ship Checklist (BEFORE every deploy)
+
+Before running `ship.ps1` or any deploy command, complete the checklist in [design/qa-checklist.md](design/qa-checklist.md):
+
+1. Build: `dotnet build src/Pana.sln` — 0 errors
+2. Tests: `dotnet test src/Pana.Tests` — all pass
+3. Architecture: controllers in right folders, `[Authorize]`, tenant filter
+4. UI: HTMX attributes correct, anti-forgery tokens, no hardcoded styles
+5. Routes: new endpoints return correct status codes
+6. Cleanup: no debug code, no commented-out blocks
+
+**Report results to the user before shipping.** Never skip this gate.
+
+### Gate C — Ship
+
+Only after Gates A and B both pass:
+
+```powershell
+.\ship.ps1
+```
+
+This runs build → test → deploy in one command. If any step fails, stop and report.
+
+---
+
 ## Documentation Policy
 
-- Update [ADRs](New%20folder/adr.md) when making architectural decisions.
+- Update [ADRs](design/adr.md) when making architectural decisions.
 - The API spec is auto-generated from controllers — keep them clean.
 - Don't write documentation a future you won't maintain.

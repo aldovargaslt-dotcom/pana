@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Pana.Api (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Pana.Api/bin/Debug/net9.0/Pana.Api.dll",
+            "cwd": "${workspaceFolder}/src/Pana.Api",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+                "uriFormat": "%s"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5202"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/src/Pana.Api/Views"
+            }
+        }
+    ]
+}
