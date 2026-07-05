@@ -173,23 +173,91 @@
         const panel = document.getElementById('kpi-drilldown-panel');
         const inner = document.getElementById('kpi-drilldown-panel-inner');
 
-        // ── Skeleton loader template ──────────────────────────
-        function skeletonHTML() {
+        // ── Skeleton with exact row count ─────────────────────
+        function skeletonHTML(rowCount) {
+            const count = Math.max(0, rowCount);
+            const rows = [];
+            for (let i = 0; i < count; i++) {
+                rows.push(`
+                <div class="drilldown-skeleton-row">
+                    <div style="flex:1;">
+                        <span class="skeleton-line" style="width:${60 + (i % 5) * 8}%;display:block;margin-bottom:6px;"></span>
+                        <span class="skeleton-line" style="width:${35 + (i % 5) * 6}%;height:10px;display:block;"></span>
+                    </div>
+                    <span class="skeleton-line" style="width:56px;height:22px;border-radius:9999px;"></span>
+                </div>`);
+            }
             return `<div class="drilldown-skeleton">
                 <div class="drilldown-skeleton-header">
                     <span class="skeleton-line" style="width:20px;height:20px;border-radius:50%;"></span>
                     <span class="skeleton-line" style="width:120px;"></span>
                     <span class="skeleton-line" style="width:60px;margin-left:auto;"></span>
                 </div>
-                ${[1,2,3,4].map(i => `
-                <div class="drilldown-skeleton-row">
-                    <div style="flex:1;">
-                        <span class="skeleton-line" style="width:${60 + i * 8}%;display:block;margin-bottom:6px;"></span>
-                        <span class="skeleton-line" style="width:${35 + i * 6}%;height:10px;display:block;"></span>
-                    </div>
-                    <span class="skeleton-line" style="width:56px;height:22px;border-radius:9999px;"></span>
-                </div>`).join('')}
+                ${rows.join('')}
             </div>`;
+        }
+
+        // ── Placeholder skeleton (before we know row count) ───
+        function placeholderSkeleton() {
+            return `<div class="drilldown-skeleton">
+                <div class="drilldown-skeleton-header">
+                    <span class="skeleton-line" style="width:20px;height:20px;border-radius:50%;"></span>
+                    <span class="skeleton-line" style="width:120px;"></span>
+                    <span class="skeleton-line" style="width:60px;margin-left:auto;"></span>
+                </div>
+                <div class="flex items-center justify-center py-10" style="color: var(--meta);">
+                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                </div>
+            </div>`;
+        }
+
+        // ── Count rows in response HTML ───────────────────────
+        function countRowsInHTML(html) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const rows = doc.querySelectorAll('.table-tonal > div');
+            return rows.length;
+        }
+
+        // ── Reveal real content with entrance animations ──────
+        function revealContent(html) {
+            inner.innerHTML = html;
+            isLoading = false;
+            const content = inner.querySelector('#kpi-drilldown-content');
+            if (content) {
+                content.classList.add('drilldown-content-entering');
+            }
+            const rows = inner.querySelectorAll('.table-tonal > div');
+            rows.forEach((row, i) => {
+                row.classList.add('drilldown-row-stagger');
+                row.style.animationDelay = (i * 60) + 'ms';
+            });
+        }
+
+        // ── Fetch drilldown, match skeleton to real row count ─
+        async function loadDrilldown(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const html = await response.text();
+                const rowCount = countRowsInHTML(html);
+
+                // Show skeleton with the EXACT number of rows that will appear
+                inner.innerHTML = skeletonHTML(rowCount);
+
+                // Let the skeleton breathe so the user sees the transition
+                await new Promise(r => setTimeout(r, 450));
+
+                // Reveal the real content with staggered entrance
+                revealContent(html);
+            } catch (err) {
+                isLoading = false;
+                inner.innerHTML = `<div class="rounded-2xl p-8 text-center" style="background: var(--surface-container-lowest); color: var(--danger);">
+                    <p class="text-sm font-semibold">Error al cargar</p>
+                    <p class="text-xs mt-1" style="color: var(--meta);">Intenta de nuevo</p>
+                </div>`;
+                console.error('Drilldown load error:', err);
+            }
         }
 
         // ── Transition out existing content ───────────────────
@@ -201,15 +269,6 @@
             } else {
                 callback();
             }
-        }
-
-        // ── Apply staggered entrance to rows ──────────────────
-        function staggerRows() {
-            const rows = inner.querySelectorAll('.table-tonal > div');
-            rows.forEach((row, i) => {
-                row.classList.add('drilldown-row-stagger');
-                row.style.animationDelay = (i * 60) + 'ms';
-            });
         }
 
         window.openKpiDrilldown = function(type, btn) {
@@ -235,31 +294,22 @@
             activeType = type;
             isLoading = true;
 
-            // If panel is already open and we're switching types, do a smooth transition
             if (isSwitching && panel.style.display !== 'none') {
+                // Switching KPI types: fade out old → placeholder → fetch → skeleton → reveal
                 transitionOutContent(function() {
-                    // Show skeleton after old content fades out
-                    inner.innerHTML = skeletonHTML();
-                    // Give skeleton a moment to render, then fire request
-                    setTimeout(function() {
-                        htmx.ajax('GET', url, {
-                            target: '#kpi-drilldown-panel-inner',
-                            swap: 'innerHTML'
-                        });
-                    }, 100);
+                    inner.innerHTML = placeholderSkeleton();
+                    loadDrilldown(url);
                 });
                 return;
             }
 
-            // First open: show skeleton, slide panel open
-            inner.innerHTML = skeletonHTML();
+            // First open: show placeholder, slide panel open, then fetch
+            inner.innerHTML = placeholderSkeleton();
             panel.style.display = 'block';
             requestAnimationFrame(() => {
                 panel.classList.add('drilldown-open');
             });
-
-            // Fire HTMX request
-            htmx.ajax('GET', url, { target: '#kpi-drilldown-panel-inner', swap: 'innerHTML' });
+            loadDrilldown(url);
         };
 
         window.closeKpiDrilldown = function() {
@@ -285,34 +335,20 @@
             }
         });
 
-        // ── After HTMX swaps content ──────────────────────────
+        // Re-highlight active KPI card after HTMX refresh
         document.addEventListener('htmx:afterSwap', function(e) {
-            if (e.detail.target.id === 'kpi-drilldown-panel-inner') {
-                isLoading = false;
-                // Apply fade-in entrance to the new content
-                const content = inner.querySelector('#kpi-drilldown-content');
-                if (content) {
-                    content.classList.add('drilldown-content-entering');
-                }
-                // Stagger row animations
-                staggerRows();
-            }
-
-            // Re-highlight active card after KPI cards refresh
-            if (e.detail.target.id === 'kpi-cards') {
-                if (activeType) {
-                    const buttons = document.querySelectorAll('#kpi-cards [onclick*="openKpiDrilldown"]');
-                    buttons.forEach(b => {
-                        const onclick = b.getAttribute('onclick') || '';
-                        if (onclick.includes("'" + activeType + "'")) {
-                            const card = b.closest('.group');
-                            if (card) {
-                                card.style.outline = '2px solid var(--primary)';
-                                card.style.outlineOffset = '-2px';
-                            }
+            if (e.detail.target.id === 'kpi-cards' && activeType) {
+                const buttons = document.querySelectorAll('#kpi-cards [onclick*="openKpiDrilldown"]');
+                buttons.forEach(b => {
+                    const onclick = b.getAttribute('onclick') || '';
+                    if (onclick.includes("'" + activeType + "'")) {
+                        const card = b.closest('.group');
+                        if (card) {
+                            card.style.outline = '2px solid var(--primary)';
+                            card.style.outlineOffset = '-2px';
                         }
-                    });
-                }
+                    }
+                });
             }
         });
     })();
