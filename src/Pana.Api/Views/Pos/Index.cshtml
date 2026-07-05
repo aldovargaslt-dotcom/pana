@@ -108,7 +108,7 @@
                                   && (!searchQuery || '@product.Name.ToLower()'.includes(searchQuery.toLowerCase())
                                       || '@(product.Sku?.ToLower() ?? "")'.includes(searchQuery.toLowerCase()))"
                          x-transition.duration.200ms
-                         @@click="$root.addToCart('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price)">
+                         @@click="$dispatch('add-to-cart-item', { productId: '@product.Id', productName: '@(product.Name.Replace("'","\\'"))', unitPrice: @product.Price })">
                         @* Product image fallback *@
                         <div class="w-full aspect-[4/3] rounded-xl mb-3 flex items-center justify-center relative"
                              style="background: var(--surface-container-low);">
@@ -140,13 +140,13 @@
 
                         @* Quantity presets ────────────────────────────────── *@
                         <div class="flex items-center gap-1.5" @@click.stop>
-                            <button @@click="$root.addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, 5)"
+                            <button @@click="$dispatch('add-to-cart-item', { productId: '@product.Id', productName: '@(product.Name.Replace("'","\\'"))', unitPrice: @product.Price, qty: 5 })"
                                     class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150
                                            opacity-0 group-hover:opacity-100 hover:shadow-sm active:scale-95"
                                     style="color: var(--tertiary); background: color-mix(in srgb, var(--tertiary) 8%, transparent);">
                                 +5
                             </button>
-                            <button @@click="$root.addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, 10)"
+                            <button @@click="$dispatch('add-to-cart-item', { productId: '@product.Id', productName: '@(product.Name.Replace("'","\\'"))', unitPrice: @product.Price, qty: 10 })"
                                     class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150
                                            opacity-0 group-hover:opacity-100 hover:shadow-sm active:scale-95"
                                     style="color: var(--tertiary); background: color-mix(in srgb, var(--tertiary) 8%, transparent);">
@@ -160,7 +160,7 @@
                                        style="background: var(--surface-container-high); color: var(--fg);"
                                        onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent)'"
                                        onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
-                                <button @@click="$root.addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, customQty || 1); customQty = 1"
+                                <button @@click="$dispatch('add-to-cart-item', { productId: '@product.Id', productName: '@(product.Name.Replace("'","\\'"))', unitPrice: @product.Price, qty: customQty || 1 }); customQty = 1"
                                         class="shrink-0 px-2 py-1.5 rounded-lg text-xs font-bold transition-all duration-150
                                                opacity-0 group-hover:opacity-100 hover:shadow-sm active:scale-95"
                                         style="color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent);">
@@ -195,7 +195,7 @@
                         </div>
                         <div class="min-w-0">
                             <p class="text-xs font-medium truncate" style="color: var(--fg);" x-text="item.productName"></p>
-                            <p class="text-xs" style="color: var(--muted);" x-text="'x' + item.quantity + ' · $' + (item.unitPrice * item.quantity).toFixed(2)"></p>
+                            <p class="text-xs" style="color: var(--muted);" x-text="'x' + item.quantity + ' · $' + ((item.unitPrice || 0) * (item.quantity || 0)).toFixed(2)"></p>
                         </div>
                         <button @@click.stop="removeFromCart(idx)" class="flex-shrink-0 p-1 rounded-lg hover:bg-red-50 transition-colors"
                                 style="color: var(--danger);">
@@ -215,7 +215,8 @@
        ═══════════════════════════════════════════════════════ *@
     <div id="order-panel"
          class="w-full lg:w-96 flex-shrink-0 rounded-2xl shadow-modal flex flex-col overflow-hidden"
-         style="background: var(--surface-container-lowest);">
+         style="background: var(--surface-container-lowest);"
+         x-on:add-to-cart-item.document="addToCartQty($event.detail.productId, $event.detail.productName, $event.detail.unitPrice, $event.detail.qty || 1)">
 
         @* Order header *@
         <div class="p-4" style="border-bottom: 1px solid var(--surface-container-low);">
@@ -324,7 +325,7 @@
                     @* Item info *@
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium truncate" style="color: var(--fg);" x-text="item.productName"></p>
-                        <p class="text-xs" style="color: var(--muted);" x-text="'$' + item.unitPrice.toFixed(2)"></p>
+                        <p class="text-xs" style="color: var(--muted);" x-text="'$' + (item.unitPrice || 0).toFixed(2)"></p>
                     </div>
 
                     @* Quantity controls *@
@@ -341,7 +342,7 @@
 
                     @* Line total + remove *@
                     <div class="text-right flex-shrink-0">
-                        <p class="text-base font-semibold" style="color: var(--fg);" x-text="'$' + (item.unitPrice * item.quantity).toFixed(2)"></p>
+                        <p class="text-base font-semibold" style="color: var(--fg);" x-text="'$' + ((item.unitPrice || 0) * (item.quantity || 0)).toFixed(2)"></p>
                         <button @@click="removeFromCart(idx)" class="text-sm mt-0.5 hover:underline" style="color: var(--danger);">Quitar</button>
                     </div>
                 </div>
