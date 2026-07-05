@@ -39,19 +39,43 @@
             <div class="grid grid-cols-2 gap-3">
                 <div class="form-group">
                     <label for="category" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Categoría</label>
-                    <select id="category" name="Category" required
-                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
-                            style="background: var(--surface-container-high); color: var(--fg);">
-                        <option value="">Seleccionar...</option>
-                        <option value="Flours" selected="@(Model.Category == "Flours")">Harinas</option>
-                        <option value="Sugars" selected="@(Model.Category == "Sugars")">Azúcares</option>
-                        <option value="Eggs" selected="@(Model.Category == "Eggs")">Huevos</option>
-                        <option value="Dairy" selected="@(Model.Category == "Dairy")">Lácteos</option>
-                        <option value="Fats" selected="@(Model.Category == "Fats")">Grasas</option>
-                        <option value="Leaveners" selected="@(Model.Category == "Leaveners")">Levaduras</option>
-                        <option value="Flavorings" selected="@(Model.Category == "Flavorings")">Saborizantes</option>
-                        <option value="Other" selected="@(Model.Category == "Other")">Otro</option>
-                    </select>
+                    <div x-data="panaSelect" class="pana-select-wrapper">
+                        <select x-ref="native" name="Category" class="sr-only">
+                            <option value="">Seleccionar...</option>
+                            <option value="Flours" selected="@(Model.Category == "Flours")">Harinas</option>
+                            <option value="Sugars" selected="@(Model.Category == "Sugars")">Azúcares</option>
+                            <option value="Eggs" selected="@(Model.Category == "Eggs")">Huevos</option>
+                            <option value="Dairy" selected="@(Model.Category == "Dairy")">Lácteos</option>
+                            <option value="Fats" selected="@(Model.Category == "Fats")">Grasas</option>
+                            <option value="Leaveners" selected="@(Model.Category == "Leaveners")">Levaduras</option>
+                            <option value="Flavorings" selected="@(Model.Category == "Flavorings")">Saborizantes</option>
+                            <option value="Other" selected="@(Model.Category == "Other")">Otro</option>
+                        </select>
+                        <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                                class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                            <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                            <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                             class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                            <div class="pana-select-search">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                                <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                            </div>
+                            <div x-ref="optionsList" class="pana-select-options">
+                                <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                                    <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                                         @@mouseenter="highlightIndex = i" tabindex="0"
+                                         class="pana-select-option"
+                                         :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                                        <span x-text="opt.label"></span>
+                                        <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                </template>
+                                <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -73,17 +97,41 @@
 
                 <div class="form-group">
                     <label for="purchaseUnit" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Unidad de compra</label>
-                    <select id="purchaseUnit" name="PurchaseUnit" required
-                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
-                            style="background: var(--surface-container-high); color: var(--fg);">
-                        <option value="kg" selected="@(Model.PurchaseUnit == "kg")">kg</option>
-                        <option value="g" selected="@(Model.PurchaseUnit == "g")">g</option>
-                        <option value="L" selected="@(Model.PurchaseUnit == "L")">L</option>
-                        <option value="mL" selected="@(Model.PurchaseUnit == "mL")">mL</option>
-                        <option value="pza" selected="@(Model.PurchaseUnit == "pza")">pza</option>
-                        <option value="docena" selected="@(Model.PurchaseUnit == "docena")">docena</option>
-                        <option value="cono" selected="@(Model.PurchaseUnit == "cono")">cono</option>
-                    </select>
+                    <div x-data="panaSelect" class="pana-select-wrapper">
+                        <select x-ref="native" name="PurchaseUnit" class="sr-only">
+                            <option value="kg" selected="@(Model.PurchaseUnit == "kg")">kg</option>
+                            <option value="g" selected="@(Model.PurchaseUnit == "g")">g</option>
+                            <option value="L" selected="@(Model.PurchaseUnit == "L")">L</option>
+                            <option value="mL" selected="@(Model.PurchaseUnit == "mL")">mL</option>
+                            <option value="pza" selected="@(Model.PurchaseUnit == "pza")">pza</option>
+                            <option value="docena" selected="@(Model.PurchaseUnit == "docena")">docena</option>
+                            <option value="cono" selected="@(Model.PurchaseUnit == "cono")">cono</option>
+                        </select>
+                        <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                                class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                            <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                            <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                             class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                            <div class="pana-select-search">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                                <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                            </div>
+                            <div x-ref="optionsList" class="pana-select-options">
+                                <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                                    <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                                         @@mouseenter="highlightIndex = i" tabindex="0"
+                                         class="pana-select-option"
+                                         :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                                        <span x-text="opt.label"></span>
+                                        <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                </template>
+                                <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -97,13 +145,37 @@
 
                 <div class="form-group">
                     <label for="baseUnit" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Unidad base</label>
-                    <select id="baseUnit" name="BaseUnit" required
-                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
-                            style="background: var(--surface-container-high); color: var(--fg);">
-                        <option value="g" selected="@(Model.BaseUnit == "g")">g</option>
-                        <option value="mL" selected="@(Model.BaseUnit == "mL")">mL</option>
-                        <option value="pza" selected="@(Model.BaseUnit == "pza")">pza</option>
-                    </select>
+                    <div x-data="panaSelect" class="pana-select-wrapper">
+                        <select x-ref="native" name="BaseUnit" class="sr-only">
+                            <option value="g" selected="@(Model.BaseUnit == "g")">g</option>
+                            <option value="mL" selected="@(Model.BaseUnit == "mL")">mL</option>
+                            <option value="pza" selected="@(Model.BaseUnit == "pza")">pza</option>
+                        </select>
+                        <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
+                                class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                            <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
+                            <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                        </button>
+                        <div x-show="open" x-transition @@click.outside="close" x-ref="dropdown"
+                             class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey">
+                            <div class="pana-select-search">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg>
+                                <input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off">
+                            </div>
+                            <div x-ref="optionsList" class="pana-select-options">
+                                <template x-for="(opt, i) in filteredOptions" :key="opt.value">
+                                    <div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)"
+                                         @@mouseenter="highlightIndex = i" tabindex="0"
+                                         class="pana-select-option"
+                                         :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }">
+                                        <span x-text="opt.label"></span>
+                                        <svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </div>
+                                </template>
+                                <div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
