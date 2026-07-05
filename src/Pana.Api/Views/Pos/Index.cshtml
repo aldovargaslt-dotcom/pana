@@ -461,7 +461,7 @@
     </form>
 
     @* ── Cash Payment Modal ──────────────────────────────────── *@
-    <div x-show="showCashModal" x-transition.opacity.duration.200ms
+    <div x-show="showCashModal" x-cloak
          class="fixed inset-0 z-50 flex items-center justify-center"
          style="background: rgba(28,28,25,0.4); backdrop-filter: blur(4px);"
          @@click.self="showCashModal = false; resetBills()">
