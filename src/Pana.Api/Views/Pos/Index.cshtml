@@ -782,15 +782,19 @@ document.addEventListener('alpine:init', () => {
     // ── Re-init Alpine after HTMX swaps #order-panel ──
     document.body.addEventListener('htmx:afterSwap', (evt) => {
         if (evt.detail.target.id === 'order-panel') {
-            // Re-initialize Alpine directives in the new content
-            document.querySelector('[x-data="posCart"]').__x.$data.cart = [];
-            document.querySelector('[x-data="posCart"]').__x.$data.discount = 0;
-            document.querySelector('[x-data="posCart"]').__x.$data.promoCode = '';
-            document.querySelector('[x-data="posCart"]').__x.$data.customerName = '';
-            document.querySelector('[x-data="posCart"]').__x.$data.customerPhone = '';
-            document.querySelector('[x-data="posCart"]').__x.$data.scheduledDate = '';
-            document.querySelector('[x-data="posCart"]').__x.$data.depositAmount = 0;
-            document.querySelector('[x-data="posCart"]').__x.$data.internalNotes = '';
+            // Reset cart state via Alpine's public API
+            const cartEl = document.querySelector('[x-data="posCart"]');
+            if (cartEl && cartEl._x_dataStack && cartEl._x_dataStack[0]) {
+                const cart = cartEl._x_dataStack[0];
+                cart.cart = [];
+                cart.discount = 0;
+                cart.promoCode = '';
+                cart.customerName = '';
+                cart.customerPhone = '';
+                cart.scheduledDate = '';
+                cart.depositAmount = 0;
+                cart.internalNotes = '';
+            }
             // Re-init Alpine on the swapped element so x-text, x-show, etc. work
             if (window.Alpine) Alpine.initTree(evt.detail.target);
         }
