@@ -464,8 +464,7 @@
     <div x-show="showCashModal" x-transition.opacity.duration.200ms
          class="fixed inset-0 z-50 flex items-center justify-center"
          style="background: rgba(28,28,25,0.4); backdrop-filter: blur(4px);"
-         @@click.self="showCashModal = false"
-         x-data="cashPayment">
+         @@click.self="showCashModal = false; resetBills()">
         <div class="rounded-3xl shadow-modal overflow-hidden scale-in"
              style="max-width: 480px; width: 94vw; background: var(--surface-container-lowest);"
              @@click.stop="">
@@ -530,18 +529,18 @@
                      style="background: var(--surface-container-low);">
                     <span class="text-sm font-medium" style="color: var(--fg-2);">Recibido</span>
                     <span class="text-xl font-bold tabular-nums" style="color: var(--fg);"
-                          x-text="'$' + received.toFixed(2)"></span>
+                          x-text="'$' + cashReceived.toFixed(2)"></span>
                 </div>
                 <div class="flex items-center justify-between py-2 px-4 rounded-xl"
-                     :style="change >= 0
+                     :style="cashChange >= 0
                          ? 'background: color-mix(in srgb, var(--success) 10%, transparent);'
                          : 'background: color-mix(in srgb, var(--danger) 8%, transparent);'">
                     <span class="text-sm font-medium"
-                          :style="change >= 0 ? 'color: var(--success);' : 'color: var(--danger);'"
-                          x-text="change >= 0 ? 'Cambio a devolver' : 'Faltante'"></span>
+                          :style="cashChange >= 0 ? 'color: var(--success);' : 'color: var(--danger);'"
+                          x-text="cashChange >= 0 ? 'Cambio a devolver' : 'Faltante'"></span>
                     <span class="text-xl font-bold tabular-nums"
-                          :style="change >= 0 ? 'color: var(--success);' : 'color: var(--danger);'"
-                          x-text="change >= 0 ? '$' + change.toFixed(2) : '$' + Math.abs(change).toFixed(2)"></span>
+                          :style="cashChange >= 0 ? 'color: var(--success);' : 'color: var(--danger);'"
+                          x-text="cashChange >= 0 ? '$' + cashChange.toFixed(2) : '$' + Math.abs(cashChange).toFixed(2)"></span>
                 </div>
             </div>
 
@@ -552,14 +551,14 @@
                         style="color: var(--fg-2); background: var(--surface-container-low);">
                     Cancelar
                 </button>
-                <button @@click="confirmCashPayment"
-                        :disabled="received < total"
+                <button @@click="showCashModal = false; resetBills(); submitOrder()"
+                        :disabled="cashReceived < total"
                         class="flex-[2] py-3 rounded-xl text-white font-bold transition-all duration-200
                                shadow-ambient hover:shadow-modal active:scale-[0.98]
                                disabled:opacity-40 disabled:cursor-not-allowed"
                         style="background: var(--gradient-primary);">
-                    <span x-show="received >= total">Confirmar cobro</span>
-                    <span x-show="received < total" class="inline-flex items-center gap-2">
+                    <span x-show="cashReceived >= total">Confirmar cobro</span>
+                    <span x-show="cashReceived < total" class="inline-flex items-center gap-2">
                         <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                         Esperando pago
                     </span>
@@ -590,46 +589,6 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
-    // ── cashPayment — bill calculator modal ──
-    Alpine.data('cashPayment', () => ({
-        received: 0,
-
-        bills: [
-            { value: 10,  gradient: '#a07020, #c8962e' },
-            { value: 20,  gradient: '#3a5fc8, #5b7fe0' },
-            { value: 50,  gradient: '#c44b6b, #e8658a' },
-            { value: 100, gradient: '#c8903e, #e0b860' },
-            { value: 200, gradient: '#2d8c4a, #3db860' },
-            { value: 500, gradient: '#5c3d8c, #7e5db0' },
-        ],
-
-        get change() {
-            return this.received - this.total;
-        },
-
-        addBill(value) {
-            this.received += value;
-        },
-
-        resetBills() {
-            this.received = 0;
-        },
-
-        confirmCashPayment() {
-            if (this.received < this.total) return;
-            this.showCashModal = false;
-            this.resetBills();
-            this.submitOrder();
-        },
-
-        init() {
-            this.received = 0;
-            this.$watch('showCashModal', (val) => {
-                if (val) this.received = 0;
-            });
-        }
-    }));
-
     Alpine.data('posCart', () => ({
         cart: [],
         activeCategory: 'all',
@@ -646,6 +605,20 @@ document.addEventListener('alpine:init', () => {
         depositAmount: 0,
         internalNotes: '',
         showCashModal: false,
+        cashReceived: 0,
+
+        bills: [
+            { value: 10,  gradient: '#a07020, #c8962e' },
+            { value: 20,  gradient: '#3a5fc8, #5b7fe0' },
+            { value: 50,  gradient: '#c44b6b, #e8658a' },
+            { value: 100, gradient: '#c8903e, #e0b860' },
+            { value: 200, gradient: '#2d8c4a, #3db860' },
+            { value: 500, gradient: '#5c3d8c, #7e5db0' },
+        ],
+
+        get cashChange() {
+            return this.cashReceived - this.total;
+        },
 
         get subtotal() {
             return this.cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
@@ -746,6 +719,7 @@ document.addEventListener('alpine:init', () => {
             }
             // Intercept cash payments — show bill calculator modal
             if (this.paymentMethod === 'Efectivo') {
+                this.cashReceived = 0;
                 this.showCashModal = true;
                 return;
             }
@@ -775,6 +749,14 @@ document.addEventListener('alpine:init', () => {
                 container.appendChild(div);
             });
             htmx.trigger(form, 'submit');
+        },
+
+        addBill(value) {
+            this.cashReceived += value;
+        },
+
+        resetBills() {
+            this.cashReceived = 0;
         },
 
         init() {
