@@ -1,0 +1,200 @@
+@* Views/Activity/OrderHistory.cshtml — Activity / Order History View *@
+@model Pana.Api.Web.ViewModels.ActivityViewModel
+@{
+    ViewData["Title"] = "Actividad — Historial de Órdenes";
+}
+
+<div class="max-w-7xl mx-auto space-y-5 fade-in">
+
+    @* ── Header ─────────────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
+                <span class="text-gradient">Actividad</span>
+            </h1>
+            <p class="text-sm mt-0.5" style="color: var(--muted);">Historial de órdenes</p>
+        </div>
+        @* Export action — integration point *@
+        <button class="inline-flex items-center gap-2 px-4 py-2 text-white text-sm font-medium rounded-xl
+                       transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                style="background: var(--surface-container-high); color: var(--fg-2); cursor: not-allowed; opacity: 0.6;"
+                disabled
+                title="Exportar — próximamente">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Exportar
+        </button>
+    </div>
+
+    @* ── Activity layout: sidebar + content ─────────────────── *@
+    <div class="flex flex-col lg:flex-row gap-5">
+        @* Left navigation *@
+        <div class="lg:w-56 flex-shrink-0">
+            <nav class="space-y-1 p-2 rounded-2xl shadow-ambient" style="background: var(--surface-container-lowest);">
+                <a href="/activity"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                   style="color: var(--sidebar-fg);"
+                   onmouseover="this.style.background='rgba(28,28,25,0.04)'"
+                   onmouseout="this.style.background='transparent'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Cola de Facturación
+                </a>
+                <a href="#" onclick="return false;"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                   style="color: var(--sidebar-fg); opacity: 0.5;">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Mesas
+                </a>
+                <a href="/activity/order-history"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                   style="background: var(--sidebar-accent); color: var(--sidebar-fg-active);">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Historial de Órdenes
+                </a>
+            </nav>
+        </div>
+
+        @* Main content *@
+        <div class="flex-1 min-w-0 space-y-5">
+            @* ── Filters ──────────────────────────────────────── *@
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-wrap">
+                @* Search *@
+                <div class="relative flex-1 w-full sm:max-w-xs">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="search" placeholder="Buscar por orden o cliente..."
+                           class="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm
+                                  focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+                @* Date range *@
+                <div class="flex items-center gap-2">
+                    <input type="date" class="px-3 py-2 rounded-xl text-xs border-0
+                                           focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                    <span style="color: var(--meta);">—</span>
+                    <input type="date" class="px-3 py-2 rounded-xl text-xs border-0
+                                           focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                    <button class="px-3 py-2 rounded-xl text-xs font-medium text-white shadow-ambient transition-all duration-200 active:scale-[0.98]"
+                            style="background: var(--gradient-primary);">
+                        Filtrar
+                    </button>
+                </div>
+            </div>
+
+            @* ── Order history table ──────────────────────────── *@
+            <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+                @if (!Model.OrderHistory.Any())
+                {
+                    <div class="text-center py-16">
+                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                             style="background: var(--surface-container);">
+                            <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <p class="font-medium" style="color: var(--meta);">Sin historial de órdenes</p>
+                        <p class="text-xs mt-1" style="color: var(--meta);">Las órdenes completadas aparecerán aquí</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr style="background: var(--surface-container-low);">
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">#</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Fecha y hora</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Cliente / Orden</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Estado</th>
+                                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Total</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Pago</th>
+                                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                                @foreach (var item in Model.OrderHistory)
+                                {
+                                    var (statusColor, statusBg) = item.Status switch
+                                    {
+                                        "Completed" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
+                                        "Voided" => ("var(--danger)", "color-mix(in srgb, var(--danger) 12%, transparent)"),
+                                        "Draft" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)"),
+                                        _ => ("var(--primary)", "color-mix(in srgb, var(--primary) 12%, transparent)")
+                                    };
+                                    var statusLabel = item.Status switch
+                                    {
+                                        "Completed" => "Completada",
+                                        "Voided" => "Anulada",
+                                        "Confirmed" => "Confirmada",
+                                        "Preparing" => "En preparación",
+                                        "Ready" => "Lista",
+                                        "Draft" => "Borrador",
+                                        _ => item.Status
+                                    };
+                                    var (payColor, payBg) = item.PaymentStatus switch
+                                    {
+                                        "Pagado" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
+                                        "Anulado" => ("var(--danger)", "color-mix(in srgb, var(--danger) 12%, transparent)"),
+                                        _ => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)")
+                                    };
+
+                                    <tr class="transition-colors"
+                                        onmouseover="this.style.background='var(--surface-container-low)'"
+                                        onmouseout="this.style.background='transparent'">
+                                        <td class="px-6 py-3.5">
+                                            <span class="font-mono text-xs" style="color: var(--meta);">#@item.Sequence</span>
+                                        </td>
+                                        <td class="px-6 py-3.5">
+                                            <p class="text-xs" style="color: var(--fg-2);">@item.CreatedAt.ToString("dd/MM/yyyy")</p>
+                                            <p class="text-xs" style="color: var(--meta);">@item.CreatedAt.ToString("HH:mm")</p>
+                                        </td>
+                                        <td class="px-6 py-3.5">
+                                            <p class="font-medium" style="color: var(--fg);">@item.OrderLabel</p>
+                                        </td>
+                                        <td class="px-6 py-3.5 text-center">
+                                            <span class="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
+                                                  style="color: @statusColor; background: @statusBg;">@statusLabel</span>
+                                        </td>
+                                        <td class="px-6 py-3.5 text-right">
+                                            <span class="font-semibold" style="color: var(--fg);">$@item.TotalAmount.ToString("N2")</span>
+                                        </td>
+                                        <td class="px-6 py-3.5 text-center">
+                                            <span class="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
+                                                  style="color: @payColor; background: @payBg;">@item.PaymentStatus</span>
+                                        </td>
+                                        <td class="px-6 py-3.5 text-right">
+                                            <button hx-get="/sales/@item.Id"
+                                                    hx-target="#modal-container"
+                                                    class="p-1.5 rounded-lg transition-colors"
+                                                    style="color: var(--meta);"
+                                                    onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
+                                                    onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'"
+                                                    title="Ver detalle">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            @* ── Summary footer ────────────────────────────────── *@
+            <div class="flex items-center justify-between text-sm">
+                <span style="color: var(--muted);">@Model.OrderHistory.Count órdenes</span>
+                <span style="color: var(--muted);">
+                    Total: <strong style="color: var(--fg);">$@Model.OrderHistory.Sum(o => o.TotalAmount).ToString("N2")</strong>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

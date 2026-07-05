@@ -1,0 +1,132 @@
+@* Views/Pos/_ProductDetailModal.cshtml — Product detail / add-to-cart modal *@
+@model Pana.Api.Web.ViewModels.PosProductDetailViewModel
+
+<div class="modal-overlay" _="on click if event.target == me remove me"
+     style="z-index: 100;">
+    <div class="modal-content rounded-2xl p-0 overflow-hidden scale-in"
+         style="max-width: 420px; width: 92vw; background: var(--surface-container-lowest); box-shadow: var(--elev-modal);"
+         @@click.stop="">
+
+        @* Product image area *@
+        <div class="w-full aspect-[16/10] flex items-center justify-center relative"
+             style="background: var(--surface-container-low);">
+            <svg class="w-16 h-16" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            @* Close button *@
+            <button class="absolute top-3 right-3 w-8 h-8 rounded-xl flex items-center justify-center transition-colors"
+                    style="background: var(--surface-container-lowest); color: var(--fg-2); box-shadow: var(--elev-ambient);"
+                    _="on click remove closest .modal-overlay">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        @* Content *@
+        <div class="p-5" x-data="productDetailCart(@Model.Id, '@Model.Name', @Model.Price)">
+            @* Category badge *@
+            <span class="inline-block text-xs px-2.5 py-1 rounded-full font-medium mb-2"
+                  style="background: var(--tertiary-fixed); color: var(--tertiary);">
+                @Model.ProductType
+            </span>
+
+            @* Product name *@
+            <h2 class="text-xl font-bold mb-1" style="color: var(--fg);">@Model.Name</h2>
+
+            @* Description *@
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p class="text-sm mb-3" style="color: var(--muted);">@Model.Description</p>
+            }
+            else
+            {
+                <p class="text-sm mb-3" style="color: var(--meta);">Sin descripción</p>
+            }
+
+            @* SKU *@
+            <p class="text-xs mb-3" style="color: var(--meta);">SKU: @Model.Sku</p>
+
+            @* Price *@
+            <div class="flex items-baseline gap-1 mb-4">
+                <span class="text-2xl font-bold" style="color: var(--primary);">$@Model.Price.ToString("N2")</span>
+                <span class="text-sm" style="color: var(--muted);">MXN</span>
+            </div>
+
+            @* Optional notes field *@
+            <div class="mb-4">
+                <label class="block text-xs font-medium mb-1.5" style="color: var(--fg-2);">Notas</label>
+                <textarea x-model="notes"
+                          rows="2"
+                          placeholder="Ej. Sin azúcar, bien cocido..."
+                          class="w-full px-3 py-2 rounded-xl text-sm resize-none
+                                 focus:outline-none focus:ring-2 transition-all duration-200"
+                          style="background: var(--surface-container-high); color: var(--fg);"
+                          onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                          onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"></textarea>
+            </div>
+
+            @* Quantity stepper + total *@
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium" style="color: var(--fg-2);">Cantidad</span>
+                    <div class="flex items-center gap-1">
+                        <button @@click="qty > 1 ? qty-- : null"
+                                class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold transition-colors"
+                                style="color: var(--fg-2); background: var(--surface-container);"
+                                :disabled="qty <= 1">−</button>
+                        <span class="w-9 text-center text-sm font-semibold" style="color: var(--fg);" x-text="qty"></span>
+                        <button @@click="qty++"
+                                class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold transition-colors"
+                                style="color: var(--fg-2); background: var(--surface-container);">+</button>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs block" style="color: var(--muted);">Total</span>
+                    <span class="text-lg font-bold" style="color: var(--primary);" x-text="'$' + total.toFixed(2)"></span>
+                </div>
+            </div>
+
+            @* Add to cart button *@
+            <button @@click="addAndClose"
+                    class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all duration-200
+                           shadow-ambient hover:shadow-modal active:scale-[0.98]"
+                    style="background: var(--gradient-primary);">
+                <span x-text="'Agregar — $' + total.toFixed(2)"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('productDetailCart', (productId, productName, unitPrice) => ({
+        qty: 1,
+        notes: '',
+        get total() {
+            return this.qty * unitPrice;
+        },
+        addAndClose() {
+            // Dispatch event to POS cart
+            window.dispatchEvent(new CustomEvent('add-to-cart', {
+                detail: {
+                    productId: productId,
+                    productName: productName,
+                    unitPrice: unitPrice
+                }
+            }));
+            // Add quantity times
+            for (let i = 1; i < this.qty; i++) {
+                window.dispatchEvent(new CustomEvent('add-to-cart', {
+                    detail: {
+                        productId: productId,
+                        productName: productName,
+                        unitPrice: unitPrice
+                    }
+                }));
+            }
+            // Close modal
+            const overlay = document.querySelector('.modal-overlay');
+            if (overlay) overlay.remove();
+        }
+    }));
+});
+</script>

@@ -1,0 +1,48 @@
+@* Views/Pos/_OrderConfirmation.cshtml — Post-order confirmation *@
+@model Pana.Api.Application.Sales.SaleDto
+@{
+    var statusText = Model.Status switch
+    {
+        "Confirmed" => "Confirmada",
+        "Completed" => "Completada",
+        _ => Model.Status
+    };
+}
+
+<div class="p-6 text-center space-y-4 scale-in">
+    @* Success icon *@
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
+         style="background: color-mix(in srgb, var(--success) 15%, transparent);">
+        <svg class="w-8 h-8" style="color: var(--success);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+    </div>
+
+    <h3 class="text-lg font-bold" style="color: var(--fg);">¡Orden registrada!</h3>
+
+    <div class="space-y-2 text-sm">
+        <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+            <span style="color: var(--muted);">N° de orden</span>
+            <span class="font-mono font-medium" style="color: var(--fg);">#@Model.Id.ToString()[..8]</span>
+        </div>
+        <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+            <span style="color: var(--muted);">Estado</span>
+            <span class="font-medium" style="color: var(--success);">@statusText</span>
+        </div>
+        <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+            <span style="color: var(--muted);">Items</span>
+            <span class="font-medium" style="color: var(--fg);">@Model.Items.Count</span>
+        </div>
+        <div class="flex justify-between px-4 py-2 rounded-xl font-bold" style="background: var(--surface-container-low);">
+            <span style="color: var(--fg);">Total</span>
+            <span style="color: var(--primary);">$@Model.TotalAmount.ToString("N2")</span>
+        </div>
+    </div>
+
+    <button onclick="window.location.reload()"
+            class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all duration-200
+                   shadow-ambient hover:shadow-modal active:scale-[0.98]"
+            style="background: var(--gradient-primary);">
+        Nueva orden
+    </button>
+</div>

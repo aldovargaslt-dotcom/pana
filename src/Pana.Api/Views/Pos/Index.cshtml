@@ -1,0 +1,490 @@
+@* Views/Pos/Index.cshtml — POS Menu View *@
+@model Pana.Api.Web.ViewModels.PosViewModel
+@{
+    ViewData["Title"] = "Punto de Venta";
+    var now = DateTime.Now;
+    var todayName = now.ToString("dddd, d 'de' MMMM 'de' yyyy",
+        new System.Globalization.CultureInfo("es-MX"));
+}
+
+<div x-data="posCart" class="flex flex-col lg:flex-row gap-0 lg:gap-5 h-[calc(100vh-5rem)] fade-in">
+
+    @* ═══════════════════════════════════════════════════════
+       MAIN PRODUCT AREA (left)
+       ═══════════════════════════════════════════════════════ *@
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        @* ── Top bar: date/time + actions ────────────────── *@
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 flex-shrink-0">
+            <div>
+                <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
+                    <span class="text-gradient">Punto de Venta</span>
+                </h1>
+                <p class="text-sm mt-0.5" style="color: var(--muted);">@todayName</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 text-xs rounded-lg px-3 py-1.5 shadow-ambient"
+                     style="color: var(--meta); background: var(--surface-container-lowest);">
+                    <span class="pulse-dot"></span> Abierto
+                </div>
+                <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium
+                               transition-all duration-200 shadow-ambient"
+                        style="color: var(--fg-2); background: var(--surface-container-lowest);"
+                        @@click="clearCart">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    Limpiar
+                </button>
+            </div>
+        </div>
+
+        @* ── Category selector row ───────────────────────── *@
+        <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-1 flex-shrink-0" style="scrollbar-width: thin;">
+            <button @@click="activeCategory = 'all'"
+                    class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
+                    :class="activeCategory === 'all'
+                        ? 'text-white shadow-ambient'
+                        : ''"
+                    :style="activeCategory === 'all'
+                        ? 'background: var(--gradient-primary);'
+                        : 'color: var(--fg-2); background: var(--surface-container-low);'">
+                <span class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    Todos
+                </span>
+            </button>
+            @foreach (var cat in Model.Categories)
+            {
+                <button @@click="activeCategory = '@cat.Name'"
+                        class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2"
+                        :class="activeCategory === '@cat.Name'
+                            ? 'text-white shadow-ambient'
+                            : ''"
+                        :style="activeCategory === '@cat.Name'
+                            ? 'background: var(--gradient-primary);'
+                            : 'color: var(--fg-2); background: var(--surface-container-low);'">
+                    @switch (cat.Icon)
+                    {
+                        case "box":
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            break;
+                        case "coffee":
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zm4-4h8v4H6V4z"/></svg>
+                            break;
+                        case "briefcase":
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            break;
+                        default:
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                            break;
+                    }
+                    <span>@cat.Name</span>
+                    <span class="text-xs opacity-75">(@cat.ProductCount)</span>
+                </button>
+            }
+        </div>
+
+        @* ── Search bar ──────────────────────────────────── *@
+        <div class="relative mb-4 flex-shrink-0">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="search" placeholder="Buscar productos..."
+                   x-model="searchQuery"
+                   class="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm
+                          focus:outline-none focus:ring-2 transition-all duration-200"
+                   style="background: var(--surface-container-high); color: var(--fg);"
+                   onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                   onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+        </div>
+
+        @* ── Product grid ────────────────────────────────── *@
+        <div class="flex-1 overflow-y-auto pr-1" style="scrollbar-width: thin;">
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3" id="product-grid">
+                @foreach (var product in Model.Products)
+                {
+                    <div class="product-card rounded-2xl p-4 shadow-ambient cursor-pointer transition-all duration-200
+                                hover:shadow-modal hover:-translate-y-0.5"
+                         style="background: var(--surface-container-lowest);"
+                         x-data="{ cat: '@product.ProductType' }"
+                         x-show="(activeCategory === 'all' || categoryLabel(activeCategory) === '@product.ProductType')
+                                  && (!searchQuery || '@product.Name.ToLower()'.includes(searchQuery.toLowerCase())
+                                      || '@(product.Sku?.ToLower() ?? "")'.includes(searchQuery.toLowerCase()))"
+                         x-transition.duration.200ms
+                         hx-get="/pos/product/@product.Id"
+                         hx-target="#modal-container"
+                         hx-swap="innerHTML">
+                        @* Product image fallback *@
+                        <div class="w-full aspect-[4/3] rounded-xl mb-3 flex items-center justify-center"
+                             style="background: var(--surface-container-low);">
+                            <svg class="w-10 h-10" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+
+                        <h3 class="font-semibold text-sm mb-1 line-clamp-1" style="color: var(--fg);">@product.Name</h3>
+                        <p class="text-xs mb-2" style="color: var(--muted);">@product.ProductType</p>
+
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-sm" style="color: var(--primary);">
+                                $@product.Price.ToString("N2")
+                            </span>
+                            @if (!product.IsActive)
+                            {
+                                <span class="text-xs px-2 py-0.5 rounded-full"
+                                      style="background: var(--surface-container-high); color: var(--meta);">
+                                    No disponible
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="w-2 h-2 rounded-full" style="background: var(--fresh-green);" title="Disponible"></span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @* Empty state *@
+            <div x-show="filteredCount === 0" x-cloak class="text-center py-16">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                     style="background: var(--surface-container);">
+                    <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <p class="font-medium" style="color: var(--meta);">No se encontraron productos</p>
+                <p class="text-xs mt-1" style="color: var(--meta);">Intentá con otra búsqueda o categoría</p>
+            </div>
+        </div>
+
+        @* ── Bottom track-order strip ────────────────────── *@
+        <div class="flex-shrink-0 mt-3 pt-3" style="border-top: 1px solid var(--surface-container-low);">
+            <div class="flex items-center gap-3 overflow-x-auto" style="scrollbar-width: thin;">
+                <template x-for="(item, idx) in cart" :key="idx">
+                    <div class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl shadow-ambient"
+                         style="background: var(--surface-container-lowest);">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                             style="background: var(--surface-container);">
+                            <svg class="w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-medium truncate" style="color: var(--fg);" x-text="item.productName"></p>
+                            <p class="text-xs" style="color: var(--muted);" x-text="'x' + item.quantity + ' · $' + (item.unitPrice * item.quantity).toFixed(2)"></p>
+                        </div>
+                        <button @@click.stop="removeFromCart(idx)" class="flex-shrink-0 p-1 rounded-lg hover:bg-red-50 transition-colors"
+                                style="color: var(--danger);">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                </template>
+                <div x-show="cart.length === 0" class="text-xs" style="color: var(--meta);">
+                    Sin productos en la orden
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ═══════════════════════════════════════════════════════
+       ORDER PANEL (right sidebar)
+       ═══════════════════════════════════════════════════════ *@
+    <div id="order-panel"
+         class="w-full lg:w-96 flex-shrink-0 rounded-2xl shadow-modal flex flex-col overflow-hidden"
+         style="background: var(--surface-container-lowest);">
+
+        @* Order header *@
+        <div class="p-4" style="border-bottom: 1px solid var(--surface-container-low);">
+            <h2 class="font-bold text-lg flex items-center gap-2" style="color: var(--fg);">
+                <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Orden actual
+            </h2>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="text-xs px-2.5 py-1 rounded-full font-medium"
+                      style="background: var(--surface-container-low); color: var(--fg-2);">
+                    <span x-text="cart.length"></span> items
+                </span>
+            </div>
+        </div>
+
+        @* Order type selector *@
+        <div class="px-4 py-2 flex gap-2" style="border-bottom: 1px solid var(--surface-container-low);">
+            <button @@click="orderType = 'DineIn'"
+                    class="flex-1 py-1.5 rounded-lg text-xs font-medium transition-all duration-200"
+                    :class="orderType === 'DineIn'
+                        ? 'text-white'
+                        : ''"
+                    :style="orderType === 'DineIn'
+                        ? 'background: var(--gradient-primary);'
+                        : 'color: var(--fg-2); background: var(--surface-container-low);'">
+                🪑 Comer aquí
+            </button>
+            <button @@click="orderType = 'Takeaway'"
+                    class="flex-1 py-1.5 rounded-lg text-xs font-medium transition-all duration-200"
+                    :class="orderType === 'Takeaway'
+                        ? 'text-white'
+                        : ''"
+                    :style="orderType === 'Takeaway'
+                        ? 'background: var(--gradient-primary);'
+                        : 'color: var(--fg-2); background: var(--surface-container-low);'">
+                🛍️ Para llevar
+            </button>
+        </div>
+
+        @* Order items list (scrollable) *@
+        <div class="flex-1 overflow-y-auto p-4" style="scrollbar-width: thin;" id="order-items-list">
+            <template x-for="(item, idx) in cart" :key="idx">
+                <div class="flex items-center gap-3 py-3" style="border-bottom: 1px solid var(--surface-container-low);">
+                    @* Item thumbnail *@
+                    <div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center"
+                         style="background: var(--surface-container-low);">
+                        <svg class="w-5 h-5" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    </div>
+
+                    @* Item info *@
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium truncate" style="color: var(--fg);" x-text="item.productName"></p>
+                        <p class="text-xs" style="color: var(--muted);" x-text="'$' + item.unitPrice.toFixed(2)"></p>
+                    </div>
+
+                    @* Quantity controls *@
+                    <div class="flex items-center gap-1">
+                        <button @@click="decrementItem(idx)"
+                                class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold transition-colors"
+                                style="color: var(--fg-2); background: var(--surface-container-low);"
+                                :disabled="item.quantity <= 1">−</button>
+                        <span class="w-7 text-center text-sm font-medium" style="color: var(--fg);" x-text="item.quantity"></span>
+                        <button @@click="incrementItem(idx)"
+                                class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold transition-colors"
+                                style="color: var(--fg-2); background: var(--surface-container-low);">+</button>
+                    </div>
+
+                    @* Line total + remove *@
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-sm font-semibold" style="color: var(--fg);" x-text="'$' + (item.unitPrice * item.quantity).toFixed(2)"></p>
+                        <button @@click="removeFromCart(idx)" class="text-xs mt-0.5 hover:underline" style="color: var(--danger);">Quitar</button>
+                    </div>
+                </div>
+            </template>
+
+            @* Empty order state *@
+            <div x-show="cart.length === 0" class="text-center py-12">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                     style="background: var(--surface-container);">
+                    <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                </div>
+                <p class="font-medium" style="color: var(--meta);">Orden vacía</p>
+                <p class="text-xs mt-1" style="color: var(--meta);">Seleccioná productos del menú para comenzar</p>
+            </div>
+        </div>
+
+        @* Order summary + actions (sticky bottom) *@
+        <div class="p-4 space-y-3 flex-shrink-0" style="border-top: 1px solid var(--surface-container-low); background: var(--surface-container-lowest);">
+            @* Summary lines *@
+            <div class="space-y-1.5 text-sm">
+                <div class="flex justify-between">
+                    <span style="color: var(--muted);">Subtotal</span>
+                    <span style="color: var(--fg);" x-text="'$' + subtotal.toFixed(2)"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span style="color: var(--muted);">IVA (16%)</span>
+                    <span style="color: var(--fg);" x-text="'$' + tax.toFixed(2)"></span>
+                </div>
+                <div class="flex justify-between" x-show="discount > 0">
+                    <span style="color: var(--success);">Descuento</span>
+                    <span style="color: var(--success);" x-text="'-$' + discount.toFixed(2)"></span>
+                </div>
+                <div class="flex justify-between font-bold text-base pt-2" style="border-top: 1px solid var(--surface-container-low);">
+                    <span style="color: var(--fg);">Total</span>
+                    <span style="color: var(--primary);" x-text="'$' + total.toFixed(2)"></span>
+                </div>
+            </div>
+
+            @* Promo/voucher field *@
+            <div class="relative">
+                <input type="text" placeholder="Código de promoción..."
+                       x-model="promoCode"
+                       class="w-full pl-3 pr-16 py-2 rounded-xl text-xs
+                              focus:outline-none focus:ring-2 transition-all duration-200"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                <button class="absolute right-1 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors"
+                        style="color: var(--primary);"
+                        @@click="applyPromo"
+                        :disabled="!promoCode">Aplicar</button>
+            </div>
+
+            @* Payment method *@
+            <div class="flex gap-2">
+                <button @@click="paymentMethod = 'Efectivo'"
+                        class="flex-1 py-2 rounded-lg text-xs font-medium transition-all duration-200"
+                        :class="paymentMethod === 'Efectivo' ? 'text-white' : ''"
+                        :style="paymentMethod === 'Efectivo'
+                            ? 'background: var(--gradient-primary);'
+                            : 'color: var(--fg-2); background: var(--surface-container-low);'">
+                    💵 Efectivo
+                </button>
+                <button @@click="paymentMethod = 'Tarjeta'"
+                        class="flex-1 py-2 rounded-lg text-xs font-medium transition-all duration-200"
+                        :class="paymentMethod === 'Tarjeta' ? 'text-white' : ''"
+                        :style="paymentMethod === 'Tarjeta'
+                            ? 'background: var(--gradient-primary);'
+                            : 'color: var(--fg-2); background: var(--surface-container-low);'">
+                    💳 Tarjeta
+                </button>
+                <button @@click="paymentMethod = 'Transferencia'"
+                        class="flex-1 py-2 rounded-lg text-xs font-medium transition-all duration-200"
+                        :class="paymentMethod === 'Transferencia' ? 'text-white' : ''"
+                        :style="paymentMethod === 'Transferencia'
+                            ? 'background: var(--gradient-primary);'
+                            : 'color: var(--fg-2); background: var(--surface-container-low);'">
+                    🏦 Transf.
+                </button>
+            </div>
+
+            @* Place order button *@
+            <button @@click="placeOrder"
+                    :disabled="cart.length === 0"
+                    class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all duration-200
+                           shadow-ambient hover:shadow-modal active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                    style="background: var(--gradient-primary);">
+                <span x-show="cart.length > 0">Cobrar <span x-text="'$' + total.toFixed(2)"></span></span>
+                <span x-show="cart.length === 0">Agregá productos</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+@* ── Hidden form for HTMX POST ─────────────────────────────── *@
+<form id="place-order-form" method="post" action="/pos/place-order" style="display:none;"
+      hx-post="/pos/place-order" hx-target="#order-panel" hx-swap="innerHTML">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="OrderType" x-bind:value="orderType" />
+    <input type="hidden" name="PaymentMethod" x-bind:value="paymentMethod" />
+    <input type="hidden" name="Notes" x-bind:value="orderNotes" />
+    <template x-for="(item, idx) in cart" :key="idx">
+        <div>
+            <input type="hidden" :name="'Items[' + idx + '].ProductId'" :value="item.productId" />
+            <input type="hidden" :name="'Items[' + idx + '].UnitPrice'" :value="item.unitPrice" />
+            <input type="hidden" :name="'Items[' + idx + '].Quantity'" :value="item.quantity" />
+        </div>
+    </template>
+</form>
+
+@section Scripts {
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('posCart', () => ({
+        cart: [],
+        activeCategory: 'all',
+        searchQuery: '',
+        orderType: 'DineIn',
+        paymentMethod: 'Efectivo',
+        promoCode: '',
+        orderNotes: '',
+        discount: 0,
+
+        get subtotal() {
+            return this.cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+        },
+        get tax() {
+            return this.subtotal * 0.16;
+        },
+        get total() {
+            return this.subtotal + this.tax - this.discount;
+        },
+
+        get filteredCount() {
+            // Approximate — Alpine handles visibility per card
+            return 1; // Always show product grid, let x-show handle filtering
+        },
+
+        categoryLabel(catName) {
+            const map = {
+                'Productos': 'Storable',
+                'Consumibles': 'Consumable',
+                'Servicios': 'Service'
+            };
+            return map[catName] || catName;
+        },
+
+        addToCart(productId, productName, unitPrice) {
+            const existing = this.cart.find(i => i.productId === productId);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                this.cart.push({
+                    productId: productId,
+                    productName: productName,
+                    unitPrice: unitPrice,
+                    quantity: 1
+                });
+            }
+        },
+
+        removeFromCart(idx) {
+            this.cart.splice(idx, 1);
+        },
+
+        incrementItem(idx) {
+            this.cart[idx].quantity++;
+        },
+
+        decrementItem(idx) {
+            if (this.cart[idx].quantity > 1) {
+                this.cart[idx].quantity--;
+            } else {
+                this.removeFromCart(idx);
+            }
+        },
+
+        clearCart() {
+            if (this.cart.length > 0 && confirm('¿Limpiar la orden actual?')) {
+                this.cart = [];
+                this.discount = 0;
+                this.promoCode = '';
+            }
+        },
+
+        applyPromo() {
+            if (this.promoCode.toLowerCase() === 'pana10') {
+                this.discount = this.subtotal * 0.10;
+                alert('¡Promoción aplicada! 10% de descuento.');
+            } else {
+                this.discount = 0;
+                alert('Código no válido.');
+            }
+        },
+
+        placeOrder() {
+            if (this.cart.length === 0) return;
+            // Trigger the hidden form submit
+            const form = document.getElementById('place-order-form');
+            // Update hidden inputs
+            form.querySelector('[name="OrderType"]').value = this.orderType;
+            form.querySelector('[name="PaymentMethod"]').value = this.paymentMethod;
+            form.querySelector('[name="Notes"]').value = this.orderNotes;
+            // Clear template-based inputs and rebuild
+            const container = form.querySelector('template').parentElement;
+            // Remove previously added inputs (after template)
+            const existingInputs = container.querySelectorAll('div:not(:first-child)');
+            existingInputs.forEach(el => el.remove());
+            // Build new inputs
+            this.cart.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <input type="hidden" name="Items[${idx}].ProductId" value="${item.productId}" />
+                    <input type="hidden" name="Items[${idx}].UnitPrice" value="${item.unitPrice}" />
+                    <input type="hidden" name="Items[${idx}].Quantity" value="${item.quantity}" />
+                `;
+                container.appendChild(div);
+            });
+            // Submit via HTMX
+            htmx.trigger(form, 'submit');
+        },
+
+        init() {
+            // Listen for add-to-cart events from product detail modal
+            window.addEventListener('add-to-cart', (e) => {
+                this.addToCart(e.detail.productId, e.detail.productName, e.detail.unitPrice);
+            });
+        }
+    }));
+});
+</script>
+}

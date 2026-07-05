@@ -1,0 +1,189 @@
+@* Views/Activity/BillingQueue.cshtml — Activity / Billing Queue View *@
+@model Pana.Api.Web.ViewModels.ActivityViewModel
+@{
+    ViewData["Title"] = "Actividad — Cola de Facturación";
+}
+
+<div class="max-w-7xl mx-auto space-y-5 fade-in">
+
+    @* ── Header ─────────────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
+                <span class="text-gradient">Actividad</span>
+            </h1>
+            <p class="text-sm mt-0.5" style="color: var(--muted);">Cola de facturación y gestión de órdenes</p>
+        </div>
+    </div>
+
+    @* ── Activity layout: sidebar + content ─────────────────── *@
+    <div class="flex flex-col lg:flex-row gap-5">
+        @* Left navigation *@
+        <div class="lg:w-56 flex-shrink-0">
+            <nav class="space-y-1 p-2 rounded-2xl shadow-ambient" style="background: var(--surface-container-lowest);">
+                <a href="/activity"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                   style="background: var(--sidebar-accent); color: var(--sidebar-fg-active);">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Cola de Facturación
+                </a>
+                <a href="#" onclick="return false;"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                   style="color: var(--sidebar-fg); opacity: 0.5;">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Mesas
+                </a>
+                <a href="/activity/order-history"
+                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                   style="color: var(--sidebar-fg);"
+                   onmouseover="this.style.background='rgba(28,28,25,0.04)'"
+                   onmouseout="this.style.background='transparent'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Historial de Órdenes
+                </a>
+            </nav>
+        </div>
+
+        @* Main content *@
+        <div class="flex-1 min-w-0 space-y-5">
+            @* ── Filters + search ────────────────────────────── *@
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div class="relative flex-1 w-full sm:max-w-xs">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="search" placeholder="Buscar órdenes..."
+                           class="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm
+                                  focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button class="px-3 py-1.5 rounded-xl text-xs font-medium text-white shadow-ambient"
+                            style="background: var(--gradient-primary);">Todos</button>
+                    <button class="px-3 py-1.5 rounded-xl text-xs font-medium transition-colors"
+                            style="color: var(--fg-2); background: var(--surface-container-low);">Activos</button>
+                    <button class="px-3 py-1.5 rounded-xl text-xs font-medium transition-colors"
+                            style="color: var(--fg-2); background: var(--surface-container-low);">Cerrados</button>
+                    <span class="text-xs ml-1" style="color: var(--meta);">@Model.QueueItems.Count en cola</span>
+                </div>
+            </div>
+
+            @* ── Billing queue list ──────────────────────────── *@
+            <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+                @if (!Model.QueueItems.Any())
+                {
+                    <div class="text-center py-16">
+                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+                             style="background: var(--surface-container);">
+                            <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        </div>
+                        <p class="font-medium" style="color: var(--meta);">Cola vacía</p>
+                        <p class="text-xs mt-1" style="color: var(--meta);">No hay órdenes pendientes de facturación</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr style="background: var(--surface-container-low);">
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Orden</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Mesa</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Fecha</th>
+                                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Total</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                                @foreach (var item in Model.QueueItems)
+                                {
+                                    var (statusColor, statusBg) = item.Status switch
+                                    {
+                                        "Completed" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
+                                        "Voided" => ("var(--danger)", "color-mix(in srgb, var(--danger) 12%, transparent)"),
+                                        "Draft" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)"),
+                                        _ => ("var(--primary)", "color-mix(in srgb, var(--primary) 12%, transparent)")
+                                    };
+                                    var statusLabel = item.Status switch
+                                    {
+                                        "Completed" => "Completada",
+                                        "Voided" => "Anulada",
+                                        "Confirmed" => "Confirmada",
+                                        "Preparing" => "En preparación",
+                                        "Ready" => "Lista",
+                                        "Draft" => "Borrador",
+                                        _ => item.Status
+                                    };
+
+                                    <tr class="transition-colors cursor-pointer"
+                                        onmouseover="this.style.background='var(--surface-container-low)'"
+                                        onmouseout="this.style.background='transparent'"
+                                        hx-get="/sales/@item.Id"
+                                        hx-target="#modal-container">
+                                        <td class="px-6 py-3.5">
+                                            <p class="font-medium" style="color: var(--fg);">@item.OrderLabel</p>
+                                        </td>
+                                        <td class="px-6 py-3.5">
+                                            <span style="color: var(--fg-2);">@(item.TableNumber ?? "—")</span>
+                                        </td>
+                                        <td class="px-6 py-3.5">
+                                            <span style="color: var(--muted);">@item.CreatedAt.ToString("dd/MM HH:mm")</span>
+                                        </td>
+                                        <td class="px-6 py-3.5 text-right">
+                                            <span class="font-semibold" style="color: var(--fg);">$@item.TotalAmount.ToString("N2")</span>
+                                        </td>
+                                        <td class="px-6 py-3.5 text-center">
+                                            <span class="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
+                                                  style="color: @statusColor; background: @statusBg;">@statusLabel</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            @* ── Track-order cards ────────────────────────────── *@
+            <div>
+                <h3 class="text-sm font-semibold mb-3" style="color: var(--fg-2);">Órdenes en proceso</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach (var item in Model.QueueItems.Where(q => q.Status is "Confirmed" or "Preparing" or "Ready").Take(6))
+                    {
+                        var stepColors = item.Status switch
+                        {
+                            "Confirmed" => new[] { "var(--primary)", "var(--surface-container-high)", "var(--surface-container-high)" },
+                            "Preparing" => new[] { "var(--success)", "var(--primary)", "var(--surface-container-high)" },
+                            "Ready" => new[] { "var(--success)", "var(--success)", "var(--primary)" },
+                            _ => new[] { "var(--surface-container-high)", "var(--surface-container-high)", "var(--surface-container-high)" }
+                        };
+
+                        <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-mono font-medium" style="color: var(--fg-2);">@item.OrderLabel</span>
+                                <span class="text-xs" style="color: var(--muted);">@item.CreatedAt.ToString("HH:mm")</span>
+                            </div>
+                            @* Progress indicators *@
+                            <div class="flex items-center gap-1.5 mb-2">
+                                <div class="flex-1 h-1.5 rounded-full" style="background: @stepColors[0];"></div>
+                                <div class="flex-1 h-1.5 rounded-full" style="background: @stepColors[1];"></div>
+                                <div class="flex-1 h-1.5 rounded-full" style="background: @stepColors[2];"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px]" style="color: var(--meta);">
+                                <span>Confirmada</span>
+                                <span>Preparando</span>
+                                <span>Lista</span>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.QueueItems.Any(q => q.Status is "Confirmed" or "Preparing" or "Ready"))
+                    {
+                        <div class="col-span-full text-center py-6 rounded-xl" style="background: var(--surface-container-low);">
+                            <p class="text-sm" style="color: var(--meta);">Sin órdenes en proceso</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
