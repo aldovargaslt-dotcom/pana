@@ -1,0 +1,130 @@
+@model Pana.Api.Application.Production.RecipeDto
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="max-w-4xl mx-auto space-y-6">
+
+    @* ── Back + Header ──────────────────────────────────────── *@
+    <div>
+        <a href="/recipes" class="inline-flex items-center gap-2 text-sm font-medium transition-colors mb-4"
+           style="color: var(--muted);"
+           onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--muted)'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Volver a recetas
+        </a>
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold" style="color: var(--fg);">@Model.Name</h1>
+                <p class="text-sm mt-1" style="color: var(--muted);">
+                    Rinde @Model.Yield.ToString("N0") @Model.YieldUnit ·
+                    @Model.Ingredients.Count ingredientes
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button hx-get="/recipes/@Model.Id/edit-form"
+                        hx-target="#modal-container"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                        style="background: var(--surface-container); color: var(--fg-2);"
+                        onmouseover="this.style.background='var(--surface-container-high)'"
+                        onmouseout="this.style.background='var(--surface-container)'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Editar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @* ── Ingredients Table ──────────────────────────────────── *@
+    <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+        <div class="px-6 py-4" style="border-bottom: 1px solid var(--surface-container-low);">
+            <h2 class="text-sm font-semibold uppercase tracking-wider" style="color: var(--muted);">Ingredientes</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr style="background: var(--surface-container-low);">
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Material</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Categoría</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Cantidad</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Costo unitario</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Costo total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                    @if (!Model.Ingredients.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <p style="color: var(--meta);">Esta receta no tiene ingredientes todavía.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var ing in Model.Ingredients)
+                        {
+                            <tr>
+                                <td class="px-6 py-3 font-medium" style="color: var(--fg);">@ing.MaterialName</td>
+                                <td class="px-6 py-3">
+                                    <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+                                          style="background: var(--tertiary-fixed); color: var(--on-tertiary-fixed);">
+                                        @ing.MaterialCategory
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-right font-mono" style="color: var(--fg-2);">@ing.Qty @ing.Unit</td>
+                                <td class="px-6 py-3 text-right font-mono text-xs" style="color: var(--meta);">$@ing.MaterialCostPerBaseUnit.ToString("N4")/u</td>
+                                <td class="px-6 py-3 text-right font-mono font-medium" style="color: var(--fg);">$@ing.ComputedCost.ToString("N2")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @* ── Cost Breakdown ─────────────────────────────────────── *@
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="rounded-2xl shadow-ambient p-6" style="background: var(--surface-container-lowest);">
+            <h2 class="text-sm font-semibold uppercase tracking-wider mb-4" style="color: var(--muted);">Desglose de costo</h2>
+            <dl class="space-y-3">
+                <div class="flex justify-between">
+                    <dt class="text-sm" style="color: var(--fg-2);">Materia prima</dt>
+                    <dd class="text-sm font-mono font-medium" style="color: var(--fg);">$@Model.RawMaterialCost.ToString("N2")</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm" style="color: var(--fg-2);">Mano de obra</dt>
+                    <dd class="text-sm font-mono" style="color: var(--fg-2);">$@Model.LaborCost.ToString("N2")</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm" style="color: var(--fg-2);">Energía</dt>
+                    <dd class="text-sm font-mono" style="color: var(--fg-2);">$@Model.EnergyCost.ToString("N2")</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm" style="color: var(--fg-2);">Overhead (@Model.OverheadPct.ToString("N1")%)</dt>
+                    <dd class="text-sm font-mono" style="color: var(--fg-2);">$@Model.OverheadCost.ToString("N2")</dd>
+                </div>
+                <div style="border-top: 2px solid var(--surface-container-high); padding-top: 0.75rem;"></div>
+                <div class="flex justify-between">
+                    <dt class="text-sm font-bold" style="color: var(--fg);">Costo total del lote</dt>
+                    <dd class="text-sm font-mono font-bold" style="color: var(--fg);">$@Model.TotalBatchCost.ToString("N2")</dd>
+                </div>
+            </dl>
+        </div>
+
+        <div class="rounded-2xl shadow-ambient p-6 flex flex-col justify-center items-center text-center"
+             style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, var(--surface-container-lowest)), color-mix(in srgb, var(--primary) 8%, var(--surface-container-lowest)));">
+            <p class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--muted);">Costo por unidad</p>
+            <p class="text-4xl font-bold font-mono" style="color: var(--primary);">$@Model.CostPerUnit.ToString("N2")</p>
+            <p class="text-sm mt-1" style="color: var(--fg-2);">por @Model.YieldUnit.TrimEnd('s')</p>
+            @if (Model.LaborCostPerUnit > 0)
+            {
+                <p class="text-xs mt-3 px-3 py-1 rounded-full"
+                   style="background: var(--surface-container); color: var(--muted);">
+                    Incluye $@Model.LaborCostPerUnit.ToString("N2") de mano de obra / @Model.YieldUnit.TrimEnd('s')
+                </p>
+            }
+        </div>
+    </div>
+</div>

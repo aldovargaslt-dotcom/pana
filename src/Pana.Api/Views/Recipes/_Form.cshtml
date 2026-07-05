@@ -1,0 +1,104 @@
+@model Pana.Api.Web.ViewModels.RecipeFormViewModel
+
+<div class="modal-overlay" _="on click if event.target == me remove me">
+    <div class="modal-content surface-container-lowest rounded-2xl p-6 shadow-xl"
+         style="max-width: 520px; width: 90vw; background: var(--surface-container-lowest);">
+
+        <header class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold" style="color: var(--fg);">
+                @(Model.Id is null ? "Nueva Receta" : "Editar Receta")
+            </h2>
+            <button class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                    style="color: var(--meta);"
+                    onmouseover="this.style.background='var(--surface-container)'"
+                    onmouseout="this.style.background='transparent'"
+                    _="on click remove closest .modal-overlay">
+                ✕
+            </button>
+        </header>
+
+        <form hx-post="@(Model.Id is null ? "/recipes/create" : $"/recipes/{Model.Id}/edit")"
+              hx-target="#table-body"
+              hx-swap="outerHTML"
+              class="space-y-4">
+            @Html.AntiForgeryToken()
+
+            @if (Model.Id is not null)
+            {
+                <input type="hidden" name="Id" value="@Model.Id" />
+            }
+
+            <div class="form-group">
+                <label for="name" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Nombre</label>
+                <input type="text" id="name" name="Name" value="@Model.Name" required
+                       class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       placeholder="Ej. Concha de Vainilla" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="form-group">
+                    <label for="yield" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Rendimiento</label>
+                    <input type="number" id="yield" name="Yield" value="@Model.Yield" step="0.01" min="0.01" required
+                           class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                           style="background: var(--surface-container-high); color: var(--fg);" />
+                </div>
+
+                <div class="form-group">
+                    <label for="yieldUnit" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Unidad</label>
+                    <select id="yieldUnit" name="YieldUnit" required
+                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                            style="background: var(--surface-container-high); color: var(--fg);">
+                        <option value="pza" selected="@(Model.YieldUnit == "pza")">piezas</option>
+                        <option value="kg" selected="@(Model.YieldUnit == "kg")">kg</option>
+                        <option value="docena" selected="@(Model.YieldUnit == "docena")">docenas</option>
+                        <option value="g" selected="@(Model.YieldUnit == "g")">g</option>
+                    </select>
+                </div>
+            </div>
+
+            <fieldset class="rounded-xl p-4 space-y-3" style="background: var(--surface-container-low);">
+                <legend class="text-sm font-semibold px-2" style="color: var(--fg-2);">Costos adicionales</legend>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="form-group">
+                        <label for="laborCostPerUnit" class="block text-xs font-medium mb-1" style="color: var(--muted);">Mano de obra / unidad</label>
+                        <input type="number" id="laborCostPerUnit" name="LaborCostPerUnit" value="@Model.LaborCostPerUnit" step="0.01" min="0"
+                               class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all font-mono"
+                               style="background: var(--surface-container-high); color: var(--fg);" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="energyCost" class="block text-xs font-medium mb-1" style="color: var(--muted);">Energía / lote</label>
+                        <input type="number" id="energyCost" name="EnergyCost" value="@Model.EnergyCost" step="0.01" min="0"
+                               class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all font-mono"
+                               style="background: var(--surface-container-high); color: var(--fg);" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="overheadPct" class="block text-xs font-medium mb-1" style="color: var(--muted);">Overhead % (gastos indirectos)</label>
+                    <input type="number" id="overheadPct" name="OverheadPct" value="@Model.OverheadPct" step="0.01" min="0" max="100"
+                           class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                           style="background: var(--surface-container-high); color: var(--fg);" />
+                </div>
+            </fieldset>
+
+            <footer class="flex justify-end gap-3 pt-4" style="border-top: 1px solid var(--surface-container);">
+                <button type="button"
+                        class="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                        style="background: var(--surface-container); color: var(--fg-2);"
+                        onmouseover="this.style.background='var(--surface-container-high)'"
+                        onmouseout="this.style.background='var(--surface-container)'"
+                        _="on click remove closest .modal-overlay">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">
+                    Guardar
+                </button>
+            </footer>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,69 @@
+@model List<Pana.Api.Web.ViewModels.RawMaterialRowViewModel>
+
+@if (!Model.Any())
+{
+    <tr>
+        <td colspan="6" class="px-6 py-16 text-center">
+            <div class="flex flex-col items-center gap-3">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
+                    <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                <p class="font-medium" style="color: var(--meta);">No hay materias primas aún</p>
+                <p class="text-xs" style="color: var(--meta);">Registra tu primer ingrediente para crear recetas</p>
+            </div>
+        </td>
+    </tr>
+}
+else
+{
+    @foreach (var m in Model)
+    {
+        <tr class="hover:bg-[var(--surface-container-low)] transition-colors group">
+            <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs"
+                         style="background: linear-gradient(135deg, color-mix(in srgb, var(--tertiary) 5%, transparent), color-mix(in srgb, var(--tertiary) 10%, transparent)); color: var(--tertiary);">
+                        @m.Name[..Math.Min(2, m.Name.Length)].ToUpper()
+                    </div>
+                    <div>
+                        <p class="font-medium" style="color: var(--fg);">@m.Name</p>
+                        @if (m.Supplier is not null)
+                        {
+                            <p class="text-xs" style="color: var(--meta);">@m.Supplier</p>
+                        }
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4">
+                <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium"
+                      style="background: var(--tertiary-fixed); color: var(--on-tertiary-fixed);">
+                    @m.Category
+                </span>
+            </td>
+            <td class="px-6 py-4 text-right font-mono" style="color: var(--fg-2);">$@m.PurchasePrice.ToString("N2")</td>
+            <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@m.PresentationQty @m.PurchaseUnit</td>
+            <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@m.YieldPct.ToString("N0")%</td>
+            <td class="px-6 py-4 text-right font-mono font-medium" style="color: var(--fg);">
+                $@m.CostPerBaseUnit.ToString("N4") / @m.BaseUnit
+                <div class="flex justify-end gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button hx-get="/raw-materials/@m.Id/edit-form"
+                            hx-target="#modal-container"
+                            class="text-xs px-2 py-1 rounded-lg transition-colors"
+                            style="color: var(--fg-2);"
+                            onmouseover="this.style.background='var(--surface-container)'"
+                            onmouseout="this.style.background='transparent'">
+                        Editar
+                    </button>
+                    <button hx-delete="/raw-materials/@m.Id"
+                            hx-confirm="¿Desactivar este material?"
+                            class="text-xs px-2 py-1 rounded-lg transition-colors"
+                            style="color: var(--danger);"
+                            onmouseover="this.style.background='var(--primary-fixed)'"
+                            onmouseout="this.style.background='transparent'">
+                        Eliminar
+                    </button>
+                </div>
+            </td>
+        </tr>
+    }
+}

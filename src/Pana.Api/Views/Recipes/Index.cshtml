@@ -1,0 +1,115 @@
+@model Pana.Api.Web.ViewModels.RecipeListViewModel
+@{
+    ViewData["Title"] = "Recetas";
+}
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    @* ── Header ─────────────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
+                <span class="text-gradient">Recetas</span>
+            </h1>
+            <p class="text-sm mt-1" style="color: var(--muted);">@Model.TotalCount recetas registradas</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="search" name="q" placeholder="Buscar recetas..."
+                       hx-get="/recipes/table-rows"
+                       hx-trigger="keyup changed delay:300ms"
+                       hx-target="#table-body"
+                       class="pl-9 pr-4 py-2.5 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 w-48 sm:w-64 transition-all duration-200"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+            </div>
+            <button hx-get="/recipes/create-form"
+                    hx-target="#modal-container"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
+                           transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                    style="background: var(--gradient-primary);">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nueva
+            </button>
+        </div>
+    </div>
+
+    @* ── Table ──────────────────────────────────────────────── *@
+    <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr style="background: var(--surface-container-low);">
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Receta</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Rendimiento</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Costo total</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Costo / unidad</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="divide-y" style="border-color: var(--surface-container-low);"
+                       hx-get="/recipes/table-rows" hx-trigger="recipe-created from:body">
+                    @if (!Model.Recipes.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="px-6 py-16 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
+                                        <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                                    </div>
+                                    <p class="font-medium" style="color: var(--meta);">No hay recetas aún</p>
+                                    <p class="text-xs" style="color: var(--meta);">Crea tu primera receta para calcular costos</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var r in Model.Recipes)
+                        {
+                            <tr class="hover:bg-[var(--surface-container-low)] transition-colors group cursor-pointer"
+                                onclick="window.location.href='/recipes/@r.Id'">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs"
+                                             style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent), color-mix(in srgb, var(--primary) 10%, transparent)); color: var(--primary);">
+                                            @r.Name[..Math.Min(2, r.Name.Length)].ToUpper()
+                                        </div>
+                                        <div>
+                                            <p class="font-medium" style="color: var(--fg);">@r.Name</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@r.Yield.ToString("N0") @r.YieldUnit</td>
+                                <td class="px-6 py-4 text-right font-mono font-medium" style="color: var(--fg);">$@r.TotalBatchCost.ToString("N2")</td>
+                                <td class="px-6 py-4 text-right font-mono font-semibold" style="color: var(--primary);">
+                                    $@r.CostPerUnit.ToString("N2")
+                                    <div class="flex justify-end gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
+                                        <button hx-get="/recipes/@r.Id/edit-form"
+                                                hx-target="#modal-container"
+                                                class="text-xs px-2 py-1 rounded-lg transition-colors"
+                                                style="color: var(--fg-2);"
+                                                onmouseover="this.style.background='var(--surface-container)'"
+                                                onmouseout="this.style.background='transparent'">
+                                            Editar
+                                        </button>
+                                        <button hx-delete="/recipes/@r.Id"
+                                                hx-confirm="¿Desactivar esta receta?"
+                                                class="text-xs px-2 py-1 rounded-lg transition-colors"
+                                                style="color: var(--danger);"
+                                                onmouseover="this.style.background='var(--primary-fixed)'"
+                                                onmouseout="this.style.background='transparent'">
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

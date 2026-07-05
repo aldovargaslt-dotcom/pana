@@ -1,0 +1,109 @@
+@model Pana.Api.Web.ViewModels.RawMaterialListViewModel
+@{
+    ViewData["Title"] = "Materias Primas";
+}
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    @* ── Header ─────────────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
+                <span class="text-gradient">Materias Primas</span>
+            </h1>
+            <p class="text-sm mt-1" style="color: var(--muted);">@Model.TotalCount materiales registrados</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="search" name="q" placeholder="Buscar materiales..."
+                       hx-get="/raw-materials/table-rows"
+                       hx-trigger="keyup changed delay:300ms"
+                       hx-target="#table-body"
+                       class="pl-9 pr-4 py-2.5 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 w-48 sm:w-64 transition-all duration-200"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+            </div>
+            <button hx-get="/raw-materials/create-form"
+                    hx-target="#modal-container"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
+                           transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                    style="background: var(--gradient-primary);">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nuevo
+            </button>
+        </div>
+    </div>
+
+    @* ── Table ──────────────────────────────────────────────── *@
+    <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr style="background: var(--surface-container-low);">
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Material</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Categoría</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Precio compra</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Presentación</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Rendimiento</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Costo / unidad base</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="divide-y" style="border-color: var(--surface-container-low);"
+                       hx-get="/raw-materials/table-rows" hx-trigger="material-created from:body">
+                    @if (!Model.Materials.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="px-6 py-16 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
+                                        <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                                    </div>
+                                    <p class="font-medium" style="color: var(--meta);">No hay materias primas aún</p>
+                                    <p class="text-xs" style="color: var(--meta);">Registra tu primer ingrediente para crear recetas</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var m in Model.Materials)
+                        {
+                            <tr class="hover:bg-[var(--surface-container-low)] transition-colors group">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs"
+                                             style="background: linear-gradient(135deg, color-mix(in srgb, var(--tertiary) 5%, transparent), color-mix(in srgb, var(--tertiary) 10%, transparent)); color: var(--tertiary);">
+                                            @m.Name[..Math.Min(2, m.Name.Length)].ToUpper()
+                                        </div>
+                                        <div>
+                                            <p class="font-medium" style="color: var(--fg);">@m.Name</p>
+                                            @if (m.Supplier is not null)
+                                            {
+                                                <p class="text-xs" style="color: var(--meta);">@m.Supplier</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium"
+                                          style="background: var(--tertiary-fixed); color: var(--on-tertiary-fixed);">
+                                        @m.Category
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right font-mono" style="color: var(--fg-2);">$@m.PurchasePrice.ToString("N2")</td>
+                                <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@m.PresentationQty @m.PurchaseUnit</td>
+                                <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@m.YieldPct.ToString("N0")%</td>
+                                <td class="px-6 py-4 text-right font-mono font-medium" style="color: var(--fg);">
+                                    $@m.CostPerBaseUnit.ToString("N4") / @m.BaseUnit
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

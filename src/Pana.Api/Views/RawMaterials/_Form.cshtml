@@ -1,0 +1,134 @@
+@model Pana.Api.Web.ViewModels.RawMaterialFormViewModel
+
+<div class="modal-overlay" _="on click if event.target == me remove me">
+    <div class="modal-content surface-container-lowest rounded-2xl p-6 shadow-xl"
+         style="max-width: 520px; width: 90vw; background: var(--surface-container-lowest);">
+
+        <header class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold" style="color: var(--fg);">
+                @(Model.Id is null ? "Nuevo Material" : "Editar Material")
+            </h2>
+            <button class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+                    style="color: var(--meta);"
+                    onmouseover="this.style.background='var(--surface-container)'"
+                    onmouseout="this.style.background='transparent'"
+                    _="on click remove closest .modal-overlay">
+                ✕
+            </button>
+        </header>
+
+        <form hx-post="@(Model.Id is null ? "/raw-materials/create" : $"/raw-materials/{Model.Id}/edit")"
+              hx-target="#table-body"
+              hx-swap="outerHTML"
+              class="space-y-4">
+            @Html.AntiForgeryToken()
+
+            @if (Model.Id is not null)
+            {
+                <input type="hidden" name="Id" value="@Model.Id" />
+            }
+
+            <div class="form-group">
+                <label for="name" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Nombre</label>
+                <input type="text" id="name" name="Name" value="@Model.Name" required
+                       class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       placeholder="Ej. Harina de trigo 00" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="form-group">
+                    <label for="category" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Categoría</label>
+                    <select id="category" name="Category" required
+                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                            style="background: var(--surface-container-high); color: var(--fg);">
+                        <option value="">Seleccionar...</option>
+                        <option value="Flours" selected="@(Model.Category == "Flours")">Harinas</option>
+                        <option value="Sugars" selected="@(Model.Category == "Sugars")">Azúcares</option>
+                        <option value="Eggs" selected="@(Model.Category == "Eggs")">Huevos</option>
+                        <option value="Dairy" selected="@(Model.Category == "Dairy")">Lácteos</option>
+                        <option value="Fats" selected="@(Model.Category == "Fats")">Grasas</option>
+                        <option value="Leaveners" selected="@(Model.Category == "Leaveners")">Levaduras</option>
+                        <option value="Flavorings" selected="@(Model.Category == "Flavorings")">Saborizantes</option>
+                        <option value="Other" selected="@(Model.Category == "Other")">Otro</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="supplier" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Proveedor</label>
+                    <input type="text" id="supplier" name="Supplier" value="@Model.Supplier"
+                           class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           placeholder="Opcional" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="form-group">
+                    <label for="purchasePrice" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Precio de compra</label>
+                    <input type="number" id="purchasePrice" name="PurchasePrice" value="@Model.PurchasePrice" step="0.01" min="0" required
+                           class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all font-mono"
+                           style="background: var(--surface-container-high); color: var(--fg);" />
+                </div>
+
+                <div class="form-group">
+                    <label for="purchaseUnit" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Unidad de compra</label>
+                    <select id="purchaseUnit" name="PurchaseUnit" required
+                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                            style="background: var(--surface-container-high); color: var(--fg);">
+                        <option value="kg" selected="@(Model.PurchaseUnit == "kg")">kg</option>
+                        <option value="g" selected="@(Model.PurchaseUnit == "g")">g</option>
+                        <option value="L" selected="@(Model.PurchaseUnit == "L")">L</option>
+                        <option value="mL" selected="@(Model.PurchaseUnit == "mL")">mL</option>
+                        <option value="pza" selected="@(Model.PurchaseUnit == "pza")">pza</option>
+                        <option value="docena" selected="@(Model.PurchaseUnit == "docena")">docena</option>
+                        <option value="cono" selected="@(Model.PurchaseUnit == "cono")">cono</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <div class="form-group">
+                    <label for="presentationQty" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Presentación</label>
+                    <input type="number" id="presentationQty" name="PresentationQty" value="@Model.PresentationQty" step="0.01" min="0.01" required
+                           class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                           style="background: var(--surface-container-high); color: var(--fg);" />
+                </div>
+
+                <div class="form-group">
+                    <label for="baseUnit" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Unidad base</label>
+                    <select id="baseUnit" name="BaseUnit" required
+                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                            style="background: var(--surface-container-high); color: var(--fg);">
+                        <option value="g" selected="@(Model.BaseUnit == "g")">g</option>
+                        <option value="mL" selected="@(Model.BaseUnit == "mL")">mL</option>
+                        <option value="pza" selected="@(Model.BaseUnit == "pza")">pza</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="yieldPct" class="block text-sm font-medium mb-1" style="color: var(--fg-2);">Rendimiento %</label>
+                    <input type="number" id="yieldPct" name="YieldPct" value="@Model.YieldPct" step="0.01" min="0.01" max="100" required
+                           class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                           style="background: var(--surface-container-high); color: var(--fg);" />
+                </div>
+            </div>
+
+            <footer class="flex justify-end gap-3 pt-4" style="border-top: 1px solid var(--surface-container);">
+                <button type="button"
+                        class="px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+                        style="background: var(--surface-container); color: var(--fg-2);"
+                        onmouseover="this.style.background='var(--surface-container-high)'"
+                        onmouseout="this.style.background='var(--surface-container)'"
+                        _="on click remove closest .modal-overlay">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="px-5 py-2.5 text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">
+                    Guardar
+                </button>
+            </footer>
+        </form>
+    </div>
+</div>
