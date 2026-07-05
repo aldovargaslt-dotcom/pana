@@ -1,0 +1,101 @@
+@* Views/Dashboard/_DailyContextBar.cshtml — Weather, day type, payday indicators *@
+@model Pana.Api.Application.Common.DailyContextDto?
+@{
+    var weatherEmoji = Model?.Weather switch
+    {
+        "frio" => "🥶",
+        "templado" => "☀️",
+        "calor" => "🔥",
+        "lluvia" => "🌧️",
+        _ => "🌤️"
+    };
+    var weatherLabel = Model?.Weather switch
+    {
+        "frio" => "Frío",
+        "templado" => "Templado",
+        "calor" => "Calor",
+        "lluvia" => "Lluvia",
+        _ => "—"
+    };
+    var dayTypeEmoji = Model?.DayType switch
+    {
+        "normal" => "📅",
+        "finde" => "🎉",
+        "festivo" => "🎊",
+        "vacaciones" => "🏖️",
+        _ => "📅"
+    };
+    var dayTypeLabel = Model?.DayType switch
+    {
+        "normal" => "Día normal",
+        "finde" => "Fin de semana",
+        "festivo" => "Festivo",
+        "vacaciones" => "Vacaciones",
+        _ => "—"
+    };
+    var todayName = DateTime.Now.ToString("dddd, d 'de' MMMM",
+        new System.Globalization.CultureInfo("es-MX"));
+}
+
+<div id="daily-context"
+     class="flex flex-wrap items-center gap-2 sm:gap-3 px-4 py-2.5
+            bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm
+            rounded-xl border border-gray-100 dark:border-gray-700 shadow-card text-sm"
+     hx-get="/web/dashboard/widget/daily-context" hx-trigger="every 300s" hx-swap="outerHTML">
+    @* Date *@
+    <span class="text-gray-500 dark:text-gray-400 font-medium">
+        📆 @todayName
+    </span>
+    <span class="text-gray-300 dark:text-gray-600">|</span>
+    @* Weather *@
+    <span class="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300">
+        <span>@weatherEmoji</span>
+        <span class="font-medium">@weatherLabel</span>
+    </span>
+    <span class="text-gray-300 dark:text-gray-600">|</span>
+    @* Day type *@
+    <span class="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300">
+        <span>@dayTypeEmoji</span>
+        <span class="font-medium">@dayTypeLabel</span>
+    </span>
+    @* Payday indicator *@
+    @if (Model?.IsPayday == true)
+    {
+        <span class="text-gray-300 dark:text-gray-600">|</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+                     bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400
+                     text-xs font-semibold">
+            💰 Quincena
+        </span>
+    }
+    @* Local event *@
+    @if (Model?.HasLocalEvent == true)
+    {
+        <span class="text-gray-300 dark:text-gray-600">|</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+                     bg-brand-100 dark:bg-brand-500/20 text-brand-700 dark:text-brand-400
+                     text-xs font-semibold">
+            🎪 Evento local
+        </span>
+    }
+    @* School out *@
+    @if (Model?.SchoolOut == true)
+    {
+        <span class="text-gray-300 dark:text-gray-600">|</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+                     bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400
+                     text-xs font-semibold">
+            🏫 Sin clases
+        </span>
+    }
+    @* Low stock alert *@
+    @if (Model?.LowStock == true)
+    {
+        <span class="text-gray-300 dark:text-gray-600">|</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full
+                     bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400
+                     text-xs font-semibold">
+            ⚠️ Stock bajo
+        </span>
+    }
+</div>
