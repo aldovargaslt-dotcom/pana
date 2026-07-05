@@ -1,7 +1,7 @@
 @model Pana.Api.Application.Operations.DailyProductionDto?
 @{
     ViewData["Title"] = "Producción Diaria";
-    var products = ViewBag.Products as List<dynamic>;
+    var products = ViewBag.Products as List<dynamic> ?? new List<dynamic>();
 }
 
 <div class="max-w-7xl mx-auto space-y-6">
