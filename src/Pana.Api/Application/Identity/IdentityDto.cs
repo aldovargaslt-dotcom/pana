@@ -15,7 +15,8 @@ public record UserDto(
 public record RegisterRequest(
     string Email,
     string Password,
-    string DisplayName
+    string DisplayName,
+    string? Role = null
 );
 
 public record LoginRequest(

@@ -40,7 +40,8 @@ public class AuthService : IAuthService
             throw new InvalidOperationException("A user with this email already exists.");
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-        var user = new User(_tenantContext.TenantId, email, passwordHash, request.DisplayName, User.Roles.Admin);
+        var role = string.IsNullOrWhiteSpace(request.Role) ? User.Roles.Staff : request.Role;
+        var user = new User(_tenantContext.TenantId, email, passwordHash, request.DisplayName, role);
 
         _db.Users.Add(user);
         await _db.SaveChangesAsync(ct);
