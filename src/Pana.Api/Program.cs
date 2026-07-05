@@ -114,7 +114,11 @@ builder.Services.AddScoped<IDomainEventHandler<SaleCompletedEvent>, SaleComplete
 builder.Services.AddValidatorsFromAssemblyContaining<ProductRequestValidator>();
 
 // ── Controllers & Views ────────────────────────────────────────
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Disable antiforgery globally — internal bakery app behind login
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryTokenAttribute());
+});
 
 // ── FluentValidation auto-validation ───────────────────────────
 builder.Services.AddFluentValidationAutoValidation();
