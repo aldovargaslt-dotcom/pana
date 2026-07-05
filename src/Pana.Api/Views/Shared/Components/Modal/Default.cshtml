@@ -7,14 +7,19 @@
      x-transition.opacity.duration.200ms
      @@keydown.escape.window="open = false">
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full @Model.SizeClasses p-0 max-h-[85vh] flex flex-col scale-in"
+    <div class="rounded-2xl shadow-modal w-full @Model.SizeClasses p-0 max-h-[85vh] flex flex-col scale-in"
+         style="background: var(--surface-container-lowest);"
          @@click.outside="open = false">
 
-        @* Header *@
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <h2 class="text-lg font-semibold text-gray-800">@Model.Title</h2>
+        @* Header — tonal separation, no border *@
+        <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl"
+             style="background: var(--surface-container-low);">
+            <h2 class="text-lg font-semibold" style="color: var(--fg);">@Model.Title</h2>
             <button @@click="open = false"
-                    class="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                    class="p-2 rounded-xl transition-colors"
+                    style="color: var(--meta);"
+                    onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
+                    onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>

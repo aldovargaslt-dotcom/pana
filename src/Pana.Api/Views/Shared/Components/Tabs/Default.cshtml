@@ -1,8 +1,8 @@
 @model Pana.Api.Web.Components.TabsProps
 
 <div x-data="{ activeTab: '@Model.ActiveTab' }" class="space-y-5">
-    @* Tab headers *@
-    <div class="flex border-b border-gray-200 gap-0">
+    @* Tab headers — tonal separation, no border *@
+    <div class="flex gap-0 pb-px" style="background: var(--surface-container);">
         @foreach (var tab in Model.Tabs)
         {
             <button @@click="activeTab = '@tab.Id'"
@@ -10,9 +10,12 @@
                     hx-target="@tab.HxTarget"
                     hx-trigger="click"
                     :class="activeTab === '@tab.Id'
-                        ? 'border-b-2 border-brand-500 text-brand-700 font-semibold'
-                        : 'text-gray-400 hover:text-gray-600 font-medium'"
-                    class="px-5 py-3 text-sm transition-all duration-200">
+                        ? ''
+                        : ''"
+                    class="px-5 py-3 text-sm transition-all duration-200 font-medium"
+                    :style="activeTab === '@tab.Id'
+                        ? 'color: var(--primary); box-shadow: inset 0 -2px 0 var(--primary);'
+                        : 'color: var(--meta);'">
                 @tab.Label
             </button>
         }

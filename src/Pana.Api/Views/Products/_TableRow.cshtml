@@ -1,19 +1,22 @@
 @model Pana.Api.Web.ViewModels.ProductRowViewModel
 
-<tr class="hover:bg-gray-50 transition-colors fade-in"
+<tr class="transition-colors fade-in"
+    style="cursor: default;"
+    onmouseover="this.style.background='var(--surface-container-low)'"
+    onmouseout="this.style.background='transparent'"
     id="product-row-@Model.Id">
     <td class="px-4 py-3">
-        <p class="font-medium text-gray-900">@Model.Name</p>
-        <p class="text-xs text-gray-400">@Model.Sku</p>
+        <p class="font-medium" style="color: var(--fg);">@Model.Name</p>
+        <p class="text-xs" style="color: var(--meta);">@Model.Sku</p>
     </td>
-    <td class="px-4 py-3 text-gray-600">@Model.Sku</td>
-    <td class="px-4 py-3 font-medium text-gray-900">$@Model.Price.ToString("N2")</td>
+    <td class="px-4 py-3" style="color: var(--fg-2);">@Model.Sku</td>
+    <td class="px-4 py-3 font-medium" style="color: var(--fg);">$@Model.Price.ToString("N2")</td>
     <td class="px-4 py-3">
         <div class="flex items-center gap-2">
-            <span class="@(Model.MarginPercentage >= 30 ? "text-emerald-600" : "text-amber-600") font-medium">
+            <span class="font-medium" style="color: @(Model.MarginPercentage >= 30 ? "var(--success)" : "var(--tertiary)");">
                 @Model.MarginPercentage.ToString("F1")%
             </span>
-            <span class="text-xs text-gray-400">$@Model.Margin.ToString("N2")</span>
+            <span class="text-xs" style="color: var(--meta);">$@Model.Margin.ToString("N2")</span>
         </div>
     </td>
     <td class="px-4 py-3">
@@ -25,7 +28,10 @@
         <div class="flex items-center gap-1">
             <button hx-get="/products/@Model.Id/edit-form"
                     hx-target="#modal-container"
-                    class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                    class="p-1.5 rounded-lg transition-colors"
+                    style="color: var(--meta);"
+                    onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
+                    onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'"
                     title="Editar">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -35,7 +41,10 @@
                     hx-confirm="¿Eliminar @Model.Name?"
                     hx-target="#product-row-@Model.Id"
                     hx-swap="delete swap:0.3s"
-                    class="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                    class="p-1.5 rounded-lg transition-colors"
+                    style="color: var(--meta);"
+                    onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
+                    onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'"
                     title="Eliminar">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>

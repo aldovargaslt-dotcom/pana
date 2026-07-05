@@ -11,7 +11,10 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    @* ── Pana Design Tokens ────────────────────────────────── *@
+    <link rel="stylesheet" href="/css/pana-tokens.css" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -19,15 +22,15 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe',
-                            300: '#a5b4fc', 400: '#818cf8', 500: '#6366f1',
-                            600: '#4f46e5', 700: '#4338ca', 800: '#3730a3',
-                            900: '#312e81', 950: '#1e1b4b',
-                        }
+                        primary: 'var(--primary)',
+                        'primary-container': 'var(--primary-container)',
+                        'primary-fixed': 'var(--primary-fixed)',
+                        'on-primary': 'var(--on-primary)',
+                        tertiary: 'var(--tertiary)',
+                        'tertiary-fixed': 'var(--tertiary-fixed)',
                     }
                 }
             }
@@ -49,52 +52,54 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @@keyframes pulseRing {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            50% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
-        }
 
         .animate-float { animation: float 6s ease-in-out infinite; }
         .animate-float-slow { animation: floatSlow 8s ease-in-out infinite; }
         .animate-fade-up { animation: fadeUp 0.6s ease-out forwards; }
         .animate-fade-up-delay { animation: fadeUp 0.6s ease-out 0.15s forwards; opacity: 0; }
 
-        .bg-grid {
+        .bg-texture {
             background-image:
-                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
+                radial-gradient(circle at 20% 50%, rgba(158, 0, 18, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(101, 71, 0, 0.04) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(158, 0, 18, 0.02) 0%, transparent 50%);
         }
     </style>
 </head>
-<body class="min-h-screen font-sans antialiased bg-gradient-to-br from-brand-950 via-brand-900 to-indigo-950 flex items-center justify-center p-4 overflow-hidden relative">
+<body class="min-h-screen font-sans antialiased flex items-center justify-center p-4 overflow-hidden relative"
+      style="background: var(--bg);">
 
     @* ── Decorative background elements ─────────────────────── *@
-    <div class="absolute inset-0 bg-grid"></div>
-    <div class="absolute top-1/4 -left-20 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl animate-float-slow"></div>
-    <div class="absolute bottom-1/4 -right-20 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-float"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-400/5 rounded-full blur-3xl"></div>
+    <div class="absolute inset-0 bg-texture"></div>
+    <div class="absolute top-1/4 -left-20 w-96 h-96 rounded-full blur-3xl animate-float-slow"
+         style="background: color-mix(in srgb, var(--primary) 5%, transparent);"></div>
+    <div class="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full blur-3xl animate-float"
+         style="background: color-mix(in srgb, var(--tertiary) 8%, transparent);"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl"
+         style="background: color-mix(in srgb, var(--primary) 3%, transparent);"></div>
 
     @* ── Login card ─────────────────────────────────────────── *@
     <div class="relative z-10 w-full max-w-md animate-fade-up">
 
         @* Brand header *@
         <div class="text-center mb-8">
-            <div class="inline-flex mx-auto w-16 h-16 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl items-center justify-center text-white font-extrabold text-3xl mb-5 shadow-glow"
-                 style="box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);">
+            <div class="inline-flex mx-auto w-16 h-16 rounded-2xl items-center justify-center text-white font-extrabold text-3xl mb-5 shadow-ambient"
+                 style="background: var(--gradient-primary);">
                 P
             </div>
-            <h1 class="text-3xl font-bold text-white tracking-tight">Pana</h1>
-            <p class="text-brand-300/60 text-sm mt-2">Business Management Platform</p>
+            <h1 class="text-3xl font-bold tracking-tight" style="color: var(--fg);">Pana</h1>
+            <p class="text-sm mt-2" style="color: var(--meta);">Business Management Platform</p>
         </div>
 
         @* Form card *@
         <form method="post"
-              class="bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl p-8 space-y-5 shadow-2xl">
+              class="backdrop-blur-xl rounded-2xl p-8 space-y-5 shadow-ambient"
+              style="background: var(--surface-container-lowest);">
 
             @if (!ViewData.ModelState.IsValid)
             {
-                <div class="bg-red-500/10 border border-red-500/20 text-red-300 text-sm rounded-xl p-4 flex items-start gap-3">
+                <div class="text-sm rounded-xl p-4 flex items-start gap-3"
+                     style="color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent);">
                     <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <div>
                         @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
@@ -106,43 +111,45 @@
             }
 
             <div>
-                <label class="block text-sm font-medium text-brand-200 mb-1.5">Correo electrónico</label>
+                <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Correo electrónico</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-brand-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <svg class="w-5 h-5" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     </div>
                     <input type="email" name="email" required autofocus
-                           class="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white
-                                  placeholder-brand-300/30 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
-                                  transition-all duration-200"
+                           class="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
                            placeholder="tu@email.com" />
                 </div>
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-brand-200 mb-1.5">Contraseña</label>
+                <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Contraseña</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-brand-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <svg class="w-5 h-5" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                     </div>
                     <input type="password" name="password" required
-                           class="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white
-                                  placeholder-brand-300/30 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
-                                  transition-all duration-200"
+                           class="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
                            placeholder="••••••••" />
                 </div>
             </div>
 
             <button type="submit"
-                    class="w-full bg-gradient-to-r from-brand-500 to-brand-600 text-white py-3 rounded-xl text-sm font-semibold
-                           hover:from-brand-600 hover:to-brand-700 transition-all duration-200
-                           focus:outline-none focus:ring-2 focus:ring-brand-400 focus:ring-offset-2 focus:ring-offset-brand-900
-                           active:scale-[0.98] shadow-lg shadow-brand-500/25 tracking-wide">
+                    class="w-full text-white py-3 rounded-xl text-sm font-semibold
+                           transition-all duration-200 shadow-ambient hover:shadow-ambient
+                           active:scale-[0.98] tracking-wide"
+                    style="background: var(--gradient-primary);">
                 Iniciar sesión
             </button>
         </form>
 
-        <p class="text-center text-xs text-brand-300/30 mt-6">Pana v1.0 · Default Bakery</p>
+        <p class="text-center text-xs mt-6" style="color: var(--meta);">Pana v2.0 · The Modern Hearth</p>
     </div>
 
 </body>

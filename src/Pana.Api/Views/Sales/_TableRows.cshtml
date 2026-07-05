@@ -15,23 +15,28 @@ else
 {
     @foreach (var sale in Model)
     {
-        <tr class="hover:bg-gray-50 transition-colors fade-in"
+        <tr class="transition-colors fade-in"
+            onmouseover="this.style.background='var(--surface-container-low)'"
+            onmouseout="this.style.background='transparent'"
             id="sale-row-@sale.Id">
             <td class="px-4 py-3">
-                <p class="font-medium text-gray-900">#@sale.Id.ToString()[..8]</p>
+                <p class="font-medium" style="color: var(--fg);">#@sale.Id.ToString()[..8]</p>
             </td>
             <td class="px-4 py-3">
                 <pana-badge variant="@(sale.Status == "completed" ? "success" : sale.Status == "voided" ? "danger" : "warning")">
                     @(sale.Status == "completed" ? "Completada" : sale.Status == "voided" ? "Anulada" : "Pendiente")
                 </pana-badge>
             </td>
-            <td class="px-4 py-3 text-gray-600">@sale.ItemCount</td>
-            <td class="px-4 py-3 font-semibold text-gray-900">$@sale.TotalAmount.ToString("N2")</td>
-            <td class="px-4 py-3 text-sm text-gray-500">@sale.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+            <td class="px-4 py-3" style="color: var(--fg-2);">@sale.ItemCount</td>
+            <td class="px-4 py-3 font-semibold" style="color: var(--fg);">$@sale.TotalAmount.ToString("N2")</td>
+            <td class="px-4 py-3 text-sm" style="color: var(--muted);">@sale.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
             <td class="px-4 py-3">
                 <button hx-get="/sales/@sale.Id"
                         hx-target="#modal-container"
-                        class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                        class="p-1.5 rounded-lg transition-colors"
+                        style="color: var(--meta);"
+                        onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
+                        onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'"
                         title="Ver detalle">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

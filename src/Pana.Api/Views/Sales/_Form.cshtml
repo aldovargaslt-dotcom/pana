@@ -9,14 +9,18 @@
      style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)"
      onclick="if(event.target===this)this.remove()">
 
-    <div style="background:white;border-radius:16px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);width:100%;max-width:36rem;max-height:85vh;display:flex;flex-direction:column"
+    <div style="background:var(--surface-container-lowest);border-radius:16px;box-shadow:var(--elev-modal);width:100%;max-width:36rem;max-height:85vh;display:flex;flex-direction:column"
          onclick="event.stopPropagation()">
 
-        @* Header *@
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <h2 class="text-lg font-semibold text-gray-800">Nueva Venta</h2>
+        @* Header — tonal separation, no border *@
+        <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl"
+             style="background: var(--surface-container-low);">
+            <h2 class="text-lg font-semibold" style="color: var(--fg);">Nueva Venta</h2>
             <button onclick="document.getElementById('@modalId').remove()"
-                    class="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                    class="p-2 rounded-xl transition-colors"
+                    style="color: var(--meta);"
+                    onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
+                    onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
@@ -33,7 +37,7 @@
 
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div class="bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl p-4">
+                    <div class="text-sm rounded-xl p-4" style="color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent);">
                         @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                         {
                             <p>@error.ErrorMessage</p>
@@ -46,12 +50,14 @@
                     {
                         for (int i = 0; i < Model.Items.Count; i++)
                         {
-                            <div class="sale-item-row flex items-end gap-3 p-4 bg-gray-50 rounded-xl">
+                            <div class="sale-item-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
                                 <div class="flex-1">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
+                                    <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
                                     <select name="Items[@i].ProductId"
-                                            class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                                                   focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300">
+                                            class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                            style="background: var(--surface-container-high); color: var(--fg);"
+                                            onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                            onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
                                         <option value="">Seleccionar...</option>
                                         @foreach (var p in products!)
                                         {
@@ -61,21 +67,28 @@
                                     </select>
                                 </div>
                                 <div class="w-28">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1">Cantidad</label>
+                                    <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Cantidad</label>
                                     <input type="number" name="Items[@i].Quantity" value="@Model.Items[i].Quantity"
                                            min="1" required
-                                           class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                                                  focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300" />
+                                           class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                           style="background: var(--surface-container-high); color: var(--fg);"
+                                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                                 </div>
                                 <div class="w-28">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1">Precio unit.</label>
+                                    <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Precio unit.</label>
                                     <input type="number" name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice.ToString("F2")"
                                            step="0.01" min="0" required
-                                           class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                                                  focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300" />
+                                           class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                           style="background: var(--surface-container-high); color: var(--fg);"
+                                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                                 </div>
                                 <button type="button"
-                                        class="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                        class="p-2.5 rounded-xl transition-colors"
+                                        style="color: var(--meta);"
+                                        onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
+                                        onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'"
                                         onclick="this.closest('.sale-item-row').remove()"
                                         title="Quitar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -86,12 +99,14 @@
                     else
                     {
                         @* Default empty row *@
-                        <div class="sale-item-row flex items-end gap-3 p-4 bg-gray-50 rounded-xl">
+                        <div class="sale-item-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
                             <div class="flex-1">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
+                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
                                 <select name="Items[0].ProductId"
-                                        class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                                               focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300">
+                                        class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                        style="background: var(--surface-container-high); color: var(--fg);"
+                                        onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                        onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
                                     <option value="">Seleccionar...</option>
                                     @foreach (var p in products!)
                                     {
@@ -100,21 +115,28 @@
                                 </select>
                             </div>
                             <div class="w-28">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Cantidad</label>
+                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Cantidad</label>
                                 <input type="number" name="Items[0].Quantity" value="1"
                                        min="1" required
-                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                                              focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300" />
+                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                       style="background: var(--surface-container-high); color: var(--fg);"
+                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                             </div>
                             <div class="w-28">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Precio unit.</label>
+                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Precio unit.</label>
                                 <input type="number" name="Items[0].UnitPrice" value="0.00"
                                        step="0.01" min="0" required
-                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                                              focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300" />
+                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                       style="background: var(--surface-container-high); color: var(--fg);"
+                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                             </div>
                             <button type="button"
-                                    class="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                    class="p-2.5 rounded-xl transition-colors"
+                                    style="color: var(--meta);"
+                                    onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
+                                    onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'"
                                     onclick="this.closest('.sale-item-row').remove()"
                                     title="Quitar">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -125,8 +147,10 @@
 
                 @* Add item button *@
                 <button type="button"
-                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-brand-600
-                               bg-brand-50 hover:bg-brand-100 rounded-xl transition-colors"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl transition-colors"
+                        style="color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent);"
+                        onmouseover="this.style.background='color-mix(in srgb, var(--primary) 14%, transparent)'"
+                        onmouseout="this.style.background='color-mix(in srgb, var(--primary) 8%, transparent)'"
                         onclick="addSaleItem()">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Agregar otro producto
@@ -134,25 +158,30 @@
 
                 @* Notes *@
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Notas (opcional)</label>
+                    <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Notas (opcional)</label>
                     <textarea name="Notes" rows="2"
-                              class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm resize-none
-                                     focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300"
+                              class="w-full px-4 py-2.5 rounded-xl text-sm resize-none focus:outline-none focus:ring-2"
+                              style="background: var(--surface-container-high); color: var(--fg);"
+                              onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                              onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
                               placeholder="Ej. Pedido para llevar...">@Model.Notes</textarea>
                 </div>
 
                 @* Actions *@
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <div class="flex items-center justify-end gap-3 pt-3" style="border-top: 1px solid var(--sidebar-border);">
                     <button type="button" onclick="document.getElementById('@modalId').remove()"
                             class="inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm
                                    transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1
-                                   px-4 py-2.5 text-gray-600 hover:bg-gray-100 cursor-pointer active:scale-[0.97]">
+                                   px-4 py-2.5 cursor-pointer active:scale-[0.97]"
+                            style="color: var(--fg-2);"
+                            onmouseover="this.style.background='var(--surface-container)'"
+                            onmouseout="this.style.background='transparent'">
                         Cancelar
                     </button>
                     <button type="submit"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600
-                                   text-white text-sm font-semibold rounded-xl hover:from-emerald-600 hover:to-emerald-700
-                                   transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                            class="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl
+                                   transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                            style="background: var(--success);">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Crear Venta
                     </button>
@@ -192,12 +221,14 @@
 
 @* Hidden template for new rows *@
 <template id="sale-item-container-template">
-    <div class="sale-item-row flex items-end gap-3 p-4 bg-gray-50 rounded-xl">
+    <div class="sale-item-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
         <div class="flex-1">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
+            <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
             <select name="Items[0].ProductId"
-                    class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300">
+                    class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                    style="background: var(--surface-container-high); color: var(--fg);"
+                    onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                    onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
                 <option value="">Seleccionar...</option>
                 @foreach (var p in products!)
                 {
@@ -206,21 +237,28 @@
             </select>
         </div>
         <div class="w-28">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Cantidad</label>
+            <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Cantidad</label>
             <input type="number" name="Items[0].Quantity" value="1"
                    min="1" required
-                   class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                          focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300" />
+                   class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                   style="background: var(--surface-container-high); color: var(--fg);"
+                   onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                   onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
         </div>
         <div class="w-28">
-            <label class="block text-xs font-medium text-gray-500 mb-1">Precio unit.</label>
+            <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Precio unit.</label>
             <input type="number" name="Items[0].UnitPrice" value="0.00"
                    step="0.01" min="0" required
-                   class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm
-                          focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300" />
+                   class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                   style="background: var(--surface-container-high); color: var(--fg);"
+                   onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                   onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
         </div>
         <button type="button"
-                class="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                class="p-2.5 rounded-xl transition-colors"
+                style="color: var(--meta);"
+                onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
+                onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'"
                 onclick="this.closest('.sale-item-row').remove()"
                 title="Quitar">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

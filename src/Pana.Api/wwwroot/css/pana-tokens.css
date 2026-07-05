@@ -1,23 +1,36 @@
 /* ─────────────────────────────────────────────────────────────────────────
  * pana-tokens.css — Pana Business Platform Design Tokens
  *
+ * "The Modern Hearth" — v2.0 (2026-07-04)
+ *
  * Structured token bindings following the Open Design schema
  * (nexu-io/open-design). This file is the machine-readable source of
  * truth for Pana's visual identity. Every value maps 1:1 to a
  * decision documented in design/DESIGN.md.
  *
+ * Creative North Star: The Modern Hearth
+ * Rejects sterile "app-in-a-box" aesthetic. Translates the sensory
+ * experience of a Mexican panadería — warmth of the oven, artisanal
+ * flour textures, vibrant barrio culture — into a high-end digital
+ * editorial experience.
+ *
  * Schema layers (per Open Design):
- *   A1-identity    — The token IS the brand (--bg, --fg, --accent, fonts)
+ *   A1-identity    — The token IS the brand (--bg, --fg, --primary, fonts)
  *   A1-structure   — Structural decisions (type scale, section rhythm)
  *   A2             — Sensible defaults exist, but Pana specifies them all
  *   B-slot         — Optional semantic extensions
  *
+ * Core rules:
+ *   1. NO-LINE RULE — Never use 1px solid borders. Boundaries are tonal.
+ *   2. GLASS & GRADIENT — Glassmorphism for floating nav, gradient CTAs.
+ *   3. WARM SHADOWS — Never pure black. Shadows tinted with --fg.
+ *   4. MIN RADIUS — Every element has at least --radius-sm (4px).
+ *
  * Contract: agents MUST paste this :root block into every new artifact.
  * Reference values ONLY via var(--name) — never re-author the raw hex.
  *
- * Category: Business Operations / SMB Platform
- * Mood: Professional warmth — clean data surfaces with bakery-inspired
- *        warm touches (amber undertones, soft rounded geometry)
+ * Category: Business Operations / SMB Platform — Panadería
+ * Mood: The Modern Hearth — calidez artesanal mexicana + editorial premium
  * ─────────────────────────────────────────────────────────────────── */
 
 :root {
@@ -25,44 +38,59 @@
      A1-IDENTITY — The token IS the brand
      ═══════════════════════════════════════════════════════════════ */
 
-  /* ── Surface ────────────────────────────────────────────────────
-   * Cool slate page canvas for data-heavy dashboards, pure white
-   * cards, warm beige for bakery-adjacent surface differentiation.
+  /* ── Surface Hierarchy (Tonal Layering / Capas de Pergamino) ───
+   * Boundaries are defined by background shifts, NOT borders.
+   * Treat the UI as stacked sheets of fine parchment:
+   *   Level 0 = Base canvas
+   *   Level 1 = Large section blocks
+   *   Level 2 = Interactive cards
+   *   Level 3 = Elevated critical content
    */
-  --bg:             #f8fafc;   /* slate-50 — page canvas, cool & calm */
-  --surface:        #ffffff;   /* pure white — cards, inputs, dropdowns */
-  --surface-warm:   #faf7f2;   /* warm cream — bakery touch for featured cards */
+  --bg:                           #fcf9f4;  /* Level 0 — primary canvas */
+  --surface:                      #fcf9f4;  /* alias — same as --bg */
+  --surface-container-lowest:     #ffffff;  /* product cards, white overlays */
+  --surface-container-low:        #f6f3ee;  /* Level 1 — large bg blocks */
+  --surface-container:            #f0ede9;  /* Level 2 — cards, interactive */
+  --surface-container-high:       #ebe8e3;  /* input fields, data areas */
+  --surface-container-highest:    #e5e2dd;  /* Level 3 — critical elevated */
 
-  /* ── Foreground ─────────────────────────────────────────────────
-   * Four-tier text ladder: ink → body → muted → metadata.
+  /* ── Foreground (Tonal Text Ladder) ────────────────────────────
+   * Warm dark tones — never pure black, always slightly brown.
    */
-  --fg:             #0f172a;   /* slate-900 — primary headings, body text */
-  --fg-2:           #334155;   /* slate-700 — secondary body, labels */
-  --muted:          #64748b;   /* slate-500 — placeholders, help text */
-  --meta:           #94a3b8;   /* slate-400 — timestamps, disabled */
+  --fg:             #1c1c19;   /* primary text, headings */
+  --fg-2:           #3d3d38;   /* secondary text, labels */
+  --muted:          #6b6b63;   /* placeholders, help text */
+  --meta:           #94948c;   /* timestamps, disabled */
 
-  /* ── Accent ─────────────────────────────────────────────────────
-   * Pana Indigo — the single brand signal. Warm enough for bakeries,
-   * professional enough for business operations. Used for CTAs and
-   * active states only. Everything else stays grayscale.
+  /* ── Primary Accent (Red Óxido / Horno) ────────────────────────
+   * The SINGLE chromatic action color. Used ONLY for CTAs.
+   * Gradient (135° primary → primary-container) = "Signature Texture".
    */
-  --accent:         #6366f1;   /* indigo-500 — primary CTA backgrounds */
-  --accent-on:      #ffffff;   /* white — text/icons on accent */
-  --accent-hover:   #4f46e5;   /* indigo-600 — hover state */
-  --accent-active:  #4338ca;   /* indigo-700 — pressed state */
+  --primary:                #9e0012;  /* brand red — CTAs */
+  --primary-container:      #c41e24;  /* button gradient end, hover */
+  --primary-fixed:          #ffdad6;  /* input focus bg */
+  --on-primary:             #ffffff;  /* text/icons on primary */
 
-  /* ── Border ─────────────────────────────────────────────────────
-   * Light opacity-driven borders for cards and dividers.
+  /* ── Tertiary (Amber / Pan Dulce) ──────────────────────────────
+   * For special-offer badges, freshness indicators, chips.
+   * NOT for CTAs.
    */
-  --border:         #e2e8f0;   /* slate-200 — card borders, input rings */
-  --border-soft:    #f1f5f9;   /* slate-100 — subtle dividers, table rows */
+  --tertiary:               #654700;  /* "Freshness Pulse" text */
+  --tertiary-fixed:         #ffdea9;  /* special offer bg, badges */
+  --on-tertiary-fixed:      #271900;  /* text on tertiary-fixed */
+
+  /* ── Outline Variant (Ghost Border) ────────────────────────────
+   * ONLY for accessibility (high-contrast mode).
+   * Use at 15% opacity. Opaque high-contrast borders are FORBIDDEN.
+   */
+  --outline-variant:        #e4bdba;
 
   /* ── Typography ─────────────────────────────────────────────────
-   * Inter — the single typeface across all surfaces. Broad system
-   * fallback for zero-latency rendering.
+   * Plus Jakarta Sans — balances traditional friendliness with
+   * modern legibility. Replaces Inter (deprecated in v2.0).
    */
-  --font-display:   "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-body:      "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display:   "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body:      "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono:      ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
 
 
@@ -70,44 +98,64 @@
      A1-STRUCTURE — Structural decisions (no cross-brand defaults)
      ═══════════════════════════════════════════════════════════════ */
 
-  /* ── Type scale ─────────────────────────────────────────────────
-   * 8-stop ladder: 12/14/16/18/20/24/32/40px.
-   * Base at 16px for comfortable dashboard reading.
+  /* ── Editorial Type Scale ───────────────────────────────────────
+   * Display ("Aroma" headlines): negative tracking, tight leading.
+   * Headline ("Baker's Signature"): authoritative, unpretentious.
+   * Body ("Utility"): generous line-height for all-ages legibility.
+   * Labels: All-Caps, +0.05em tracking, architectural look.
    */
-  --text-xs:     0.75rem;   /* 12px — badges, labels, micro-copy */
-  --text-sm:     0.875rem;  /* 14px — table cells, helper text */
-  --text-base:   1rem;      /* 16px — body, button text */
-  --text-lg:     1.125rem;  /* 18px — lead paragraphs, featured numbers */
-  --text-xl:     1.25rem;   /* 20px — card titles, section headings */
-  --text-2xl:    1.5rem;    /* 24px — page headings */
-  --text-3xl:    2rem;      /* 32px — hero headings */
-  --text-4xl:    2.5rem;    /* 40px — marketing, landing pages */
+  --text-display-lg:    3rem;      /* 48px — hero statements */
+  --text-display-md:    2.5rem;    /* 40px — landing titles */
+  --text-display-sm:    2rem;      /* 32px — hero subtitles */
+  --text-headline-lg:   1.75rem;   /* 28px — product categories */
+  --text-headline-md:   1.5rem;    /* 24px — page titles */
+  --text-headline-sm:   1.25rem;   /* 20px — section headings */
+  --text-body-lg:       1.125rem;  /* 18px — lead paragraphs, KPIs */
+  --text-body-md:       1rem;      /* 16px — body, buttons */
+  --text-body-sm:       0.875rem;  /* 14px — table cells, helpers */
+  --text-label-md:      0.875rem;  /* 14px — All-Caps labels */
+  --text-label-sm:      0.75rem;   /* 12px — badges, micro-copy */
 
   /* ── Leading ──────────────────────────────────────────────────── */
-  --leading-body:        1.6;    /* comfortable reading for dashboard data */
-  --leading-tight:       1.25;   /* headings, KPI numbers */
-  --tracking-display:    -0.01em;/* slight tighten for large headings */
+  --leading-display:     1.1;      /* tight — hero, display */
+  --leading-headline:    1.25;     /* headings */
+  --leading-body:        1.6;      /* comfortable reading */
+  --leading-label:       1.4;      /* All-Caps labels */
+
+  /* ── Tracking ─────────────────────────────────────────────────── */
+  --tracking-display:    -0.02em;  /* tight editorial — display */
+  --tracking-label:       0.05em;  /* architectural — labels */
+
+  /* ── Font Weights ─────────────────────────────────────────────── */
+  --weight-body:    400;
+  --weight-emphasis: 500;
+  --weight-heading: 600;
+  --weight-display: 700;
+  --weight-hero:    800;
 
   /* ── Spacing (4px base) ──────────────────────────────────────── */
-  --space-1:   4px;
-  --space-2:   8px;
-  --space-3:   12px;
-  --space-4:   16px;
-  --space-5:   20px;
-  --space-6:   24px;
-  --space-8:   32px;
-  --space-12:  48px;
+  --space-1:   0.25rem;  /*   4px */
+  --space-2:   0.5rem;   /*   8px */
+  --space-3:   0.75rem;  /*  12px */
+  --space-4:   1rem;     /*  16px */
+  --space-5:   1.25rem;  /*  20px */
+  --space-6:   1.5rem;   /*  24px */
+  --space-8:   2rem;     /*  32px */
+  --space-10:  2.5rem;   /*  40px — minimum button height */
+  --space-12:  3rem;     /*  48px — section margins */
+  --space-16:  4rem;     /*  64px — generous breathing room */
 
   /* ── Section rhythm ──────────────────────────────────────────── */
-  --section-y-desktop: 64px;
-  --section-y-tablet:  48px;
-  --section-y-phone:   32px;
+  --section-y-desktop: 4rem;    /* 64px */
+  --section-y-tablet:  3rem;    /* 48px */
+  --section-y-phone:   2rem;    /* 32px */
 
   /* ── Layout ──────────────────────────────────────────────────── */
   --container-max:              1280px;
   --container-gutter-desktop:   24px;
   --container-gutter-tablet:    16px;
   --container-gutter-phone:     12px;
+  --sidebar-width:              256px;
 
 
   /* ═══════════════════════════════════════════════════════════════
@@ -120,48 +168,63 @@
   --danger:   #dc2626;   /* red-600 — deletions, critical alerts */
 
   /* ── Radius ────────────────────────────────────────────────────
-   * 6/8/12/9999px ladder — soft & friendly, not corporate.
+   * MINIMUM --radius-sm (4px) on EVERY element — no sharp corners.
+   * Soft & welcoming geometry.
    */
-  --radius-sm:   6px;    /* buttons, inputs, badges */
-  --radius-md:   8px;    /* cards, dropdowns */
-  --radius-lg:   12px;   /* modals, panels */
-  --radius-pill: 9999px; /* full-pill: status badges, chip filters */
+  --radius-sm:   4px;     /* minimum — everything is at least this */
+  --radius-md:   12px;    /* buttons (matches 0.75rem), cards */
+  --radius-lg:   16px;    /* modals, large cards */
+  --radius-xl:   24px;    /* hero containers */
+  --radius-pill: 9999px;  /* full-pill: status badges, chip filters */
 
-  /* ── Elevation ─────────────────────────────────────────────────
-   * Shadow-only depth (DESIGN.md §6 prefers shadows over borders
-   * for card separation).
+  /* ── Elevation (Warm Ambient Shadows) ──────────────────────────
+   * Shadow color MUST be a tint of --fg (#1c1c19), NEVER pure black.
+   * "Tonal Layering" creates depth without structural lines.
    */
-  --elev-flat:   none;
-  --elev-raised: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --elev-modal:  0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  --elev-flat:      none;
+  --elev-ambient:   0px 4px 16px rgba(28, 28, 25, 0.04),
+                    0px 12px 32px rgba(28, 28, 25, 0.06);
+  --elev-modal:     0px 20px 60px rgba(28, 28, 25, 0.12),
+                    0px 0px 0px 1px rgba(28, 28, 25, 0.04);
+
+  /* ── Glass Morphism ──────────────────────────────────────────── */
+  --glass-bg:       rgba(252, 249, 244, 0.80);  /* --surface at 80% */
+  --glass-blur:     12px;
+  --glass-blur-sidebar: 16px;
 
   /* ── Motion ──────────────────────────────────────────────────── */
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);       /* Material standard */
-  --ease-decelerate: cubic-bezier(0, 0, 0, 1);        /* enter animations */
-  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);      /* exit animations */
-  --dur-fast:   150ms;   /* micro-interactions */
-  --dur-normal:  250ms;   /* page transitions */
-  --dur-slow:    350ms;   /* modal open/close */
+  --ease-standard:    cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate:  cubic-bezier(0, 0, 0, 1);
+  --ease-accelerate:  cubic-bezier(0.3, 0, 1, 1);
+  --dur-fast:    150ms;
+  --dur-normal:   250ms;
+  --dur-slow:     350ms;
 
 
   /* ═══════════════════════════════════════════════════════════════
      B-SLOT — Pana-specific extensions
      ═══════════════════════════════════════════════════════════════ */
 
-  /* ── Sidebar ─────────────────────────────────────────────────── */
-  --sidebar-bg:        #1e1b4b;   /* brand-950 — deep indigo sidebar */
-  --sidebar-fg:        #c7d2fe;   /* brand-200 — sidebar text */
-  --sidebar-fg-active: #ffffff;   /* active nav item */
-  --sidebar-accent:    rgba(255, 255, 255, 0.15); /* active nav bg */
+  /* ── Sidebar (Glass Morphism) ────────────────────────────────── */
+  --sidebar-bg:           rgba(246, 243, 238, 0.90);  /* --surface-container-low at 90% */
+  --sidebar-fg:           var(--fg-2);
+  --sidebar-fg-active:    var(--primary);
+  --sidebar-accent:       rgba(158, 0, 18, 0.10);     /* --primary at 10% */
+  --sidebar-border:       rgba(228, 189, 186, 0.10);  /* --outline-variant at 10% */
 
   /* ── Data visualization ──────────────────────────────────────── */
-  --chart-1:  #6366f1;  /* indigo — primary series */
-  --chart-2:  #f59e0b;  /* amber — secondary series */
-  --chart-3:  #10b981;  /* emerald — positive trends */
-  --chart-4:  #ef4444;  /* red — negative trends */
-  --chart-5:  #8b5cf6;  /* violet — tertiary series */
+  --chart-1:  #9e0012;  /* primary red — main series */
+  --chart-2:  #654700;  /* tertiary amber — secondary */
+  --chart-3:  #16a34a;  /* success green — positive trends */
+  --chart-4:  #f59e0b;  /* warn amber — caution */
+  --chart-5:  #c41e24;  /* primary-container — tertiary series */
 
   /* ── Bakery-specific ─────────────────────────────────────────── */
-  --warm-accent:  #d97706;  /* amber-600 — bakery warmth: waste cards, production */
-  --fresh-green:  #22c55e;  /* green-500 — fresh product indicators */
+  --freshness-pulse:    #654700;  /* "baked in last 30 min" chip */
+  --freshness-pulse-bg: #ffdea9;  /* pulse chip background */
+  --warm-accent:        #d97706;  /* amber-600 — production, waste cards (deprecated, use tertiary) */
+  --fresh-green:        #22c55e;  /* green-500 — fresh product indicators */
+
+  /* ── Signature Gradient (buttons) ────────────────────────────── */
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-container));
 }

@@ -1,27 +1,29 @@
 @model Pana.Api.Web.Components.StatCardProps
 
-<div class="group bg-white rounded-2xl shadow-card border border-gray-100 p-5 hover:shadow-soft hover:-translate-y-0.5 transition-all duration-300"
+<div class="group rounded-2xl shadow-ambient p-5 hover:shadow-ambient hover:-translate-y-0.5 transition-all duration-300"
+     style="background: var(--surface-container-lowest);"
      @if (Model.HxGet != null) { <text>hx-get="@Model.HxGet" hx-trigger="every 60s" hx-swap="innerHTML"</text> }>
 
     <div class="flex items-start justify-between">
         <div class="space-y-1">
-            <p class="text-sm font-medium text-gray-500">@Model.Label</p>
-            <p class="text-3xl font-bold text-gray-900 tracking-tight">@Model.Value</p>
+            <p class="text-sm font-medium" style="color: var(--muted);">@Model.Label</p>
+            <p class="text-3xl font-bold tracking-tight" style="color: var(--fg);">@Model.Value</p>
             @if (Model.Trend != null && Model.TrendValue != null)
             {
                 <div class="flex items-center gap-1.5 mt-1.5">
-                    <span class="inline-flex items-center gap-0.5 text-xs font-semibold @(Model.Trend == "up" ? "text-emerald-600 bg-emerald-50" : "text-red-600 bg-red-50") px-2 py-0.5 rounded-full">
+                    <span class="inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full @(Model.Trend == "up" ? "" : "")"
+                          style="@(Model.Trend == "up" ? "color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent);" : "color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent);")">
                         @if (Model.Trend == "up") { <text>↑</text> } else { <text>↓</text> }
                         @Model.TrendValue
                     </span>
-                    <span class="text-xs text-gray-400">vs. mes anterior</span>
+                    <span class="text-xs" style="color: var(--meta);">vs. mes anterior</span>
                 </div>
             }
         </div>
         @if (Model.Icon != null)
         {
-            <div class="p-3 bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl text-brand-600
-                        group-hover:scale-110 transition-transform duration-300">
+            <div class="p-3 rounded-xl group-hover:scale-110 transition-transform duration-300"
+                 style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent), color-mix(in srgb, var(--primary) 10%, transparent)); color: var(--primary);">
                 @switch (Model.Icon)
                 {
                     case "money":

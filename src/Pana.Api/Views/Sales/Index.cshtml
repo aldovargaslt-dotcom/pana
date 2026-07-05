@@ -8,26 +8,26 @@
     @* ── Header ─────────────────────────────────────────────── *@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
                 <span class="text-gradient">Ventas</span>
             </h1>
-            <p class="text-sm text-gray-500 mt-1">@Model.TotalCount ventas registradas</p>
+            <p class="text-sm mt-1" style="color: var(--muted);">@Model.TotalCount ventas registradas</p>
         </div>
         <div class="flex items-center gap-3">
             <div class="relative">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <input type="search" placeholder="Buscar ventas..."
-                       class="pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm
-                              focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300
-                              w-48 sm:w-64 transition-all duration-200" />
+                       class="pl-9 pr-4 py-2.5 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 w-48 sm:w-64 transition-all duration-200"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
             </div>
             <button hx-get="/sales/create-form"
                     hx-target="#modal-container"
-                    hx-on::htmx:before-request="console.log('[Pana] Opening sale form...')"
-                    hx-on::htmx:after-request="console.log('[Pana] Sale form response:', event.detail.successful)"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600
-                           text-white text-sm font-medium rounded-xl hover:from-emerald-600 hover:to-emerald-700
-                           transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                    class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
+                           transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                    style="background: var(--success);">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 Nueva venta
             </button>
@@ -36,49 +36,49 @@
 
     @* ── Stats mini-cards ───────────────────────────────────── *@
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl p-4 shadow-card border border-gray-100">
-            <p class="text-xs text-gray-400 mb-1">Total ventas</p>
-            <p class="text-xl font-bold text-gray-800">@Model.TotalCount</p>
+        <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <p class="text-xs mb-1" style="color: var(--meta);">Total ventas</p>
+            <p class="text-xl font-bold" style="color: var(--fg);">@Model.TotalCount</p>
         </div>
-        <div class="bg-white rounded-xl p-4 shadow-card border border-gray-100">
-            <p class="text-xs text-gray-400 mb-1">Completadas</p>
-            <p class="text-xl font-bold text-emerald-600">@Model.Sales.Count(s => s.Status == "Completed")</p>
+        <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <p class="text-xs mb-1" style="color: var(--meta);">Completadas</p>
+            <p class="text-xl font-bold" style="color: var(--success);">@Model.Sales.Count(s => s.Status == "Completed")</p>
         </div>
-        <div class="bg-white rounded-xl p-4 shadow-card border border-gray-100">
-            <p class="text-xs text-gray-400 mb-1">Borrador</p>
-            <p class="text-xl font-bold text-amber-600">@Model.Sales.Count(s => s.Status == "Draft")</p>
+        <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <p class="text-xs mb-1" style="color: var(--meta);">Borrador</p>
+            <p class="text-xl font-bold" style="color: var(--tertiary);">@Model.Sales.Count(s => s.Status == "Draft")</p>
         </div>
-        <div class="bg-white rounded-xl p-4 shadow-card border border-gray-100">
-            <p class="text-xs text-gray-400 mb-1">Total facturado</p>
-            <p class="text-xl font-bold text-brand-600">$@Model.Sales.Sum(s => s.TotalAmount).ToString("N2")</p>
+        <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <p class="text-xs mb-1" style="color: var(--meta);">Total facturado</p>
+            <p class="text-xl font-bold" style="color: var(--primary);">$@Model.Sales.Sum(s => s.TotalAmount).ToString("N2")</p>
         </div>
     </div>
 
     @* ── Table ──────────────────────────────────────────────── *@
-    <div class="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
+    <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-gray-100">
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Venta</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-400 uppercase tracking-wider">Items</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Total</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Fecha</th>
+                    <tr style="background: var(--surface-container-low);">
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Venta</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Estado</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Items</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Total</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Fecha</th>
                     </tr>
                 </thead>
-                <tbody id="table-body-sales" class="divide-y divide-gray-50"
+                <tbody id="table-body-sales" class="divide-y" style="border-color: var(--surface-container-low);"
                        hx-get="/sales/table-rows" hx-trigger="sale-created from:body">
                     @if (!Model.Sales.Any())
                     {
                         <tr>
                             <td colspan="5" class="px-6 py-16 text-center">
                                 <div class="flex flex-col items-center gap-3">
-                                    <div class="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center">
-                                        <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
+                                        <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                                     </div>
-                                    <p class="text-gray-400 font-medium">No hay ventas aún</p>
-                                    <p class="text-xs text-gray-300">Registra tu primera venta para empezar</p>
+                                    <p class="font-medium" style="color: var(--meta);">No hay ventas aún</p>
+                                    <p class="text-xs" style="color: var(--meta);">Registra tu primera venta para empezar</p>
                                 </div>
                             </td>
                         </tr>
@@ -89,30 +89,33 @@
                         {
                             var statusColors = s.Status switch
                             {
-                                "Completed" => ("bg-emerald-50 text-emerald-700", "bg-emerald-500"),
-                                "Draft" => ("bg-amber-50 text-amber-700", "bg-amber-500"),
-                                "Voided" => ("bg-red-50 text-red-700", "bg-red-500"),
-                                _ => ("bg-gray-50 text-gray-600", "bg-gray-400")
+                                "Completed" => ("color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent);", "background: var(--success);"),
+                                "Draft" => ("color: var(--tertiary); background: color-mix(in srgb, var(--tertiary) 12%, transparent);", "background: var(--tertiary);"),
+                                "Voided" => ("color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent);", "background: var(--danger);"),
+                                _ => ("color: var(--muted); background: var(--surface-container);", "background: var(--meta);")
                             };
 
-                            <tr class="hover:bg-gray-50/50 transition-colors group cursor-pointer"
+                            <tr class="transition-colors group cursor-pointer"
+                                style="cursor: pointer;"
+                                onmouseover="this.style.background='var(--surface-container-low)'"
+                                onmouseout="this.style.background='transparent'"
                                 hx-get="/sales/@s.Id"
                                 hx-target="#modal-container"
                                 hx-trigger="click">
                                 <td class="px-6 py-4">
-                                    <span class="font-mono text-xs text-gray-500 bg-gray-100 rounded-lg px-2.5 py-1">
+                                    <span class="font-mono text-xs rounded-lg px-2.5 py-1" style="color: var(--muted); background: var(--surface-container);">
                                         #@s.Id.ToString()[..8]
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full @statusColors.Item1">
-                                        <span class="w-1.5 h-1.5 rounded-full @statusColors.Item2"></span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full" style="@statusColors.Item1">
+                                        <span class="w-1.5 h-1.5 rounded-full" style="@statusColors.Item2"></span>
                                         @s.Status
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-center text-gray-700 font-medium">@s.ItemCount</td>
-                                <td class="px-6 py-4 text-right font-semibold text-gray-800">$@s.TotalAmount.ToString("F2")</td>
-                                <td class="px-6 py-4 text-right text-gray-500">@s.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="px-6 py-4 text-center font-medium" style="color: var(--fg-2);">@s.ItemCount</td>
+                                <td class="px-6 py-4 text-right font-semibold" style="color: var(--fg);">$@s.TotalAmount.ToString("F2")</td>
+                                <td class="px-6 py-4 text-right" style="color: var(--muted);">@s.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
                             </tr>
                         }
                     }

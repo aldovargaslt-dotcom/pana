@@ -8,14 +8,14 @@
 
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
                 <span class="text-gradient">Producción Diaria</span>
             </h1>
-            <p class="text-sm text-gray-500 mt-1">
+            <p class="text-sm mt-1" style="color: var(--muted);">
                 @DateTime.Now.ToString("dddd, d 'de' MMMM")
                 @if (Model?.IsClosed == true)
                 {
-                    <span class="text-emerald-600 font-medium ml-2">· Día cerrado</span>
+                    <span class="font-medium ml-2" style="color: var(--success);">· Día cerrado</span>
                 }
             </p>
         </div>
@@ -23,17 +23,17 @@
             @if (Model?.IsClosed != true)
             {
                 <button onclick="addProductionRow()"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600
-                               text-white text-sm font-medium rounded-xl hover:from-brand-600 hover:to-brand-700
-                               transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                        class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
+                               transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Agregar producto
                 </button>
                 <form method="post" action="/production/close" class="inline">
                     <button type="submit"
-                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600
-                                   text-white text-sm font-medium rounded-xl hover:from-emerald-600 hover:to-emerald-700
-                                   transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                            class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
+                                   transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                            style="background: var(--success);">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         Cerrar día
                     </button>
@@ -44,35 +44,37 @@
 
     @if (Model?.IsClosed == true)
     {
-        <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 text-center">
-            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="rounded-2xl p-6 text-center shadow-ambient"
+             style="background: color-mix(in srgb, var(--success) 8%, var(--surface-container-lowest));">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                 style="background: color-mix(in srgb, var(--success) 20%, transparent);">
+                <svg class="w-7 h-7" style="color: var(--success);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
-            <h2 class="text-lg font-semibold text-emerald-800">Día cerrado</h2>
-            <p class="text-sm text-emerald-600 mt-1">La producción de hoy ya fue registrada y el inventario actualizado.</p>
+            <h2 class="text-lg font-semibold" style="color: var(--fg);">Día cerrado</h2>
+            <p class="text-sm mt-1" style="color: var(--fg-2);">La producción de hoy ya fue registrada y el inventario actualizado.</p>
         </div>
         @if (Model.Lines.Count > 0)
         {
-            <div class="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
+            <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="border-b border-gray-100">
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase">Producto</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Inicial</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Producción</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Devolución</th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase">Disponible</th>
+                        <tr style="background: var(--surface-container-low);">
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Producto</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Inicial</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Producción</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Devolución</th>
+                            <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Disponible</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y" style="border-color: var(--surface-container-low);">
                         @foreach (var line in Model.Lines)
                         {
                             <tr>
-                                <td class="px-6 py-3 font-medium text-gray-800">@line.ProductName</td>
-                                <td class="px-6 py-3 text-right text-gray-600">@line.Inicial</td>
-                                <td class="px-6 py-3 text-right text-gray-600">@line.Produccion</td>
-                                <td class="px-6 py-3 text-right text-red-500">@line.Devolucion</td>
-                                <td class="px-6 py-3 text-right font-semibold text-gray-800">@line.Disponible</td>
+                                <td class="px-6 py-3 font-medium" style="color: var(--fg);">@line.ProductName</td>
+                                <td class="px-6 py-3 text-right" style="color: var(--fg-2);">@line.Inicial</td>
+                                <td class="px-6 py-3 text-right" style="color: var(--fg-2);">@line.Produccion</td>
+                                <td class="px-6 py-3 text-right" style="color: var(--danger);">@line.Devolucion</td>
+                                <td class="px-6 py-3 text-right font-semibold" style="color: var(--fg);">@line.Disponible</td>
                             </tr>
                         }
                     </tbody>
@@ -83,17 +85,20 @@
     else
     {
         <form method="post" action="/production/upsert" id="production-form"
-              class="bg-white rounded-2xl shadow-card border border-gray-100 p-6 space-y-4">
+              class="rounded-2xl shadow-ambient p-6 space-y-4" style="background: var(--surface-container-lowest);">
             <div id="production-rows" class="space-y-3">
                 @if (Model?.Lines != null)
                 {
                     for (int i = 0; i < Model.Lines.Count; i++)
                     {
                         var line = Model.Lines[i];
-                        <div class="production-row flex items-end gap-3 p-4 bg-gray-50 rounded-xl">
+                        <div class="production-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
                             <div class="flex-1">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
-                                <select name="lines[@i].ProductId" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300">
+                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
+                                <select name="lines[@i].ProductId" class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                        style="background: var(--surface-container-high); color: var(--fg);"
+                                        onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                        onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
                                     @foreach (var p in products!)
                                     {
                                         <option value="@p.Id" selected="@(p.Id == line.ProductId)">@p.Name</option>
@@ -101,22 +106,34 @@
                                 </select>
                             </div>
                             <div class="w-24">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Inicial</label>
+                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Inicial</label>
                                 <input type="number" name="lines[@i].Inicial" value="@line.Inicial" min="0" step="0.01"
-                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                       style="background: var(--surface-container-high); color: var(--fg);"
+                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                             </div>
                             <div class="w-24">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Producción</label>
+                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producción</label>
                                 <input type="number" name="lines[@i].Produccion" value="@line.Produccion" min="0" step="0.01"
-                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                       style="background: var(--surface-container-high); color: var(--fg);"
+                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                             </div>
                             <div class="w-24">
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Devolución</label>
+                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Devolución</label>
                                 <input type="number" name="lines[@i].Devolucion" value="@line.Devolucion" min="0" step="0.01"
-                                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                                       style="background: var(--surface-container-high); color: var(--fg);"
+                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                             </div>
                             <button type="button" onclick="this.closest('.production-row').remove()"
-                                    class="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors" title="Quitar">
+                                    class="p-2.5 rounded-xl transition-colors"
+                                    style="color: var(--meta);"
+                                    onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
+                                    onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'" title="Quitar">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
@@ -124,11 +141,11 @@
                 }
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+            <div class="flex items-center justify-end gap-3 pt-3" style="border-top: 1px solid var(--sidebar-border);">
                 <button type="submit"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600
-                               text-white text-sm font-semibold rounded-xl hover:from-brand-600 hover:to-brand-700
-                               transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+                        class="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl
+                               transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     Guardar producción
                 </button>
@@ -140,10 +157,13 @@
 @if (Model?.IsClosed != true)
 {
     <template id="production-row-template">
-        <div class="production-row flex items-end gap-3 p-4 bg-gray-50 rounded-xl">
+        <div class="production-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
             <div class="flex-1">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Producto</label>
-                <select name="lines[IDX].ProductId" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300">
+                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
+                <select name="lines[IDX].ProductId" class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                        style="background: var(--surface-container-high); color: var(--fg);"
+                        onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                        onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
                     @foreach (var p in products!)
                     {
                         <option value="@p.Id">@p.Name</option>
@@ -151,22 +171,34 @@
                 </select>
             </div>
             <div class="w-24">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Inicial</label>
+                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Inicial</label>
                 <input type="number" name="lines[IDX].Inicial" value="0" min="0" step="0.01"
-                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
             </div>
             <div class="w-24">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Producción</label>
+                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producción</label>
                 <input type="number" name="lines[IDX].Produccion" value="0" min="0" step="0.01"
-                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
             </div>
             <div class="w-24">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Devolución</label>
+                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Devolución</label>
                 <input type="number" name="lines[IDX].Devolucion" value="0" min="0" step="0.01"
-                       class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30" />
+                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
             </div>
             <button type="button" onclick="this.closest('.production-row').remove()"
-                    class="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors" title="Quitar">
+                    class="p-2.5 rounded-xl transition-colors"
+                    style="color: var(--meta);"
+                    onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
+                    onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'" title="Quitar">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>

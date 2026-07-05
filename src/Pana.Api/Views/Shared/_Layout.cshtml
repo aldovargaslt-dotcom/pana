@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] — Pana</title>
 
-    @* ── Google Fonts (Inter) ───────────────────────────────── *@
+    @* ── Google Fonts (Plus Jakarta Sans) ──────────────────── *@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    @* ── Pana Design Tokens (Open Design schema) ────────────── *@
+    @* ── Pana Design Tokens (Open Design schema, v2 "The Modern Hearth") *@
     <link rel="stylesheet" href="/css/pana-tokens.css" />
 
     @* ── Tailwind CSS v4 (CDN) ──────────────────────────────── *@
@@ -20,41 +20,54 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
                     },
                     colors: {
-                        // ── Semantic design tokens (Open Design schema) ──
-                        accent: 'var(--accent)',
-                        'accent-hover': 'var(--accent-hover)',
-                        'accent-active': 'var(--accent-active)',
+                        // ── Semantic design tokens (The Modern Hearth) ──
+                        primary: 'var(--primary)',
+                        'primary-container': 'var(--primary-container)',
+                        'primary-fixed': 'var(--primary-fixed)',
+                        'on-primary': 'var(--on-primary)',
+                        tertiary: 'var(--tertiary)',
+                        'tertiary-fixed': 'var(--tertiary-fixed)',
+                        'on-tertiary-fixed': 'var(--on-tertiary-fixed)',
                         surface: 'var(--surface)',
-                        'surface-warm': 'var(--surface-warm)',
+                        'surface-lowest': 'var(--surface-container-lowest)',
+                        'surface-low': 'var(--surface-container-low)',
+                        'surface-container': 'var(--surface-container)',
+                        'surface-high': 'var(--surface-container-high)',
+                        'surface-highest': 'var(--surface-container-highest)',
                         fg: 'var(--fg)',
+                        'fg-2': 'var(--fg-2)',
                         muted: 'var(--muted)',
-                        border: 'var(--border)',
-                        'border-soft': 'var(--border-soft)',
                         success: 'var(--success)',
                         warn: 'var(--warn)',
                         danger: 'var(--danger)',
-                        // ── Brand palette (backward compat + gradients) ──
+                        // ── Brand palette (backward compat + warm red scale) ──
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
-                            950: '#1e1b4b',
+                            50: '#fff5f5',
+                            100: '#ffe0e0',
+                            200: '#ffc2c2',
+                            300: '#ff9494',
+                            400: '#ff6666',
+                            500: '#c41e24',
+                            600: '#b31a20',
+                            700: '#9e0012',
+                            800: '#7a0010',
+                            900: '#5c000c',
+                            950: '#3d0008',
                         }
                     },
                     boxShadow: {
-                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
-                        'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
-                        'card': 'var(--elev-raised)',
+                        'ambient': '0px 4px 16px rgba(28, 28, 25, 0.04), 0px 12px 32px rgba(28, 28, 25, 0.06)',
+                        'modal': '0px 20px 60px rgba(28, 28, 25, 0.12), 0px 0px 0px 1px rgba(28, 28, 25, 0.04)',
+                        'card': 'var(--elev-ambient)',
+                    },
+                    borderRadius: {
+                        'sm': '4px',
+                        'md': '12px',
+                        'lg': '16px',
+                        'xl': '24px',
                     }
                 }
             }
@@ -79,7 +92,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
         /* ── Selection ──────────────────────────────── */
-        ::selection { background: var(--accent); color: var(--accent-on); }
+        ::selection { background: var(--primary); color: var(--on-primary); }
 
         /* ── HTMX animations ────────────────────────── */
         .htmx-indicator { display: none; }
@@ -125,33 +138,54 @@
 
         /* ── Gradient text utility ──────────────────── */
         .text-gradient {
-            background: linear-gradient(135deg, var(--accent), var(--chart-5));
+            background: linear-gradient(135deg, var(--primary), var(--primary-container));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        /* ── Freshness Pulse (The Modern Hearth) ───── */
+        .freshness-pulse {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--tertiary-fixed);
+            color: var(--tertiary);
+            border-radius: var(--radius-pill);
+            font-size: var(--text-label-sm);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: var(--tracking-label);
+            animation: freshnessPulse 2.5s ease-in-out infinite;
+        }
+        @@keyframes freshnessPulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(101, 71, 0, 0.3); }
+            50% { opacity: 0.85; box-shadow: 0 0 0 6px rgba(101, 71, 0, 0); }
         }
     </style>
 
     @RenderSection("Styles", required: false)
 </head>
-<body class="bg-gray-50/80 min-h-screen font-sans antialiased" x-data="appShell">
+<body class="min-h-screen font-sans antialiased"
+      style="background-color: var(--bg); color: var(--fg);"
+      x-data="appShell">
 
     @* ═══════════════════════════════════════════════════════════
-       SIDEBAR
+       SIDEBAR — Glass Morphism (The Modern Hearth)
        ═══════════════════════════════════════════════════════════ *@
     <aside class="fixed left-0 top-0 h-full w-64 z-40
-                   bg-gradient-to-b from-brand-950 via-brand-900 to-brand-950
                    transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-out"
+           style="background: var(--sidebar-bg); backdrop-filter: blur(var(--glass-blur-sidebar)); -webkit-backdrop-filter: blur(var(--glass-blur-sidebar)); border-right: 1px solid var(--sidebar-border);"
            :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
 
         @* Brand *@
-        <div class="flex items-center gap-3 px-6 py-6 border-b border-white/10">
-            <div class="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-glow">
+        <div class="flex items-center gap-3 px-6 py-6" style="border-bottom: 1px solid var(--sidebar-border);">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg"
+                 style="background: var(--gradient-primary);">
                 P
             </div>
             <div>
-                <span class="font-bold text-white text-lg tracking-tight">Pana</span>
-                <p class="text-brand-300/60 text-xs">Business Platform</p>
+                <span class="font-bold text-lg tracking-tight" style="color: var(--primary);">Pana</span>
+                <p class="text-xs" style="color: var(--meta);">Business Platform</p>
             </div>
         </div>
 
@@ -160,52 +194,66 @@
             <a href="/"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
                       @(ViewContext.HttpContext.Request.Path == "/"
-                          ? "bg-white/15 text-white shadow-sm"
-                          : "text-brand-200/70 hover:bg-white/8 hover:text-white")">
+                          ? ""
+                          : "")"
+               style="@(ViewContext.HttpContext.Request.Path == "/"
+                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
+                          : "color: var(--sidebar-fg);")"
+               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
+               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
                 Dashboard
             </a>
             <a href="/products"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                      @(ViewContext.HttpContext.Request.Path.StartsWithSegments("/products")
-                          ? "bg-white/15 text-white shadow-sm"
-                          : "text-brand-200/70 hover:bg-white/8 hover:text-white")">
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/products")
+                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
+                          : "color: var(--sidebar-fg);")"
+               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
+               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 Productos
             </a>
             <a href="/sales"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                      @(ViewContext.HttpContext.Request.Path.StartsWithSegments("/sales")
-                          ? "bg-white/15 text-white shadow-sm"
-                          : "text-brand-200/70 hover:bg-white/8 hover:text-white")">
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/sales")
+                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
+                          : "color: var(--sidebar-fg);")"
+               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
+               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                 Ventas
             </a>
             <a href="/waste"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                      @(ViewContext.HttpContext.Request.Path.StartsWithSegments("/waste")
-                          ? "bg-white/15 text-white shadow-sm"
-                          : "text-brand-200/70 hover:bg-white/8 hover:text-white")">
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/waste")
+                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
+                          : "color: var(--sidebar-fg);")"
+               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
+               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 Desperdicios
             </a>
             <a href="/production"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-                      @(ViewContext.HttpContext.Request.Path.StartsWithSegments("/production")
-                          ? "bg-white/15 text-white shadow-sm"
-                          : "text-brand-200/70 hover:bg-white/8 hover:text-white")">
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/production")
+                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
+                          : "color: var(--sidebar-fg);")"
+               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
+               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
                 Producción
             </a>
         </nav>
 
         @* Footer *@
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
-            <div class="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/5">
-                <div class="w-8 h-8 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-white text-xs font-bold">DB</div>
+        <div class="absolute bottom-0 left-0 right-0 p-4" style="border-top: 1px solid var(--sidebar-border);">
+            <div class="flex items-center gap-3 px-3 py-2 rounded-xl" style="background: rgba(28,28,25,0.03);">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+                     style="background: var(--gradient-primary);">DB</div>
                 <div>
-                    <p class="text-white/90 text-xs font-medium">Default Bakery</p>
-                    <p class="text-brand-300/50 text-[10px] flex items-center gap-1"><span class="pulse-dot"></span> Activo</p>
+                    <p class="text-xs font-medium" style="color: var(--fg-2);">Default Bakery</p>
+                    <p class="text-[10px] flex items-center gap-1" style="color: var(--meta);"><span class="pulse-dot"></span> Activo</p>
                 </div>
             </div>
         </div>
@@ -222,18 +270,19 @@
        ═══════════════════════════════════════════════════════════ *@
     <main class="lg:ml-64 min-h-screen flex flex-col">
 
-        @* ── Top bar (glass morphism) ───────────────────────── *@
-        <header class="sticky top-0 z-20 bg-white/70 backdrop-blur-xl border-b border-gray-200/50 px-6 py-3.5 flex items-center justify-between">
+        @* ── Top bar (glass morphism — The Modern Hearth) ──── *@
+        <header class="sticky top-0 z-20 px-6 py-3.5 flex items-center justify-between"
+                style="background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border-bottom: 1px solid var(--sidebar-border);">
             <button @@click="sidebarOpen = !sidebarOpen"
-                    class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors">
+                    class="lg:hidden p-2 -ml-2 rounded-xl hover:bg-black/5 transition-colors" style="color: var(--fg-2);">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
 
-            <div class="flex items-center gap-1 text-sm text-gray-400 ml-auto">
+            <div class="flex items-center gap-1 text-sm ml-auto" style="color: var(--meta);">
                 <span class="hidden sm:inline">Default Bakery</span>
-                <span class="text-gray-300 mx-1 hidden sm:inline">·</span>
+                <span class="mx-1 hidden sm:inline" style="color: var(--meta);">·</span>
             </div>
 
             @* User avatar *@

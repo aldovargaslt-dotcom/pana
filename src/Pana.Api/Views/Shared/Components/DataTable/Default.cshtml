@@ -5,7 +5,7 @@
     {
         <div class="mb-4">
             <div class="relative">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 <input type="search"
                        name="q"
                        placeholder="Buscar..."
@@ -13,24 +13,26 @@
                        hx-trigger="keyup changed delay:300ms"
                        hx-target="#table-body-@(Model.Columns[0].Key)"
                        hx-include="[name='q']"
-                       class="w-full max-w-xs pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm
-                              focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-300
-                              placeholder-gray-400 transition-all duration-200" />
+                       class="w-full max-w-xs pl-9 pr-4 py-2.5 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 transition-all duration-200"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
             </div>
         </div>
     }
 
-    <div class="overflow-x-auto rounded-2xl border border-gray-100">
+    <div class="overflow-x-auto rounded-2xl shadow-ambient" style="background: var(--surface-container-lowest);">
         <table class="w-full text-sm">
-            <thead class="bg-gray-50/80 border-b border-gray-100">
+            <thead style="background: var(--surface-container-low);">
                 <tr>
                     @foreach (var col in Model.Columns)
                     {
-                        <th class="px-4 py-3 text-left font-semibold text-gray-500 text-xs uppercase tracking-wider @(col.Width != null ? col.Width : "")">
+                        <th class="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wider @(col.Width != null ? col.Width : "")" style="color: var(--muted);">
                             @col.Label
                             @if (col.Sortable)
                             {
-                                <button class="ml-1 text-gray-300 hover:text-gray-500 transition-colors">↕</button>
+                                <button class="ml-1 transition-colors" style="color: var(--meta);" onmouseover="this.style.color='var(--muted)'" onmouseout="this.style.color='var(--meta)'">↕</button>
                             }
                         </th>
                     }
@@ -39,7 +41,7 @@
             <tbody id="table-body-@(Model.Columns[0].Key)"
                    hx-get="@Model.HxGet"
                    hx-trigger="load"
-                   class="divide-y divide-gray-50">
+                   class="divide-y" style="border-color: var(--surface-container-low);">
                 @* Content loaded via HTMX *@
                 <tr><td colspan="@Model.Columns.Count" class="p-10 text-center"><div class="skeleton h-5 w-2/3 mx-auto"></div></td></tr>
             </tbody>

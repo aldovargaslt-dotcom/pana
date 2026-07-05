@@ -3,27 +3,27 @@
 <div class="space-y-6">
     @* Summary cards *@
     <div class="grid grid-cols-3 gap-4">
-        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 text-center">
-            <p class="text-xs text-gray-500 mb-1">Total</p>
-            <p class="text-xl font-bold text-gray-900">$@Model.TotalAmount.ToString("N2")</p>
+        <div class="rounded-xl p-4 text-center" style="background: linear-gradient(135deg, var(--surface-container-low), var(--surface-container));">
+            <p class="text-xs mb-1" style="color: var(--muted);">Total</p>
+            <p class="text-xl font-bold" style="color: var(--fg);">$@Model.TotalAmount.ToString("N2")</p>
         </div>
-        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 text-center">
-            <p class="text-xs text-gray-500 mb-1">Items</p>
-            <p class="text-xl font-bold text-gray-900">@Model.Items.Count</p>
+        <div class="rounded-xl p-4 text-center" style="background: linear-gradient(135deg, var(--surface-container-low), var(--surface-container));">
+            <p class="text-xs mb-1" style="color: var(--muted);">Items</p>
+            <p class="text-xl font-bold" style="color: var(--fg);">@Model.Items.Count</p>
         </div>
-        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 text-center flex flex-col items-center justify-center">
-            <p class="text-xs text-gray-500 mb-1.5">Estado</p>
+        <div class="rounded-xl p-4 text-center flex flex-col items-center justify-center" style="background: linear-gradient(135deg, var(--surface-container-low), var(--surface-container));">
+            <p class="text-xs mb-1.5" style="color: var(--muted);">Estado</p>
             @{
                 var (statusBg, statusDot) = Model.Status switch
                 {
-                    "completed" => ("bg-emerald-50 text-emerald-700", "bg-emerald-500"),
-                    "draft" => ("bg-amber-50 text-amber-700", "bg-amber-500"),
-                    "voided" => ("bg-red-50 text-red-700", "bg-red-500"),
-                    _ => ("bg-gray-50 text-gray-600", "bg-gray-400")
+                    "completed" => ($"color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent);", "background: var(--success);"),
+                    "draft" => ($"color: var(--tertiary); background: color-mix(in srgb, var(--tertiary) 12%, transparent);", "background: var(--tertiary);"),
+                    "voided" => ($"color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent);", "background: var(--danger);"),
+                    _ => ($"color: var(--muted); background: var(--surface-container);", "background: var(--meta);")
                 };
             }
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full @statusBg">
-                <span class="w-1.5 h-1.5 rounded-full @statusDot"></span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full" style="@statusBg">
+                <span class="w-1.5 h-1.5 rounded-full" style="@statusDot"></span>
                 @Model.Status
             </span>
         </div>
@@ -31,25 +31,25 @@
 
     @* Line items *@
     <div>
-        <h4 class="text-sm font-semibold text-gray-700 mb-3">Detalle de items</h4>
-        <div class="border border-gray-100 rounded-xl overflow-hidden">
+        <h4 class="text-sm font-semibold mb-3" style="color: var(--fg-2);">Detalle de items</h4>
+        <div class="rounded-xl overflow-hidden shadow-ambient" style="background: var(--surface-container-lowest);">
             <table class="w-full text-sm">
-                <thead class="bg-gray-50/80">
+                <thead style="background: var(--surface-container-low);">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Producto</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Precio</th>
-                        <th class="px-4 py-2.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Cant.</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Subtotal</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Producto</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Precio</th>
+                        <th class="px-4 py-2.5 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Cant.</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Subtotal</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y" style="border-color: var(--surface-container-low);">
                     @foreach (var item in Model.Items)
                     {
                         <tr class="@(item.IsVoided ? "opacity-40 line-through" : "")">
-                            <td class="px-4 py-2.5 text-gray-800 font-medium">@item.ProductName</td>
-                            <td class="px-4 py-2.5 text-right text-gray-600">$@item.UnitPrice.ToString("N2")</td>
-                            <td class="px-4 py-2.5 text-center text-gray-600">@item.Quantity</td>
-                            <td class="px-4 py-2.5 text-right font-semibold text-gray-800">$@item.LineTotal.ToString("N2")</td>
+                            <td class="px-4 py-2.5 font-medium" style="color: var(--fg);">@item.ProductName</td>
+                            <td class="px-4 py-2.5 text-right" style="color: var(--fg-2);">$@item.UnitPrice.ToString("N2")</td>
+                            <td class="px-4 py-2.5 text-center" style="color: var(--fg-2);">@item.Quantity</td>
+                            <td class="px-4 py-2.5 text-right font-semibold" style="color: var(--fg);">$@item.LineTotal.ToString("N2")</td>
                         </tr>
                     }
                 </tbody>
@@ -60,11 +60,11 @@
     @* Notes *@
     @if (!string.IsNullOrWhiteSpace(Model.Notes))
     {
-        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 flex items-start gap-3">
+        <div class="rounded-xl p-4 flex items-start gap-3" style="background: color-mix(in srgb, var(--tertiary) 10%, transparent);">
             <span class="text-lg">📝</span>
-            <p class="text-sm text-amber-800">@Model.Notes</p>
+            <p class="text-sm" style="color: var(--tertiary);">@Model.Notes</p>
         </div>
     }
 
-    <p class="text-xs text-gray-400">Creada: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+    <p class="text-xs" style="color: var(--meta);">Creada: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
 </div>
