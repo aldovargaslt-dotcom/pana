@@ -108,7 +108,7 @@
                                   && (!searchQuery || '@product.Name.ToLower()'.includes(searchQuery.toLowerCase())
                                       || '@(product.Sku?.ToLower() ?? "")'.includes(searchQuery.toLowerCase()))"
                          x-transition.duration.200ms
-                         @@click="addToCart('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price)">
+                         @@click="$root.addToCart('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price)">
                         @* Product image fallback *@
                         <div class="w-full aspect-[4/3] rounded-xl mb-3 flex items-center justify-center relative"
                              style="background: var(--surface-container-low);">
@@ -140,13 +140,13 @@
 
                         @* Quantity presets ────────────────────────────────── *@
                         <div class="flex items-center gap-1.5" @@click.stop>
-                            <button @@click="addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, 5)"
+                            <button @@click="$root.addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, 5)"
                                     class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150
                                            opacity-0 group-hover:opacity-100 hover:shadow-sm active:scale-95"
                                     style="color: var(--tertiary); background: color-mix(in srgb, var(--tertiary) 8%, transparent);">
                                 +5
                             </button>
-                            <button @@click="addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, 10)"
+                            <button @@click="$root.addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, 10)"
                                     class="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150
                                            opacity-0 group-hover:opacity-100 hover:shadow-sm active:scale-95"
                                     style="color: var(--tertiary); background: color-mix(in srgb, var(--tertiary) 8%, transparent);">
@@ -160,7 +160,7 @@
                                        style="background: var(--surface-container-high); color: var(--fg);"
                                        onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 15%, transparent)'"
                                        onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
-                                <button @@click="addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, customQty || 1); customQty = 1"
+                                <button @@click="$root.addToCartQty('@product.Id', '@(product.Name.Replace("'","\\'"))', @product.Price, customQty || 1); customQty = 1"
                                         class="shrink-0 px-2 py-1.5 rounded-lg text-xs font-bold transition-all duration-150
                                                opacity-0 group-hover:opacity-100 hover:shadow-sm active:scale-95"
                                         style="color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent);">
