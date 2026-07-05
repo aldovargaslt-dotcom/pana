@@ -10,12 +10,22 @@ public record SaleRowViewModel(
     string Status,
     decimal TotalAmount,
     int ItemCount,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    string OrderType = "Standard",
+    string? CustomerName = null,
+    string PaymentStatus = "Unpaid",
+    DateTime? ScheduledDate = null
 );
 
 public record SaleFormViewModel(
     List<SaleItemFormViewModel>? Items = null,
-    string? Notes = null
+    string? Notes = null,
+    string OrderType = "Standard",
+    string? CustomerName = null,
+    string? CustomerPhone = null,
+    DateTime? ScheduledDate = null,
+    decimal DepositAmount = 0,
+    string? InternalNotes = null
 );
 
 public record SaleItemFormViewModel(

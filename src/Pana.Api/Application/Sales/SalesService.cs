@@ -11,11 +11,14 @@ public interface ISalesService
     Task<SaleDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<SaleDto> CreateAsync(CreateSaleRequest request, Guid? soldByUserId = null, CancellationToken ct = default);
     Task<bool> ConfirmAsync(Guid id, CancellationToken ct = default);
-    Task<bool> StartPreparingAsync(Guid id, CancellationToken ct = default);
+    Task<bool> StartProductionAsync(Guid id, CancellationToken ct = default);
     Task<bool> MarkReadyAsync(Guid id, CancellationToken ct = default);
-    Task<bool> CompleteAsync(Guid id, CancellationToken ct = default);
-    Task<bool> VoidAsync(Guid id, CancellationToken ct = default);
+    Task<bool> DeliverAsync(Guid id, CancellationToken ct = default);
+    Task<bool> CancelAsync(Guid id, CancellationToken ct = default);
+    Task<bool> RecordPaymentAsync(Guid id, decimal amount, CancellationToken ct = default);
+    Task<bool> UpdatePreOrderDetailsAsync(Guid id, UpdatePreOrderRequest request, CancellationToken ct = default);
     Task<DailySalesSummary> GetDailySummaryAsync(DateTime? date = null, CancellationToken ct = default);
+    Task<List<SaleDto>> GetPreOrdersAsync(CancellationToken ct = default);
 }
 
 public class SalesService : ISalesService
@@ -58,7 +61,18 @@ public class SalesService : ISalesService
             .ToDictionaryAsync(p => p.Id, ct);
 
         // Sale starts as Draft
-        var sale = new Sale(_tenantContext.TenantId, soldByUserId, request.Notes);
+        var sale = new Sale(
+            _tenantContext.TenantId,
+            soldByUserId,
+            request.Notes,
+            request.OrderType,
+            request.CustomerName,
+            request.CustomerPhone,
+            request.ScheduledDate,
+            request.DepositAmount,
+            request.PaymentMethod,
+            request.InternalNotes
+        );
 
         foreach (var item in request.Items)
         {
@@ -85,12 +99,12 @@ public class SalesService : ISalesService
         return true;
     }
 
-    public async Task<bool> StartPreparingAsync(Guid id, CancellationToken ct = default)
+    public async Task<bool> StartProductionAsync(Guid id, CancellationToken ct = default)
     {
         var sale = await _db.Sales.FindAsync([id], ct);
         if (sale is null) return false;
 
-        sale.StartPreparing();
+        sale.StartProduction();
         await _db.SaveChangesAsync(ct);
         return true;
     }
@@ -105,7 +119,7 @@ public class SalesService : ISalesService
         return true;
     }
 
-    public async Task<bool> CompleteAsync(Guid id, CancellationToken ct = default)
+    public async Task<bool> DeliverAsync(Guid id, CancellationToken ct = default)
     {
         var sale = await _db.Sales
             .Include(s => s.Items)
@@ -113,10 +127,10 @@ public class SalesService : ISalesService
 
         if (sale is null) return false;
 
-        sale.Complete();
+        sale.Deliver();
         await _db.SaveChangesAsync(ct);
 
-        // Fire domain event for inventory deduction (only when sale is completed)
+        // Fire domain event for inventory deduction (only when delivered)
         var items = sale.Items.Select(i =>
             new SaleItemSnapshot(i.ProductId, Math.Abs(i.Quantity))).ToList();
         await _eventDispatcher.PublishAsync(new SaleCompletedEvent(sale.Id, sale.TenantId, items), ct);
@@ -124,12 +138,38 @@ public class SalesService : ISalesService
         return true;
     }
 
-    public async Task<bool> VoidAsync(Guid id, CancellationToken ct = default)
+    public async Task<bool> CancelAsync(Guid id, CancellationToken ct = default)
     {
         var sale = await _db.Sales.FindAsync([id], ct);
         if (sale is null) return false;
 
-        sale.Void();
+        sale.Cancel();
+        await _db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> RecordPaymentAsync(Guid id, decimal amount, CancellationToken ct = default)
+    {
+        var sale = await _db.Sales.FindAsync([id], ct);
+        if (sale is null) return false;
+
+        sale.RecordPayment(amount);
+        await _db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> UpdatePreOrderDetailsAsync(Guid id, UpdatePreOrderRequest request, CancellationToken ct = default)
+    {
+        var sale = await _db.Sales.FindAsync([id], ct);
+        if (sale is null) return false;
+
+        sale.SetPreOrderDetails(
+            request.CustomerName ?? sale.CustomerName ?? "",
+            request.CustomerPhone ?? sale.CustomerPhone,
+            request.ScheduledDate ?? sale.ScheduledDate ?? DateTime.UtcNow,
+            request.DepositAmount ?? sale.DepositAmount,
+            request.InternalNotes ?? sale.InternalNotes
+        );
         await _db.SaveChangesAsync(ct);
         return true;
     }
@@ -141,7 +181,7 @@ public class SalesService : ISalesService
 
         var sales = await _db.Sales
             .Include(s => s.Items)
-            .Where(s => s.CreatedAt >= targetDate && s.CreatedAt < nextDate && s.Status == Sale.Statuses.Completed)
+            .Where(s => s.CreatedAt >= targetDate && s.CreatedAt < nextDate && s.Status == Sale.Statuses.Delivered)
             .ToListAsync(ct);
 
         var totalRevenue = sales.Sum(s => s.TotalAmount);
@@ -164,6 +204,18 @@ public class SalesService : ISalesService
         );
     }
 
+    public async Task<List<SaleDto>> GetPreOrdersAsync(CancellationToken ct = default)
+    {
+        return await _db.Sales
+            .Include(s => s.Items)
+            .Where(s => s.OrderType == Sale.OrderTypes.PreOrder
+                && s.Status != Sale.Statuses.Cancelled
+                && s.Status != Sale.Statuses.Delivered)
+            .OrderBy(s => s.ScheduledDate)
+            .Select(s => MapToDto(s))
+            .ToListAsync(ct);
+    }
+
     private static SaleDto MapToDto(Sale s) => new(
         s.Id,
         s.Status,
@@ -173,6 +225,15 @@ public class SalesService : ISalesService
         s.CreatedAt,
         s.Items.Select(i => new SaleItemDto(
             i.Id, i.ProductId, i.ProductName, i.UnitPrice, i.Quantity, i.LineTotal, i.IsVoided
-        )).ToList()
+        )).ToList(),
+        s.OrderType,
+        s.CustomerName,
+        s.CustomerPhone,
+        s.ScheduledDate,
+        s.DepositAmount,
+        s.BalanceDue,
+        s.PaymentStatus,
+        s.PaymentMethod,
+        s.InternalNotes
     );
 }

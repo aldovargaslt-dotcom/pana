@@ -4,9 +4,10 @@
     var statusText = Model.Status switch
     {
         "Confirmed" => "Confirmada",
-        "Completed" => "Completada",
+        "Delivered" => "Entregada",
         _ => Model.Status
     };
+    var isPreOrder = Model.OrderType == "PreOrder";
 }
 
 <div class="p-6 text-center space-y-4 scale-in">
@@ -26,6 +27,17 @@
             <span class="font-mono font-medium" style="color: var(--fg);">#@Model.Id.ToString()[..8]</span>
         </div>
         <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+            <span style="color: var(--muted);">Tipo</span>
+            <span class="font-medium" style="color: var(--fg);">@(isPreOrder ? "📅 Pre-orden" : "🛒 En local")</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.PaymentMethod))
+        {
+            <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+                <span style="color: var(--muted);">Método de pago</span>
+                <span class="font-medium" style="color: var(--fg);">@Model.PaymentMethod</span>
+            </div>
+        }
+        <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
             <span style="color: var(--muted);">Estado</span>
             <span class="font-medium" style="color: var(--success);">@statusText</span>
         </div>
@@ -33,6 +45,24 @@
             <span style="color: var(--muted);">Items</span>
             <span class="font-medium" style="color: var(--fg);">@Model.Items.Count</span>
         </div>
+        @if (isPreOrder && Model.ScheduledDate.HasValue)
+        {
+            <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+                <span style="color: var(--muted);">Entrega</span>
+                <span class="font-medium" style="color: var(--fg);">@Model.ScheduledDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+            </div>
+        }
+        @if (isPreOrder && Model.DepositAmount > 0)
+        {
+            <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+                <span style="color: var(--muted);">Anticipo</span>
+                <span class="font-medium" style="color: var(--primary);">$@Model.DepositAmount.ToString("N2")</span>
+            </div>
+            <div class="flex justify-between px-4 py-2 rounded-xl" style="background: var(--surface-container-low);">
+                <span style="color: var(--muted);">Saldo pendiente</span>
+                <span class="font-medium" style="color: var(--danger);">$@Model.BalanceDue.ToString("N2")</span>
+            </div>
+        }
         <div class="flex justify-between px-4 py-2 rounded-xl font-bold" style="background: var(--surface-container-low);">
             <span style="color: var(--fg);">Total</span>
             <span style="color: var(--primary);">$@Model.TotalAmount.ToString("N2")</span>

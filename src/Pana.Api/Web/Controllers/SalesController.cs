@@ -15,7 +15,8 @@ public class SalesController : Controller
     {
         var sales = await salesService.GetAllAsync(ct);
         var vm = sales.Select(s => new SaleRowViewModel(
-            s.Id, s.Status, s.TotalAmount, s.Items.Count, s.CreatedAt
+            s.Id, s.Status, s.TotalAmount, s.Items.Count, s.CreatedAt,
+            s.OrderType, s.CustomerName, s.PaymentStatus, s.ScheduledDate
         )).ToList();
 
         ViewData["Title"] = "Ventas";
@@ -31,7 +32,8 @@ public class SalesController : Controller
     {
         var sales = await salesService.GetAllAsync(ct);
         var rows = sales.Select(s => new SaleRowViewModel(
-            s.Id, s.Status, s.TotalAmount, s.Items.Count, s.CreatedAt
+            s.Id, s.Status, s.TotalAmount, s.Items.Count, s.CreatedAt,
+            s.OrderType, s.CustomerName, s.PaymentStatus, s.ScheduledDate
         )).ToList();
 
         return PartialView("_TableRows", rows);

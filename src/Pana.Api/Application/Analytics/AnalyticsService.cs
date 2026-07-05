@@ -25,9 +25,9 @@ public class AnalyticsService : IAnalyticsService
         var fromDate = from.Date;
         var toDate = to.Date.AddDays(1); // inclusive end
 
-        // ── Fetch completed sales in range ──
+        // ── Fetch completed (delivered) sales in range ──
         var sales = await _db.Sales
-            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Completed
+            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
                      && s.CreatedAt >= fromDate
                      && s.CreatedAt < toDate)
             .Include(s => s.Items)
@@ -215,7 +215,7 @@ public class AnalyticsService : IAnalyticsService
         var toDate = to.Date.AddDays(1);
 
         var sales = await _db.Sales
-            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Completed
+            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
                      && s.CreatedAt >= fromDate && s.CreatedAt < toDate)
             .OrderBy(s => s.CreatedAt)
             .ToListAsync(ct);

@@ -66,5 +66,62 @@
         </div>
     }
 
+    @* Pre-order details *@
+    @if (Model.OrderType == "PreOrder")
+    {
+        <div class="rounded-xl p-4 space-y-2" style="background: var(--surface-container-low);">
+            <h4 class="text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Detalles de pre-orden</h4>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerName))
+                {
+                    <div>
+                        <span class="text-xs" style="color: var(--meta);">Cliente</span>
+                        <p style="color: var(--fg);">@Model.CustomerName</p>
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.CustomerPhone))
+                {
+                    <div>
+                        <span class="text-xs" style="color: var(--meta);">Teléfono</span>
+                        <p style="color: var(--fg);">@Model.CustomerPhone</p>
+                    </div>
+                }
+                @if (Model.ScheduledDate.HasValue)
+                {
+                    <div>
+                        <span class="text-xs" style="color: var(--meta);">Entrega programada</span>
+                        <p style="color: var(--fg);">@Model.ScheduledDate.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+                }
+                <div>
+                    <span class="text-xs" style="color: var(--meta);">Anticipo</span>
+                    <p style="color: var(--fg);">$@Model.DepositAmount.ToString("N2")</p>
+                </div>
+                <div>
+                    <span class="text-xs" style="color: var(--meta);">Saldo pendiente</span>
+                    <p style="color: var(--fg);">$@Model.BalanceDue.ToString("N2")</p>
+                </div>
+                <div>
+                    <span class="text-xs" style="color: var(--meta);">Pago</span>
+                    <p style="color: var(--fg);">@Model.PaymentStatus</p>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.PaymentMethod))
+                {
+                    <div>
+                        <span class="text-xs" style="color: var(--meta);">Método</span>
+                        <p style="color: var(--fg);">@Model.PaymentMethod</p>
+                    </div>
+                }
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.InternalNotes))
+            {
+                <div class="pt-2" style="border-top: 1px solid var(--surface-container-high);">
+                    <span class="text-xs" style="color: var(--meta);">Notas internas</span>
+                    <p class="text-sm mt-1" style="color: var(--fg-2);">@Model.InternalNotes</p>
+                </div>
+            }
+        </div>
+    }
+
     <p class="text-xs" style="color: var(--meta);">Creada: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
 </div>

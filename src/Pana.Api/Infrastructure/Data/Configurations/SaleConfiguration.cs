@@ -21,6 +21,20 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
         builder.Property(s => s.CreatedAt).HasColumnName("created_at");
         builder.Property(s => s.UpdatedAt).HasColumnName("updated_at");
 
+        // Pre-order / customer fields
+        builder.Property(s => s.OrderType).HasColumnName("order_type").HasMaxLength(50).IsRequired();
+        builder.Property(s => s.CustomerName).HasColumnName("customer_name").HasMaxLength(200);
+        builder.Property(s => s.CustomerPhone).HasColumnName("customer_phone").HasMaxLength(50);
+        builder.Property(s => s.ScheduledDate).HasColumnName("scheduled_date");
+        builder.Property(s => s.DepositAmount).HasColumnName("deposit_amount").HasPrecision(18, 2);
+        builder.Property(s => s.PaymentStatus).HasColumnName("payment_status").HasMaxLength(50).IsRequired();
+        builder.Property(s => s.PaymentMethod).HasColumnName("payment_method").HasMaxLength(50);
+        builder.Property(s => s.InternalNotes).HasColumnName("internal_notes").HasMaxLength(2000);
+
+        // Ignore computed properties
+        builder.Ignore(s => s.BalanceDue);
+        builder.Ignore(s => s.IsPreOrder);
+
         builder.HasMany(s => s.Items)
             .WithOne()
             .HasForeignKey(i => i.SaleId)
@@ -28,5 +42,9 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
 
         builder.HasIndex(s => s.TenantId);
         builder.HasIndex(s => s.CreatedAt);
+        builder.HasIndex(s => s.Status);
+        builder.HasIndex(s => s.OrderType);
+        builder.HasIndex(s => s.ScheduledDate);
+        builder.HasIndex(s => s.PaymentStatus);
     }
 }

@@ -19,7 +19,17 @@ public record SaleDto(
     string? Notes,
     Guid? SoldByUserId,
     DateTime CreatedAt,
-    List<SaleItemDto> Items
+    List<SaleItemDto> Items,
+    // Pre-order / customer fields
+    string OrderType,
+    string? CustomerName,
+    string? CustomerPhone,
+    DateTime? ScheduledDate,
+    decimal DepositAmount,
+    decimal BalanceDue,
+    string PaymentStatus,
+    string? PaymentMethod,
+    string? InternalNotes
 );
 
 public record CreateSaleItemRequest(
@@ -30,7 +40,26 @@ public record CreateSaleItemRequest(
 
 public record CreateSaleRequest(
     List<CreateSaleItemRequest> Items,
-    string? Notes = null
+    string? Notes = null,
+    string OrderType = "Standard",
+    string? CustomerName = null,
+    string? CustomerPhone = null,
+    DateTime? ScheduledDate = null,
+    decimal DepositAmount = 0,
+    string? PaymentMethod = null,
+    string? InternalNotes = null
+);
+
+public record UpdatePreOrderRequest(
+    string? CustomerName = null,
+    string? CustomerPhone = null,
+    DateTime? ScheduledDate = null,
+    decimal? DepositAmount = null,
+    string? InternalNotes = null
+);
+
+public record RecordPaymentRequest(
+    decimal Amount
 );
 
 public record DailySalesSummary(

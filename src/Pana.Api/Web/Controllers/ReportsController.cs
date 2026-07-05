@@ -35,7 +35,7 @@ public class ReportsController : Controller
             .Where(s => s.CreatedAt >= from && s.CreatedAt <= to)
             .ToList();
 
-        var completedSales = periodSales.Where(s => s.Status == "Completed").ToList();
+        var completedSales = periodSales.Where(s => s.Status == "Delivered").ToList();
 
         // Previous period for growth comparison
         var prevFrom = from.AddDays(-(to - from).Days - 1);
@@ -94,10 +94,12 @@ public class ReportsController : Controller
 
         var allOrders = sales.Select((s, i) => new OrderHistoryItemViewModel(
             s.Id, i + 1, s.CreatedAt,
-            $"Venta #{s.Id.ToString()[..8]}",
+            s.CustomerName is not null ? $"{s.CustomerName} — #{s.Id.ToString()[..8]}" : $"Venta #{s.Id.ToString()[..8]}",
             s.Status,
             s.TotalAmount,
-            s.Status switch { "Completed" => "Pagado", "Voided" => "Anulado", _ => "Pendiente" }
+            s.PaymentStatus,
+            s.OrderType,
+            s.CustomerName
         )).ToList();
 
         ViewData["Title"] = "Reportes";

@@ -27,21 +27,21 @@ public class SaleTests
     }
 
     [Fact]
-    public void Void_DraftSale_ShouldChangeStatus()
+    public void Cancel_DraftSale_ShouldChangeStatus()
     {
         var sale = new Sale(TenantId);
         sale.AddItem(Guid.NewGuid(), "Test", 10.0m, 1);
 
-        sale.Void();
+        sale.Cancel();
 
-        Assert.Equal(Sale.Statuses.Voided, sale.Status);
+        Assert.Equal(Sale.Statuses.Cancelled, sale.Status);
     }
 
     [Fact]
-    public void AddItem_VoidedSale_ShouldThrow()
+    public void AddItem_CancelledSale_ShouldThrow()
     {
         var sale = new Sale(TenantId);
-        sale.Void();
+        sale.Cancel();
 
         Assert.Throws<InvalidOperationException>(() =>
             sale.AddItem(Guid.NewGuid(), "Test", 10.0m, 1));
@@ -58,22 +58,22 @@ public class SaleTests
         sale.Confirm();
         Assert.Equal(Sale.Statuses.Confirmed, sale.Status);
 
-        sale.StartPreparing();
-        Assert.Equal(Sale.Statuses.Preparing, sale.Status);
+        sale.StartProduction();
+        Assert.Equal(Sale.Statuses.InProduction, sale.Status);
 
         sale.MarkReady();
         Assert.Equal(Sale.Statuses.Ready, sale.Status);
 
-        sale.Complete();
-        Assert.Equal(Sale.Statuses.Completed, sale.Status);
+        sale.Deliver();
+        Assert.Equal(Sale.Statuses.Delivered, sale.Status);
     }
 
     [Fact]
     public void InvalidTransition_ShouldThrow()
     {
         var sale = new Sale(TenantId);
-        // Draft → Preparing is not allowed (must go through Confirmed)
-        Assert.Throws<InvalidOperationException>(() => sale.StartPreparing());
+        // Draft → InProduction is not allowed (must go through Confirmed)
+        Assert.Throws<InvalidOperationException>(() => sale.StartProduction());
     }
 
     [Fact]

@@ -27,11 +27,13 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Cola de Facturación
                 </a>
-                <a href="#" onclick="return false;"
+                <a href="/activity/scheduled-orders"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
-                   style="color: var(--sidebar-fg); opacity: 0.5;">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    Mesas
+                   style="color: var(--sidebar-fg);"
+                   onmouseover="this.style.background='rgba(28,28,25,0.04)'"
+                   onmouseout="this.style.background='transparent'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Pre-órdenes
                 </a>
                 <a href="/activity/order-history"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
@@ -99,17 +101,17 @@
                                 {
                                     var (statusColor, statusBg) = item.Status switch
                                     {
-                                        "Completed" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
-                                        "Voided" => ("var(--danger)", "color-mix(in srgb, var(--danger) 12%, transparent)"),
+                                        "Delivered" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
+                                        "Cancelled" => ("var(--danger)", "color-mix(in srgb, var(--danger) 12%, transparent)"),
                                         "Draft" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)"),
                                         _ => ("var(--primary)", "color-mix(in srgb, var(--primary) 12%, transparent)")
                                     };
                                     var statusLabel = item.Status switch
                                     {
-                                        "Completed" => "Completada",
-                                        "Voided" => "Anulada",
+                                        "Delivered" => "Entregada",
+                                        "Cancelled" => "Cancelada",
                                         "Confirmed" => "Confirmada",
-                                        "Preparing" => "En preparación",
+                                        "InProduction" => "En producción",
                                         "Ready" => "Lista",
                                         "Draft" => "Borrador",
                                         _ => item.Status
@@ -148,12 +150,12 @@
             <div>
                 <h3 class="text-sm font-semibold mb-3" style="color: var(--fg-2);">Órdenes en proceso</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    @foreach (var item in Model.QueueItems.Where(q => q.Status is "Confirmed" or "Preparing" or "Ready").Take(6))
+                    @foreach (var item in Model.QueueItems.Where(q => q.Status is "Confirmed" or "InProduction" or "Ready").Take(6))
                     {
                         var stepColors = item.Status switch
                         {
                             "Confirmed" => new[] { "var(--primary)", "var(--surface-container-high)", "var(--surface-container-high)" },
-                            "Preparing" => new[] { "var(--success)", "var(--primary)", "var(--surface-container-high)" },
+                            "InProduction" => new[] { "var(--success)", "var(--primary)", "var(--surface-container-high)" },
                             "Ready" => new[] { "var(--success)", "var(--success)", "var(--primary)" },
                             _ => new[] { "var(--surface-container-high)", "var(--surface-container-high)", "var(--surface-container-high)" }
                         };
@@ -171,7 +173,7 @@
                             </div>
                             <div class="flex justify-between text-[10px]" style="color: var(--meta);">
                                 <span>Confirmada</span>
-                                <span>Preparando</span>
+                                <span>En producción</span>
                                 <span>Lista</span>
                             </div>
                         </div>

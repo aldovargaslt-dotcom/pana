@@ -25,7 +25,7 @@
             <div class="flex items-center gap-2">
                 <div class="flex items-center gap-2 text-xs rounded-lg px-3 py-1.5 shadow-ambient"
                      style="color: var(--meta); background: var(--surface-container-lowest);">
-                    <span class="pulse-dot"></span> Abierto
+                    <span class="w-2 h-2 rounded-full" style="background: var(--fresh-green);" title="Activo"></span> Activo
                 </div>
                 <button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium
                                transition-all duration-200 shadow-ambient"
@@ -126,17 +126,7 @@
                             <span class="font-bold text-sm" style="color: var(--primary);">
                                 $@product.Price.ToString("N2")
                             </span>
-                            @if (!product.IsActive)
-                            {
-                                <span class="text-xs px-2 py-0.5 rounded-full"
-                                      style="background: var(--surface-container-high); color: var(--meta);">
-                                    No disponible
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="w-2 h-2 rounded-full" style="background: var(--fresh-green);" title="Disponible"></span>
-                            }
+                            <span class="w-2 h-2 rounded-full" style="background: var(--fresh-green);" title="Disponible"></span>
                         </div>
                     </div>
                 }
@@ -203,26 +193,80 @@
 
         @* Order type selector *@
         <div class="px-4 py-2 flex gap-2" style="border-bottom: 1px solid var(--surface-container-low);">
-            <button @@click="orderType = 'DineIn'"
+            <button @@click="orderType = 'Standard'"
                     class="flex-1 py-1.5 rounded-lg text-xs font-medium transition-all duration-200"
-                    :class="orderType === 'DineIn'
+                    :class="orderType === 'Standard'
                         ? 'text-white'
                         : ''"
-                    :style="orderType === 'DineIn'
+                    :style="orderType === 'Standard'
                         ? 'background: var(--gradient-primary);'
                         : 'color: var(--fg-2); background: var(--surface-container-low);'">
-                🪑 Comer aquí
+                🛒 En local
             </button>
-            <button @@click="orderType = 'Takeaway'"
+            <button @@click="orderType = 'PreOrder'"
                     class="flex-1 py-1.5 rounded-lg text-xs font-medium transition-all duration-200"
-                    :class="orderType === 'Takeaway'
+                    :class="orderType === 'PreOrder'
                         ? 'text-white'
                         : ''"
-                    :style="orderType === 'Takeaway'
+                    :style="orderType === 'PreOrder'
                         ? 'background: var(--gradient-primary);'
                         : 'color: var(--fg-2); background: var(--surface-container-low);'">
-                🛍️ Para llevar
+                📅 Pre-orden
             </button>
+        </div>
+
+        @* Pre-order fields (visible when PreOrder is selected) *@
+        <div x-show="orderType === 'PreOrder'" x-transition.duration.200ms
+             class="px-4 py-3 space-y-2" style="border-bottom: 1px solid var(--surface-container-low); background: var(--surface-container);">
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[10px] font-semibold uppercase tracking-wider block mb-0.5" style="color: var(--muted);">Cliente</label>
+                    <input type="text" x-model="customerName" placeholder="Nombre del cliente"
+                           class="w-full px-2.5 py-1.5 rounded-lg text-xs border-0
+                                  focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold uppercase tracking-wider block mb-0.5" style="color: var(--muted);">Teléfono</label>
+                    <input type="text" x-model="customerPhone" placeholder="Teléfono"
+                           class="w-full px-2.5 py-1.5 rounded-lg text-xs border-0
+                                  focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[10px] font-semibold uppercase tracking-wider block mb-0.5" style="color: var(--muted);">Entrega / Pickup</label>
+                    <input type="datetime-local" x-model="scheduledDate"
+                           class="w-full px-2.5 py-1.5 rounded-lg text-xs border-0
+                                  focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold uppercase tracking-wider block mb-0.5" style="color: var(--muted);">Anticipo</label>
+                    <input type="number" x-model="depositAmount" placeholder="0.00" step="0.01" min="0"
+                           class="w-full px-2.5 py-1.5 rounded-lg text-xs border-0
+                                  focus:outline-none focus:ring-2 transition-all duration-200"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-semibold uppercase tracking-wider block mb-0.5" style="color: var(--muted);">Notas internas</label>
+                <textarea x-model="internalNotes" rows="2" placeholder="Notas para producción..."
+                          class="w-full px-2.5 py-1.5 rounded-lg text-xs border-0 resize-none
+                                 focus:outline-none focus:ring-2 transition-all duration-200"
+                          style="background: var(--surface-container-high); color: var(--fg);"
+                          onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                          onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"></textarea>
+            </div>
         </div>
 
         @* Order items list (scrollable) *@
@@ -357,6 +401,11 @@
     <input type="hidden" name="OrderType" x-bind:value="orderType" />
     <input type="hidden" name="PaymentMethod" x-bind:value="paymentMethod" />
     <input type="hidden" name="Notes" x-bind:value="orderNotes" />
+    <input type="hidden" name="CustomerName" x-bind:value="customerName" />
+    <input type="hidden" name="CustomerPhone" x-bind:value="customerPhone" />
+    <input type="hidden" name="ScheduledDate" x-bind:value="scheduledDate" />
+    <input type="hidden" name="DepositAmount" x-bind:value="depositAmount" />
+    <input type="hidden" name="InternalNotes" x-bind:value="internalNotes" />
     <template x-for="(item, idx) in cart" :key="idx">
         <div>
             <input type="hidden" :name="'Items[' + idx + '].ProductId'" :value="item.productId" />
@@ -373,11 +422,17 @@ document.addEventListener('alpine:init', () => {
         cart: [],
         activeCategory: 'all',
         searchQuery: '',
-        orderType: 'DineIn',
+        orderType: 'Standard',
         paymentMethod: 'Efectivo',
         promoCode: '',
         orderNotes: '',
         discount: 0,
+        // Pre-order fields
+        customerName: '',
+        customerPhone: '',
+        scheduledDate: '',
+        depositAmount: 0,
+        internalNotes: '',
 
         get subtotal() {
             return this.cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
@@ -390,8 +445,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         get filteredCount() {
-            // Approximate — Alpine handles visibility per card
-            return 1; // Always show product grid, let x-show handle filtering
+            return 1;
         },
 
         categoryLabel(catName) {
@@ -438,6 +492,11 @@ document.addEventListener('alpine:init', () => {
                 this.cart = [];
                 this.discount = 0;
                 this.promoCode = '';
+                this.customerName = '';
+                this.customerPhone = '';
+                this.scheduledDate = '';
+                this.depositAmount = 0;
+                this.internalNotes = '';
             }
         },
 
@@ -453,18 +512,22 @@ document.addEventListener('alpine:init', () => {
 
         placeOrder() {
             if (this.cart.length === 0) return;
-            // Trigger the hidden form submit
+            if (this.orderType === 'PreOrder' && !this.customerName) {
+                alert('Ingresá el nombre del cliente para la pre-orden.');
+                return;
+            }
             const form = document.getElementById('place-order-form');
-            // Update hidden inputs
             form.querySelector('[name="OrderType"]').value = this.orderType;
             form.querySelector('[name="PaymentMethod"]').value = this.paymentMethod;
             form.querySelector('[name="Notes"]').value = this.orderNotes;
-            // Clear template-based inputs and rebuild
+            form.querySelector('[name="CustomerName"]').value = this.customerName;
+            form.querySelector('[name="CustomerPhone"]').value = this.customerPhone;
+            form.querySelector('[name="ScheduledDate"]').value = this.scheduledDate;
+            form.querySelector('[name="DepositAmount"]').value = this.depositAmount;
+            form.querySelector('[name="InternalNotes"]').value = this.internalNotes;
             const container = form.querySelector('template').parentElement;
-            // Remove previously added inputs (after template)
             const existingInputs = container.querySelectorAll('div:not(:first-child)');
             existingInputs.forEach(el => el.remove());
-            // Build new inputs
             this.cart.forEach((item, idx) => {
                 const div = document.createElement('div');
                 div.innerHTML = `
@@ -474,12 +537,10 @@ document.addEventListener('alpine:init', () => {
                 `;
                 container.appendChild(div);
             });
-            // Submit via HTMX
             htmx.trigger(form, 'submit');
         },
 
         init() {
-            // Listen for add-to-cart events from product detail modal
             window.addEventListener('add-to-cart', (e) => {
                 this.addToCart(e.detail.productId, e.detail.productName, e.detail.unitPrice);
             });

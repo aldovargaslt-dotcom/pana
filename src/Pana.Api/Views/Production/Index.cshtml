@@ -264,3 +264,83 @@
         }
     </script>
 }
+
+@* ── Pre-orders for production planning ──────────────────── *@
+@{
+    var preOrders = ViewBag.PreOrders as List<Pana.Api.Web.ViewModels.ScheduledOrderItemViewModel> ?? new();
+}
+@if (preOrders.Any())
+{
+    <div class="space-y-4">
+        <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold" style="color: var(--fg);">📅 Pre-órdenes activas</h2>
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background: var(--surface-container-low); color: var(--fg-2);">@preOrders.Count</span>
+        </div>
+        <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr style="background: var(--surface-container-low);">
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Cliente</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Entrega</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Items</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Total</th>
+                        <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Estado</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                    @foreach (var po in preOrders)
+                    {
+                        var (poColor, poBg) = po.Status switch
+                        {
+                            "InProduction" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)"),
+                            "Confirmed" => ("var(--primary)", "color-mix(in srgb, var(--primary) 12%, transparent)"),
+                            _ => ("var(--meta)", "color-mix(in srgb, var(--meta) 12%, transparent)")
+                        };
+                        var poLabel = po.Status switch
+                        {
+                            "InProduction" => "En producción",
+                            "Confirmed" => "Confirmada",
+                            _ => po.Status
+                        };
+                        <tr class="transition-colors"
+                            onmouseover="this.style.background='var(--surface-container-low)'"
+                            onmouseout="this.style.background='transparent'">
+                            <td class="px-6 py-3">
+                                <p class="font-medium" style="color: var(--fg);">@po.CustomerName</p>
+                                <p class="text-xs" style="color: var(--meta);">@po.OrderLabel</p>
+                            </td>
+                            <td class="px-6 py-3">
+                                <span style="color: var(--fg-2);">@(po.ScheduledDate?.ToString("dd/MM HH:mm") ?? "—")</span>
+                            </td>
+                            <td class="px-6 py-3 text-right">
+                                <span style="color: var(--fg-2);">@po.ItemCount</span>
+                            </td>
+                            <td class="px-6 py-3 text-right">
+                                <span class="font-semibold" style="color: var(--fg);">$@po.TotalAmount.ToString("N2")</span>
+                            </td>
+                            <td class="px-6 py-3 text-center">
+                                <span class="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
+                                      style="color: @poColor; background: @poBg;">@poLabel</span>
+                            </td>
+                            <td class="px-6 py-3 text-right">
+                                <button hx-get="/sales/@po.Id"
+                                        hx-target="#modal-container"
+                                        class="p-1.5 rounded-lg transition-colors"
+                                        style="color: var(--meta);"
+                                        onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
+                                        onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'"
+                                        title="Ver detalle">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

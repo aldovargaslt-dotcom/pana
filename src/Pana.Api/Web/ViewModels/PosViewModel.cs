@@ -35,7 +35,13 @@ public record PosActiveOrderViewModel(
     decimal Discount,
     decimal Total,
     string? PromoCode,
-    string PaymentMethod
+    string PaymentMethod,
+    // Pre-order fields
+    string? CustomerName,
+    string? CustomerPhone,
+    DateTime? ScheduledDate,
+    decimal DepositAmount,
+    string? InternalNotes
 );
 
 public record PosOrderItemViewModel(
@@ -62,6 +68,7 @@ public record ActivityViewModel(
     string ActiveTab,
     List<BillingQueueItemViewModel> QueueItems,
     List<OrderHistoryItemViewModel> OrderHistory,
+    List<ScheduledOrderItemViewModel> ScheduledOrders,
     int ActiveCount,
     int ClosedCount
 );
@@ -69,10 +76,13 @@ public record ActivityViewModel(
 public record BillingQueueItemViewModel(
     Guid Id,
     string OrderLabel,
+    string? CustomerName,
     string? TableNumber,
     DateTime CreatedAt,
     decimal TotalAmount,
-    string Status
+    string Status,
+    string OrderType,
+    string PaymentStatus
 );
 
 public record OrderHistoryItemViewModel(
@@ -82,7 +92,24 @@ public record OrderHistoryItemViewModel(
     string OrderLabel,
     string Status,
     decimal TotalAmount,
-    string PaymentStatus
+    string PaymentStatus,
+    string OrderType,
+    string? CustomerName
+);
+
+public record ScheduledOrderItemViewModel(
+    Guid Id,
+    string OrderLabel,
+    string? CustomerName,
+    string? CustomerPhone,
+    DateTime CreatedAt,
+    DateTime? ScheduledDate,
+    decimal TotalAmount,
+    decimal DepositAmount,
+    decimal BalanceDue,
+    string Status,
+    string PaymentStatus,
+    int ItemCount
 );
 
 // ── Reports View Models ─────────────────────────────────────────

@@ -72,7 +72,8 @@ public class PosController : Controller
         {
             Response.Headers["HX-Retarget"] = "#order-panel";
             return PartialView("_OrderPanel", new PosActiveOrderViewModel(
-                null, null, null, "DineIn", new(), 0, 0, 0, 0, null, "Efectivo"));
+                null, null, null, "Standard", new(), 0, 0, 0, 0, null, "Efectivo",
+                null, null, null, 0, null));
         }
 
         var saleRequest = new CreateSaleRequest(
@@ -80,11 +81,21 @@ public class PosController : Controller
                 .Where(i => i.ProductId != Guid.Empty && i.Quantity > 0)
                 .Select(i => new CreateSaleItemRequest(i.ProductId, i.UnitPrice, i.Quantity))
                 .ToList(),
-            request.Notes
+            request.Notes,
+            request.OrderType ?? "Standard",
+            request.CustomerName,
+            request.CustomerPhone,
+            request.ScheduledDate,
+            request.DepositAmount ?? 0,
+            request.PaymentMethod,
+            request.InternalNotes
         );
 
         var sale = await salesService.CreateAsync(saleRequest, soldByUserId: null, ct: ct);
-        await salesService.ConfirmAsync(sale.Id, ct);
+
+        // Standard orders are confirmed immediately; pre-orders stay in Draft for staff review
+        if (sale.OrderType != "PreOrder")
+            await salesService.ConfirmAsync(sale.Id, ct);
 
         Response.Headers["HX-Trigger"] = "order-placed";
         return PartialView("_OrderConfirmation", sale);
@@ -97,8 +108,13 @@ public class PosPlaceOrderRequest
     public List<PosPlaceOrderItem>? Items { get; set; }
     public string? Notes { get; set; }
     public string? OrderType { get; set; }
-    public string? TableNumber { get; set; }
     public string? PaymentMethod { get; set; }
+    // Pre-order fields
+    public string? CustomerName { get; set; }
+    public string? CustomerPhone { get; set; }
+    public DateTime? ScheduledDate { get; set; }
+    public decimal? DepositAmount { get; set; }
+    public string? InternalNotes { get; set; }
 }
 
 public class PosPlaceOrderItem

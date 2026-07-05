@@ -66,14 +66,14 @@ public class SalesController : BaseApiController
     }
 
     /// <summary>
-    /// Mark sale as being prepared.
+    /// Mark sale as being produced (in production).
     /// </summary>
-    [HttpPost("{id:guid}/start-preparing")]
+    [HttpPost("{id:guid}/start-production")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> StartPreparing(Guid id, CancellationToken ct)
+    public async Task<IActionResult> StartProduction(Guid id, CancellationToken ct)
     {
-        var result = await _salesService.StartPreparingAsync(id, ct);
+        var result = await _salesService.StartProductionAsync(id, ct);
         return result ? NoContent() : NotFound();
     }
 
@@ -90,27 +90,62 @@ public class SalesController : BaseApiController
     }
 
     /// <summary>
-    /// Complete the sale (triggers inventory deduction).
+    /// Deliver the sale (triggers inventory deduction).
     /// </summary>
-    [HttpPost("{id:guid}/complete")]
+    [HttpPost("{id:guid}/deliver")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Complete(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Deliver(Guid id, CancellationToken ct)
     {
-        var result = await _salesService.CompleteAsync(id, ct);
+        var result = await _salesService.DeliverAsync(id, ct);
         return result ? NoContent() : NotFound();
     }
 
     /// <summary>
-    /// Void a sale (cancels the transaction).
+    /// Cancel a sale.
     /// </summary>
-    [HttpPost("{id:guid}/void")]
+    [HttpPost("{id:guid}/cancel")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Void(Guid id, CancellationToken ct)
+    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
     {
-        var result = await _salesService.VoidAsync(id, ct);
+        var result = await _salesService.CancelAsync(id, ct);
         return result ? NoContent() : NotFound();
+    }
+
+    /// <summary>
+    /// Record a payment against a sale.
+    /// </summary>
+    [HttpPost("{id:guid}/record-payment")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RecordPayment(Guid id, [FromBody] RecordPaymentRequest request, CancellationToken ct)
+    {
+        var result = await _salesService.RecordPaymentAsync(id, request.Amount, ct);
+        return result ? NoContent() : NotFound();
+    }
+
+    /// <summary>
+    /// Update pre-order details on a draft sale.
+    /// </summary>
+    [HttpPut("{id:guid}/pre-order-details")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdatePreOrderDetails(Guid id, [FromBody] UpdatePreOrderRequest request, CancellationToken ct)
+    {
+        var result = await _salesService.UpdatePreOrderDetailsAsync(id, request, ct);
+        return result ? NoContent() : NotFound();
+    }
+
+    /// <summary>
+    /// Get all active pre-orders (not delivered/cancelled).
+    /// </summary>
+    [HttpGet("pre-orders")]
+    [ProducesResponseType(typeof(List<SaleDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPreOrders(CancellationToken ct)
+    {
+        var preOrders = await _salesService.GetPreOrdersAsync(ct);
+        return Ok(preOrders);
     }
 
     /// <summary>
