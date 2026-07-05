@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    @* ── Pana Design Tokens (Open Design schema) ────────────── *@
+    <link rel="stylesheet" href="/css/pana-tokens.css" />
+
     @* ── Tailwind CSS v4 (CDN) ──────────────────────────────── *@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -20,6 +23,20 @@
                         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
                     },
                     colors: {
+                        // ── Semantic design tokens (Open Design schema) ──
+                        accent: 'var(--accent)',
+                        'accent-hover': 'var(--accent-hover)',
+                        'accent-active': 'var(--accent-active)',
+                        surface: 'var(--surface)',
+                        'surface-warm': 'var(--surface-warm)',
+                        fg: 'var(--fg)',
+                        muted: 'var(--muted)',
+                        border: 'var(--border)',
+                        'border-soft': 'var(--border-soft)',
+                        success: 'var(--success)',
+                        warn: 'var(--warn)',
+                        danger: 'var(--danger)',
+                        // ── Brand palette (backward compat + gradients) ──
                         brand: {
                             50: '#eef2ff',
                             100: '#e0e7ff',
@@ -37,7 +54,7 @@
                     boxShadow: {
                         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
                         'glow': '0 0 20px rgba(99, 102, 241, 0.3)',
-                        'card': '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
+                        'card': 'var(--elev-raised)',
                     }
                 }
             }
@@ -62,7 +79,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
         /* ── Selection ──────────────────────────────── */
-        ::selection { background: #c7d2fe; color: #312e81; }
+        ::selection { background: var(--accent); color: var(--accent-on); }
 
         /* ── HTMX animations ────────────────────────── */
         .htmx-indicator { display: none; }
@@ -98,7 +115,7 @@
         /* ── Pulse dot ──────────────────────────────── */
         .pulse-dot {
             width: 8px; height: 8px; border-radius: 50%;
-            background: #22c55e; display: inline-block;
+            background: var(--fresh-green); display: inline-block;
             animation: pulseDot 2s ease-in-out infinite;
         }
         @@keyframes pulseDot {
@@ -108,7 +125,7 @@
 
         /* ── Gradient text utility ──────────────────── */
         .text-gradient {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background: linear-gradient(135deg, var(--accent), var(--chart-5));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;

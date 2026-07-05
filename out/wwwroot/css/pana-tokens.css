@@ -1,0 +1,167 @@
+/* ─────────────────────────────────────────────────────────────────────────
+ * pana-tokens.css — Pana Business Platform Design Tokens
+ *
+ * Structured token bindings following the Open Design schema
+ * (nexu-io/open-design). This file is the machine-readable source of
+ * truth for Pana's visual identity. Every value maps 1:1 to a
+ * decision documented in design/DESIGN.md.
+ *
+ * Schema layers (per Open Design):
+ *   A1-identity    — The token IS the brand (--bg, --fg, --accent, fonts)
+ *   A1-structure   — Structural decisions (type scale, section rhythm)
+ *   A2             — Sensible defaults exist, but Pana specifies them all
+ *   B-slot         — Optional semantic extensions
+ *
+ * Contract: agents MUST paste this :root block into every new artifact.
+ * Reference values ONLY via var(--name) — never re-author the raw hex.
+ *
+ * Category: Business Operations / SMB Platform
+ * Mood: Professional warmth — clean data surfaces with bakery-inspired
+ *        warm touches (amber undertones, soft rounded geometry)
+ * ─────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════
+     A1-IDENTITY — The token IS the brand
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Surface ────────────────────────────────────────────────────
+   * Cool slate page canvas for data-heavy dashboards, pure white
+   * cards, warm beige for bakery-adjacent surface differentiation.
+   */
+  --bg:             #f8fafc;   /* slate-50 — page canvas, cool & calm */
+  --surface:        #ffffff;   /* pure white — cards, inputs, dropdowns */
+  --surface-warm:   #faf7f2;   /* warm cream — bakery touch for featured cards */
+
+  /* ── Foreground ─────────────────────────────────────────────────
+   * Four-tier text ladder: ink → body → muted → metadata.
+   */
+  --fg:             #0f172a;   /* slate-900 — primary headings, body text */
+  --fg-2:           #334155;   /* slate-700 — secondary body, labels */
+  --muted:          #64748b;   /* slate-500 — placeholders, help text */
+  --meta:           #94a3b8;   /* slate-400 — timestamps, disabled */
+
+  /* ── Accent ─────────────────────────────────────────────────────
+   * Pana Indigo — the single brand signal. Warm enough for bakeries,
+   * professional enough for business operations. Used for CTAs and
+   * active states only. Everything else stays grayscale.
+   */
+  --accent:         #6366f1;   /* indigo-500 — primary CTA backgrounds */
+  --accent-on:      #ffffff;   /* white — text/icons on accent */
+  --accent-hover:   #4f46e5;   /* indigo-600 — hover state */
+  --accent-active:  #4338ca;   /* indigo-700 — pressed state */
+
+  /* ── Border ─────────────────────────────────────────────────────
+   * Light opacity-driven borders for cards and dividers.
+   */
+  --border:         #e2e8f0;   /* slate-200 — card borders, input rings */
+  --border-soft:    #f1f5f9;   /* slate-100 — subtle dividers, table rows */
+
+  /* ── Typography ─────────────────────────────────────────────────
+   * Inter — the single typeface across all surfaces. Broad system
+   * fallback for zero-latency rendering.
+   */
+  --font-display:   "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body:      "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:      ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     A1-STRUCTURE — Structural decisions (no cross-brand defaults)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Type scale ─────────────────────────────────────────────────
+   * 8-stop ladder: 12/14/16/18/20/24/32/40px.
+   * Base at 16px for comfortable dashboard reading.
+   */
+  --text-xs:     0.75rem;   /* 12px — badges, labels, micro-copy */
+  --text-sm:     0.875rem;  /* 14px — table cells, helper text */
+  --text-base:   1rem;      /* 16px — body, button text */
+  --text-lg:     1.125rem;  /* 18px — lead paragraphs, featured numbers */
+  --text-xl:     1.25rem;   /* 20px — card titles, section headings */
+  --text-2xl:    1.5rem;    /* 24px — page headings */
+  --text-3xl:    2rem;      /* 32px — hero headings */
+  --text-4xl:    2.5rem;    /* 40px — marketing, landing pages */
+
+  /* ── Leading ──────────────────────────────────────────────────── */
+  --leading-body:        1.6;    /* comfortable reading for dashboard data */
+  --leading-tight:       1.25;   /* headings, KPI numbers */
+  --tracking-display:    -0.01em;/* slight tighten for large headings */
+
+  /* ── Spacing (4px base) ──────────────────────────────────────── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-12:  48px;
+
+  /* ── Section rhythm ──────────────────────────────────────────── */
+  --section-y-desktop: 64px;
+  --section-y-tablet:  48px;
+  --section-y-phone:   32px;
+
+  /* ── Layout ──────────────────────────────────────────────────── */
+  --container-max:              1280px;
+  --container-gutter-desktop:   24px;
+  --container-gutter-tablet:    16px;
+  --container-gutter-phone:     12px;
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     A2 — Sensible defaults (Open Design schema, Pana-specified)
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Semantic colors ─────────────────────────────────────────── */
+  --success:  #16a34a;   /* green-600 — positive KPIs, confirmed sales */
+  --warn:     #f59e0b;   /* amber-500 — low stock, pending actions */
+  --danger:   #dc2626;   /* red-600 — deletions, critical alerts */
+
+  /* ── Radius ────────────────────────────────────────────────────
+   * 6/8/12/9999px ladder — soft & friendly, not corporate.
+   */
+  --radius-sm:   6px;    /* buttons, inputs, badges */
+  --radius-md:   8px;    /* cards, dropdowns */
+  --radius-lg:   12px;   /* modals, panels */
+  --radius-pill: 9999px; /* full-pill: status badges, chip filters */
+
+  /* ── Elevation ─────────────────────────────────────────────────
+   * Shadow-only depth (DESIGN.md §6 prefers shadows over borders
+   * for card separation).
+   */
+  --elev-flat:   none;
+  --elev-raised: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --elev-modal:  0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+
+  /* ── Motion ──────────────────────────────────────────────────── */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);       /* Material standard */
+  --ease-decelerate: cubic-bezier(0, 0, 0, 1);        /* enter animations */
+  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);      /* exit animations */
+  --dur-fast:   150ms;   /* micro-interactions */
+  --dur-normal:  250ms;   /* page transitions */
+  --dur-slow:    350ms;   /* modal open/close */
+
+
+  /* ═══════════════════════════════════════════════════════════════
+     B-SLOT — Pana-specific extensions
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* ── Sidebar ─────────────────────────────────────────────────── */
+  --sidebar-bg:        #1e1b4b;   /* brand-950 — deep indigo sidebar */
+  --sidebar-fg:        #c7d2fe;   /* brand-200 — sidebar text */
+  --sidebar-fg-active: #ffffff;   /* active nav item */
+  --sidebar-accent:    rgba(255, 255, 255, 0.15); /* active nav bg */
+
+  /* ── Data visualization ──────────────────────────────────────── */
+  --chart-1:  #6366f1;  /* indigo — primary series */
+  --chart-2:  #f59e0b;  /* amber — secondary series */
+  --chart-3:  #10b981;  /* emerald — positive trends */
+  --chart-4:  #ef4444;  /* red — negative trends */
+  --chart-5:  #8b5cf6;  /* violet — tertiary series */
+
+  /* ── Bakery-specific ─────────────────────────────────────────── */
+  --warm-accent:  #d97706;  /* amber-600 — bakery warmth: waste cards, production */
+  --fresh-green:  #22c55e;  /* green-500 — fresh product indicators */
+}

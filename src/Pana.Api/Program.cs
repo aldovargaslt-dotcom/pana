@@ -99,6 +99,7 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 // ── Middleware Pipeline ────────────────────────────────────────
+app.UseStaticFiles();
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();

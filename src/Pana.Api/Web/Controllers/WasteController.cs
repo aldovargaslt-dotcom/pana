@@ -123,7 +123,7 @@ public class WasteController : Controller
         await db.SaveChangesAsync(ct);
 
         Response.Headers["HX-Trigger"] = "waste-recorded";
-        return RedirectToAction(nameof(Index));
+        return await TableRows(db, ct);
     }
 
     [HttpGet("table-rows")]
