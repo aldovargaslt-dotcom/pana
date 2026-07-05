@@ -62,7 +62,13 @@ public class WasteController : Controller
     {
         ViewBag.Products = (await productService.GetAllAsync(ct))
             .Where(p => p.IsActive)
-            .Select(p => new { p.Id, p.Name })
+            .Select(p =>
+            {
+                dynamic obj = new System.Dynamic.ExpandoObject();
+                obj.Id = p.Id;
+                obj.Name = p.Name;
+                return obj;
+            })
             .ToList();
 
         ViewBag.Categories = await wasteService.GetAllAsync(ct);
@@ -91,7 +97,13 @@ public class WasteController : Controller
             var productService = HttpContext.RequestServices.GetRequiredService<IProductService>();
             ViewBag.Products = (await productService.GetAllAsync(ct))
                 .Where(p => p.IsActive)
-                .Select(p => new { p.Id, p.Name })
+                .Select(p =>
+                {
+                    dynamic obj = new System.Dynamic.ExpandoObject();
+                    obj.Id = p.Id;
+                    obj.Name = p.Name;
+                    return obj;
+                })
                 .ToList();
             ViewBag.Categories = await wasteService.GetAllAsync(ct);
             return PartialView("_Form", form);
