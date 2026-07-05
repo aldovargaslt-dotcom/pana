@@ -1,25 +1,20 @@
-@* Views/Pos/_OrderPanel.cshtml — Empty order panel (returned on validation error) *@
+@* Views/Pos/_OrderPanel.cshtml — Empty order panel inner content (injected into #order-panel) *@
 @model Pana.Api.Web.ViewModels.PosActiveOrderViewModel
 
-<div id="order-panel"
-     class="w-full max-w-sm flex-shrink-0 rounded-2xl shadow-modal flex flex-col overflow-hidden"
-     style="background: var(--surface-container-lowest);">
+<div class="p-4 rounded-t-2xl" style="background: var(--surface-container-low);">
+    <h2 class="font-bold text-lg flex items-center gap-2" style="color: var(--fg);">
+        <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Orden actual
+    </h2>
+</div>
 
-    <div class="p-4 rounded-t-2xl" style="background: var(--surface-container-low);">
-        <h2 class="font-bold text-lg flex items-center gap-2" style="color: var(--fg);">
-            <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-            Orden actual
-        </h2>
-    </div>
-
-    <div class="flex-1 flex items-center justify-center p-4">
-        <div class="text-center">
-            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                 style="background: var(--surface-container);">
-                <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-            </div>
-            <p class="font-medium" style="color: var(--meta);">Orden vacía</p>
-            <p class="text-xs mt-1" style="color: var(--meta);">Seleccioná productos del menú para comenzar</p>
+<div class="flex-1 flex items-center justify-center p-4">
+    <div class="text-center">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+             style="background: var(--surface-container);">
+            <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
         </div>
+        <p class="font-medium" style="color: var(--meta);">Orden vacía</p>
+        <p class="text-xs mt-1" style="color: var(--meta);">Seleccioná productos del menú para comenzar</p>
     </div>
 </div>
