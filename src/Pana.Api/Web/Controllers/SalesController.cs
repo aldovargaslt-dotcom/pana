@@ -45,7 +45,14 @@ public class SalesController : Controller
         var products = await productService.GetAllAsync(ct);
         ViewBag.Products = products
             .Where(p => p.IsActive)
-            .Select(p => new { p.Id, p.Name, p.Price })
+            .Select(p =>
+            {
+                dynamic obj = new System.Dynamic.ExpandoObject();
+                obj.Id = p.Id;
+                obj.Name = p.Name;
+                obj.Price = p.Price;
+                return obj;
+            })
             .ToList();
 
         return PartialView("_Form", new SaleFormViewModel());
@@ -69,7 +76,14 @@ public class SalesController : Controller
             var products = await productService.GetAllAsync(ct);
             ViewBag.Products = products
                 .Where(p => p.IsActive)
-                .Select(p => new { p.Id, p.Name, p.Price })
+                .Select(p =>
+                {
+                    dynamic obj = new System.Dynamic.ExpandoObject();
+                    obj.Id = p.Id;
+                    obj.Name = p.Name;
+                    obj.Price = p.Price;
+                    return obj;
+                })
                 .ToList();
 
             return PartialView("_Form", form);
