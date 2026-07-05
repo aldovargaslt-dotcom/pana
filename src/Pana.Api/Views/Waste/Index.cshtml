@@ -1,0 +1,107 @@
+@model Pana.Api.Web.ViewModels.WasteIndexViewModel
+@{
+    ViewData["Title"] = "Desperdicios";
+}
+
+<div class="max-w-7xl mx-auto space-y-6">
+
+    @* ── Header ─────────────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span class="text-gradient">Desperdicios</span>
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">Registro de mermas y desperdicios</p>
+        </div>
+        <button hx-get="/waste/record-form"
+                hx-target="#modal-container"
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600
+                       text-white text-sm font-medium rounded-xl hover:from-red-600 hover:to-red-700
+                       transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Registrar desperdicio
+        </button>
+    </div>
+
+    @* ── Categories ─────────────────────────────────────────── *@
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @foreach (var cat in Model.Categories)
+        {
+            <div class="bg-white rounded-2xl shadow-card border border-gray-100 p-5">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center text-red-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">@cat.Name</h3>
+                </div>
+                @if (cat.Subcategories.Count > 0)
+                {
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        @foreach (var sub in cat.Subcategories)
+                        {
+                            <span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg">@sub.Name</span>
+                        }
+                    </div>
+                }
+                @if (cat.Description != null)
+                {
+                    <p class="text-xs text-gray-400 mt-2">@cat.Description</p>
+                }
+            </div>
+        }
+    </div>
+
+    @* ── Recent Records ─────────────────────────────────────── *@
+    <div class="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h2 class="font-semibold text-gray-800">Registros recientes</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-100">
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Producto</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Categoría</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Cantidad</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Motivo</th>
+                        <th class="px-6 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="waste-table-body" class="divide-y divide-gray-50"
+                       hx-get="/waste/table-rows" hx-trigger="waste-recorded from:body">
+                    @if (!Model.RecentRecords.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="px-6 py-16 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center">
+                                        <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </div>
+                                    <p class="text-gray-400 font-medium">Sin registros aún</p>
+                                    <p class="text-xs text-gray-300">Registrá tu primer desperdicio</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var r in Model.RecentRecords)
+                        {
+                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                <td class="px-6 py-3 font-medium text-gray-800">@r.ProductName</td>
+                                <td class="px-6 py-3">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-red-50 text-red-700">
+                                        @r.CategoryName
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-right text-red-600 font-medium">@r.Quantity</td>
+                                <td class="px-6 py-3 text-gray-500">@(r.Reason ?? "—")</td>
+                                <td class="px-6 py-3 text-right text-gray-400 text-xs">@r.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
