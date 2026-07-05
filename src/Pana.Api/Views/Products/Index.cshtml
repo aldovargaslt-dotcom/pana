@@ -51,7 +51,7 @@
                         <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Estado</th>
                     </tr>
                 </thead>
-                <tbody id="table-body-name" class="divide-y" style="border-color: var(--surface-container-low);"
+                <tbody id="table-body-name" class="table-tonal"
                        hx-get="/products/table-rows" hx-trigger="product-created from:body">
                     @if (!Model.Products.Any())
                     {

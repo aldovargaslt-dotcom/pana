@@ -32,9 +32,25 @@ else
                 </div>
             </td>
             <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@r.Yield.ToString("N0") @r.YieldUnit</td>
-            <td class="px-6 py-4 text-right font-mono font-medium" style="color: var(--fg);">$@r.TotalBatchCost.ToString("N2")</td>
+            <td class="px-6 py-4 text-right font-mono font-medium" style="color: var(--fg);">
+                @if (r.IngredientCount == 0)
+                {
+                    <span style="color: var(--meta);">—</span>
+                }
+                else
+                {
+                    <span>$@r.TotalBatchCost.ToString("N2")</span>
+                }
+            </td>
             <td class="px-6 py-4 text-right font-mono font-semibold" style="color: var(--primary);">
-                $@r.CostPerUnit.ToString("N2")
+                @if (r.IngredientCount == 0)
+                {
+                    <span style="color: var(--meta);">—</span>
+                }
+                else
+                {
+                    <span>$@r.CostPerUnit.ToString("N2")</span>
+                }
                 <div class="flex justify-end gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
                     <button hx-get="/recipes/@r.Id/edit-form"
                             hx-target="#modal-container"

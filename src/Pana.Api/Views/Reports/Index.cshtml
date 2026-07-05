@@ -26,8 +26,8 @@
         </div>
     </div>
 
-    @* ── Period selector ────────────────────────────────────── *@
-    <div class="flex flex-wrap items-center gap-2">
+    @* ── Period selector (HTMX-boosted for SPA-like navigation) *@
+    <div class="flex flex-wrap items-center gap-2" hx-boost="true">
         <a href="?period=today"
            class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200
                   @(Context.Request.Query["period"] == "today" || string.IsNullOrEmpty(Context.Request.Query["period"])
@@ -236,7 +236,7 @@
                             <th class="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                    <tbody class="table-tonal">
                         @foreach (var item in Model.AllOrders)
                         {
                             var (statusColor, statusBg) = item.Status switch

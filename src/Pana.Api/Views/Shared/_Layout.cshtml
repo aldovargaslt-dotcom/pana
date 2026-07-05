@@ -338,6 +338,9 @@
             color: var(--meta);
         }
 
+        /* ── Table tonal rows (No-Line Rule compliant) ─ */
+        tbody.table-tonal tr:nth-child(even) { background: var(--surface-container-low); }
+
         /* ── Danger variant (Waste module) ──────────── */
         .pana-select-trigger-danger:focus,
         .pana-select-trigger-danger.pana-select-trigger-open {
@@ -361,7 +364,7 @@
            :class="{ '-translate-x-full': !sidebarOpen, 'translate-x-0': sidebarOpen }">
 
         @* Brand *@
-        <div class="flex items-center gap-3 px-6 py-6" style="border-bottom: 1px solid var(--sidebar-border);">
+        <div class="flex items-center gap-3 px-6 py-6" style="background: rgba(28,28,25,0.02);">
             <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg"
                  style="background: var(--gradient-primary);">
                 P
@@ -448,8 +451,8 @@
                 Producción
             </a>
 
-            @* ── Divider ──────────────────────────────────── *@
-            <div class="my-2" style="border-top: 1px solid var(--sidebar-border);"></div>
+            @* ── Spacer ──────────────────────────────────── *@
+            <div class="my-3"></div>
 
             <a href="/pos"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
@@ -484,7 +487,7 @@
         </nav>
 
         @* Footer *@
-        <div class="absolute bottom-0 left-0 right-0 p-4" style="border-top: 1px solid var(--sidebar-border);">
+        <div class="absolute bottom-0 left-0 right-0 p-4" style="background: rgba(28,28,25,0.02);">
             <div class="flex items-center gap-3 px-3 py-2 rounded-xl" style="background: rgba(28,28,25,0.03);">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
                      style="background: var(--gradient-primary);">DB</div>
@@ -540,7 +543,17 @@
     <div id="modal-container"></div>
 
     @* ── Toast container ────────────────────────────────────── *@
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2" x-data="toast">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div :id="'toast-' + toast.id"
+                 class="toast-enter flex items-center gap-3 px-4 py-3 rounded-2xl shadow-modal"
+                 style="background: var(--surface-container-lowest); max-width: 360px; pointer-events: auto;"
+                 @@click="removeToast(toast.id)">
+                <span x-html="toast.icon"></span>
+                <p class="text-sm font-medium" style="color: var(--fg);" x-text="toast.message"></p>
+            </div>
+        </template>
+    </div>
 
     @* ═══════════════════════════════════════════════════════════
        SCRIPTS
@@ -778,10 +791,10 @@
                 addToast(message, type = 'info', duration = 4000) {
                     const id = Date.now() + Math.random();
                     const icons = {
-                        success: `<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-                        error: `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-                        info: `<svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-                        warning: `<svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>`,
+                        success: `<svg class="w-5 h-5" style="color: var(--success);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+                        error: `<svg class="w-5 h-5" style="color: var(--danger);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+                        info: `<svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+                        warning: `<svg class="w-5 h-5" style="color: var(--warn);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>`,
                     };
                     this.toasts.push({ id, message, type, icon: icons[type] || icons.info });
                     setTimeout(() => this.removeToast(id), duration);

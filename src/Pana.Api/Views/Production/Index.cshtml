@@ -29,15 +29,14 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Agregar producto
                 </button>
-                <form method="post" action="/production/close" class="inline">
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
-                                   transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                            style="background: var(--success);">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        Cerrar día
-                    </button>
-                </form>
+                <button type="button" onclick="if(confirm('¿Confirmás el cierre del día? Se actualizará el inventario y no se podrá modificar.')){document.getElementById('close-day-form').submit()}"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
+                               transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Cerrar día
+                </button>
+                <form method="post" action="/production/close" id="close-day-form" class="hidden"></form>
             }
         </div>
     </div>
@@ -66,7 +65,7 @@
                             <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Disponible</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                    <tbody class="table-tonal">
                         @foreach (var line in Model.Lines)
                         {
                             <tr>
@@ -164,7 +163,7 @@
                 }
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-3" style="border-top: 1px solid var(--sidebar-border);">
+            <div class="flex items-center justify-end gap-3 pt-3" style="background: var(--surface-container-low); margin: 0 -1.5rem -1.5rem; padding: 0.75rem 1.5rem; border-radius: 0 0 16px 16px;">
                 <button type="submit"
                         class="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl
                                transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
@@ -288,7 +287,7 @@
                         <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);"></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                <tbody class="table-tonal">
                     @foreach (var po in preOrders)
                     {
                         var (poColor, poBg) = po.Status switch

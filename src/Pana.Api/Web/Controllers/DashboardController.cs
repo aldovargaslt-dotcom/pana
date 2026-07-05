@@ -124,31 +124,7 @@ public class DashboardController : Controller
         return PartialView("_SalesTrendChart", points);
     }
 
-    // ── Legacy / existing widget endpoints ────────────────────
-
-    [HttpGet("web/dashboard/widget/sales-chart")]
-    public async Task<IActionResult> SalesChartWidget(
-        [FromServices] ISalesService salesService,
-        CancellationToken ct)
-    {
-        var summary = await salesService.GetDailySummaryAsync(date: DateTime.UtcNow.Date, ct: ct);
-        var data = new List<SalesChartData>
-        {
-            new(DateTime.UtcNow.ToString("ddd"), summary.TotalRevenue)
-        };
-        return PartialView("_SalesChartWidget", data);
-    }
-
-    [HttpGet("web/dashboard/widget/product-count")]
-    public async Task<IActionResult> ProductCountWidget(
-        [FromServices] IProductService productService,
-        CancellationToken ct)
-    {
-        var products = await productService.GetAllAsync(ct);
-        return PartialView("_ProductCountWidget", products.Count);
-    }
-
-    [HttpGet("web/dashboard/widget/recent-sales")]
+    // ── Recent Sales widget ──────────────────────────────────
     public async Task<IActionResult> RecentSalesWidget(
         [FromServices] ISalesService salesService,
         CancellationToken ct)

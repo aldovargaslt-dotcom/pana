@@ -1,42 +1,9 @@
 @{
-    Layout = null;
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Iniciar sesión";
 }
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar sesión — Pana</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    @* ── Pana Design Tokens ────────────────────────────────── *@
-    <link rel="stylesheet" href="/css/pana-tokens.css" />
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: 'var(--primary)',
-                        'primary-container': 'var(--primary-container)',
-                        'primary-fixed': 'var(--primary-fixed)',
-                        'on-primary': 'var(--on-primary)',
-                        tertiary: 'var(--tertiary)',
-                        'tertiary-fixed': 'var(--tertiary-fixed)',
-                    }
-                }
-            }
-        }
-    </script>
-
+@section Styles {
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -65,9 +32,10 @@
                 radial-gradient(circle at 50% 80%, rgba(158, 0, 18, 0.02) 0%, transparent 50%);
         }
     </style>
-</head>
-<body class="min-h-screen font-sans antialiased flex items-center justify-center p-4 overflow-hidden relative"
-      style="background: var(--bg);">
+}
+
+<div class="flex items-center justify-center p-4 overflow-hidden relative min-h-screen">
+
 
     @* ── Decorative background elements ─────────────────────── *@
     <div class="absolute inset-0 bg-texture"></div>
@@ -151,6 +119,4 @@
 
         <p class="text-center text-xs mt-6" style="color: var(--meta);">Pana v2.0 · The Modern Hearth</p>
     </div>
-
-</body>
-</html>
+</div>

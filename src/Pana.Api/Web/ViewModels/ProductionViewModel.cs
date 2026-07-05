@@ -48,6 +48,7 @@ public record RecipeRowViewModel(
     string YieldUnit,
     decimal CostPerUnit,
     decimal TotalBatchCost,
+    int IngredientCount,
     bool IsActive,
     DateTime CreatedAt
 );

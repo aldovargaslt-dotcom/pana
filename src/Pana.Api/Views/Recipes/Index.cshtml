@@ -49,7 +49,7 @@
                         <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Costo / unidad</th>
                     </tr>
                 </thead>
-                <tbody id="table-body" class="divide-y" style="border-color: var(--surface-container-low);"
+                <tbody id="table-body" class="table-tonal"
                        hx-get="/recipes/table-rows" hx-trigger="recipe-created from:body">
                     @if (!Model.Recipes.Any())
                     {

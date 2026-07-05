@@ -42,7 +42,7 @@
                         <th class="px-4 py-2.5 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Subtotal</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                <tbody class="table-tonal">
                     @foreach (var item in Model.Items)
                     {
                         <tr class="@(item.IsVoided ? "opacity-40 line-through" : "")">

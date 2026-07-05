@@ -41,7 +41,7 @@
             <tbody id="table-body-@(Model.Columns[0].Key)"
                    hx-get="@Model.HxGet"
                    hx-trigger="load"
-                   class="divide-y" style="border-color: var(--surface-container-low);">
+                   class="table-tonal">
                 @* Content loaded via HTMX *@
                 <tr><td colspan="@Model.Columns.Count" class="p-10 text-center"><div class="skeleton h-5 w-2/3 mx-auto"></div></td></tr>
             </tbody>

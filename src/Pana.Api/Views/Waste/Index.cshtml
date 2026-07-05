@@ -68,7 +68,7 @@
                         <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Fecha</th>
                     </tr>
                 </thead>
-                <tbody id="waste-table-body" class="divide-y" style="border-color: var(--surface-container-low);"
+                <tbody id="waste-table-body" class="table-tonal"
                        hx-get="/waste/table-rows" hx-trigger="waste-recorded from:body">
                     @if (!Model.RecentRecords.Any())
                     {

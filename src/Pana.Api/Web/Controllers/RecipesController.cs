@@ -15,7 +15,7 @@ public class RecipesController : Controller
         var recipes = await recipeService.GetAllAsync(ct);
         var vm = recipes.Select(r => new RecipeRowViewModel(
             r.Id, r.Name, r.Yield, r.YieldUnit, r.CostPerUnit, r.TotalBatchCost,
-            r.IsActive, r.CreatedAt
+            r.Ingredients.Count, r.IsActive, r.CreatedAt
         )).ToList();
 
         ViewData["Title"] = "Recetas";
@@ -33,7 +33,7 @@ public class RecipesController : Controller
         var recipes = await recipeService.GetAllAsync(ct);
         var rows = recipes.Select(r => new RecipeRowViewModel(
             r.Id, r.Name, r.Yield, r.YieldUnit, r.CostPerUnit, r.TotalBatchCost,
-            r.IsActive, r.CreatedAt
+            r.Ingredients.Count, r.IsActive, r.CreatedAt
         ));
 
         if (!string.IsNullOrWhiteSpace(q))

@@ -1,0 +1,52 @@
+@* _LayoutAuth.cshtml — Shared auth layout (login, register, forgot password)
+   Provides fonts, design tokens, and Tailwind config.
+   Specific pages bring their own styles and body content via @RenderSection. *@
+@{ 
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Pana</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    @* ── Pana Design Tokens ────────────────────────────────── *@
+    <link rel="stylesheet" href="/css/pana-tokens.css" />
+
+    @* ── Tailwind CSS v4 (CDN) ─────────────────────────────── *@
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: 'var(--primary)',
+                        'primary-container': 'var(--primary-container)',
+                        'primary-fixed': 'var(--primary-fixed)',
+                        'on-primary': 'var(--on-primary)',
+                        tertiary: 'var(--tertiary)',
+                        'tertiary-fixed': 'var(--tertiary-fixed)',
+                    },
+                    boxShadow: {
+                        'ambient': '0px 4px 16px rgba(28, 28, 25, 0.04), 0px 12px 32px rgba(28, 28, 25, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    @* ── Page-specific styles ──────────────────────────────── *@
+    @RenderSection("Styles", required: false)
+</head>
+<body class="min-h-screen font-sans antialiased" style="background: var(--bg);">
+    @RenderBody()
+</body>
+</html>

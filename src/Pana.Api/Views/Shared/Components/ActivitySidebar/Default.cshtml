@@ -1,0 +1,29 @@
+@* Activity sub-navigation sidebar — shared across BillingQueue, ScheduledOrders, OrderHistory *@
+@{ var active = ViewBag.ActiveTab as string ?? "billing"; }
+
+<nav class="space-y-1 p-2 rounded-2xl shadow-ambient" style="background: var(--surface-container-lowest);">
+    <a href="/activity"
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+       style="@(active == "billing" ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);" : "color: var(--sidebar-fg);")"
+       onmouseover="@(active != "billing" ? "this.style.background='rgba(28,28,25,0.04)'" : "")"
+       onmouseout="@(active != "billing" ? "this.style.background='transparent'" : "")">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Cola de Facturación
+    </a>
+    <a href="/activity/scheduled-orders"
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+       style="@(active == "scheduled" ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);" : "color: var(--sidebar-fg);")"
+       onmouseover="@(active != "scheduled" ? "this.style.background='rgba(28,28,25,0.04)'" : "")"
+       onmouseout="@(active != "scheduled" ? "this.style.background='transparent'" : "")">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Pre-órdenes
+    </a>
+    <a href="/activity/order-history"
+       class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+       style="@(active == "history" ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);" : "color: var(--sidebar-fg);")"
+       onmouseover="@(active != "history" ? "this.style.background='rgba(28,28,25,0.04)'" : "")"
+       onmouseout="@(active != "history" ? "this.style.background='transparent'" : "")">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Historial de Órdenes
+    </a>
+</nav>
