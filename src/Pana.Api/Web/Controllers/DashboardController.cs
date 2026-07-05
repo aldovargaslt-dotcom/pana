@@ -127,6 +127,8 @@ public class DashboardController : Controller
     }
 
     // ── Recent Sales widget ──────────────────────────────────
+
+    [HttpGet("web/dashboard/widget/recent-sales")]
     public async Task<IActionResult> RecentSalesWidget(
         [FromServices] ISalesService salesService,
         CancellationToken ct)

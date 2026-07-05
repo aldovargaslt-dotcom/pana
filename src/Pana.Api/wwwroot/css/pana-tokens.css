@@ -230,7 +230,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   KPI DRILLDOWN PANEL — slide-down reveal
+   KPI DRILLDOWN PANEL — slide-down reveal with content transitions
    ═══════════════════════════════════════════════════════════════ */
 
 .drilldown-panel {
@@ -250,6 +250,79 @@
 
 .drilldown-panel-inner {
   padding-top: var(--space-1);
+}
+
+/* ── Content transition: fade-out old content ─────────────── */
+.drilldown-content-exiting {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 120ms var(--ease-accelerate),
+              transform 120ms var(--ease-accelerate);
+}
+
+/* ── Content transition: fade-in new content ──────────────── */
+.drilldown-content-entering {
+  opacity: 0;
+  transform: translateY(4px);
+  animation: drilldown-fade-in 250ms var(--ease-decelerate) forwards;
+}
+
+@keyframes drilldown-fade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Staggered row entrance ───────────────────────────────── */
+.drilldown-row-stagger {
+  opacity: 0;
+  transform: translateY(6px);
+  animation: drilldown-row-enter 300ms var(--ease-decelerate) forwards;
+}
+
+@keyframes drilldown-row-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Skeleton loading state (inside drilldown panel) ──────── */
+.drilldown-skeleton {
+  border-radius: var(--radius-lg);
+  background: var(--surface-container-lowest);
+  box-shadow: var(--elev-ambient);
+  padding: var(--space-5);
+}
+
+.drilldown-skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid color-mix(in srgb, var(--outline-variant) 30%, transparent);
+}
+
+.drilldown-skeleton-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.drilldown-skeleton-row .skeleton-line {
+  height: 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-container);
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
 /* Loading spinner animation for drilldown */

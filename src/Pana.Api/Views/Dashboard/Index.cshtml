@@ -169,11 +169,52 @@
 <script>
     (function() {
         let activeType = null;
+        let isLoading = false;
         const panel = document.getElementById('kpi-drilldown-panel');
         const inner = document.getElementById('kpi-drilldown-panel-inner');
 
+        // ── Skeleton loader template ──────────────────────────
+        function skeletonHTML() {
+            return `<div class="drilldown-skeleton">
+                <div class="drilldown-skeleton-header">
+                    <span class="skeleton-line" style="width:20px;height:20px;border-radius:50%;"></span>
+                    <span class="skeleton-line" style="width:120px;"></span>
+                    <span class="skeleton-line" style="width:60px;margin-left:auto;"></span>
+                </div>
+                ${[1,2,3,4].map(i => `
+                <div class="drilldown-skeleton-row">
+                    <div style="flex:1;">
+                        <span class="skeleton-line" style="width:${60 + i * 8}%;display:block;margin-bottom:6px;"></span>
+                        <span class="skeleton-line" style="width:${35 + i * 6}%;height:10px;display:block;"></span>
+                    </div>
+                    <span class="skeleton-line" style="width:56px;height:22px;border-radius:9999px;"></span>
+                </div>`).join('')}
+            </div>`;
+        }
+
+        // ── Transition out existing content ───────────────────
+        function transitionOutContent(callback) {
+            const existing = inner.querySelector('#kpi-drilldown-content');
+            if (existing) {
+                existing.classList.add('drilldown-content-exiting');
+                setTimeout(callback, 130);
+            } else {
+                callback();
+            }
+        }
+
+        // ── Apply staggered entrance to rows ──────────────────
+        function staggerRows() {
+            const rows = inner.querySelectorAll('.table-tonal > div');
+            rows.forEach((row, i) => {
+                row.classList.add('drilldown-row-stagger');
+                row.style.animationDelay = (i * 60) + 'ms';
+            });
+        }
+
         window.openKpiDrilldown = function(type, btn) {
-            if (activeType === type && panel.style.display !== 'none') {
+            // Toggle: if same type is clicked, close
+            if (activeType === type && panel.style.display !== 'none' && !isLoading) {
                 closeKpiDrilldown();
                 return;
             }
@@ -189,12 +230,29 @@
                 card.style.outlineOffset = '-2px';
             }
 
-            // Load content via HTMX
             const url = '/web/dashboard/widget/kpi-drilldown/' + type;
+            const isSwitching = activeType !== null && activeType !== type;
             activeType = type;
+            isLoading = true;
 
-            // Show panel with loading state
-            inner.innerHTML = '<div class="rounded-2xl p-8 flex items-center justify-center" style="background: var(--surface-container-lowest);"><div class="flex items-center gap-3" style="color: var(--meta);"><svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg><span class="text-sm">Cargando...</span></div></div>';
+            // If panel is already open and we're switching types, do a smooth transition
+            if (isSwitching && panel.style.display !== 'none') {
+                transitionOutContent(function() {
+                    // Show skeleton after old content fades out
+                    inner.innerHTML = skeletonHTML();
+                    // Give skeleton a moment to render, then fire request
+                    setTimeout(function() {
+                        htmx.ajax('GET', url, {
+                            target: '#kpi-drilldown-panel-inner',
+                            swap: 'innerHTML'
+                        });
+                    }, 100);
+                });
+                return;
+            }
+
+            // First open: show skeleton, slide panel open
+            inner.innerHTML = skeletonHTML();
             panel.style.display = 'block';
             requestAnimationFrame(() => {
                 panel.classList.add('drilldown-open');
@@ -206,6 +264,7 @@
 
         window.closeKpiDrilldown = function() {
             activeType = null;
+            isLoading = false;
             panel.classList.remove('drilldown-open');
             document.querySelectorAll('#kpi-cards .group').forEach(c => {
                 c.style.outline = '';
@@ -216,7 +275,7 @@
                     panel.style.display = 'none';
                     inner.innerHTML = '';
                 }
-            }, 250);
+            }, 350);
         };
 
         // Close on Escape key
@@ -226,10 +285,21 @@
             }
         });
 
-        // Re-attach after HTMX swaps the KPI cards
+        // ── After HTMX swaps content ──────────────────────────
         document.addEventListener('htmx:afterSwap', function(e) {
+            if (e.detail.target.id === 'kpi-drilldown-panel-inner') {
+                isLoading = false;
+                // Apply fade-in entrance to the new content
+                const content = inner.querySelector('#kpi-drilldown-content');
+                if (content) {
+                    content.classList.add('drilldown-content-entering');
+                }
+                // Stagger row animations
+                staggerRows();
+            }
+
+            // Re-highlight active card after KPI cards refresh
             if (e.detail.target.id === 'kpi-cards') {
-                // Re-highlight if drilldown is open
                 if (activeType) {
                     const buttons = document.querySelectorAll('#kpi-cards [onclick*="openKpiDrilldown"]');
                     buttons.forEach(b => {
