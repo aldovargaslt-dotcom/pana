@@ -12,7 +12,7 @@
                 <span class="text-gradient">Producción Diaria</span>
             </h1>
             <p class="text-sm mt-1" style="color: var(--muted);">
-                @DateTime.Now.ToString("dddd, d 'de' MMMM")
+                @DateTime.Now.ToString("dddd, d 'de' MMMM", new System.Globalization.CultureInfo("es-MX"))
                 @if (Model?.IsClosed == true)
                 {
                     <span class="font-medium ml-2" style="color: var(--success);">· Día cerrado</span>
