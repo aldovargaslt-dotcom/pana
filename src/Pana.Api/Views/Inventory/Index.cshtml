@@ -1,4 +1,4 @@
-@* Views/Inventory/Index.cshtml — Unified Daily Inventory (Production + Waste + Sales) *@
+@* Views/Inventory/Index.cshtml — Unified Daily Inventory (tablet-optimized v2) *@
 @model Pana.Api.Application.Operations.DailyProductionDto?
 @{
     ViewData["Title"] = "Inventario Diario";
@@ -13,15 +13,140 @@
     var totalSobrante = totalInicial + totalProduccion - totalMerma - (salesSummary?.SaleCount ?? 0);
 }
 
-<div class="content-area space-y-5 fade-in">
+@section Styles {
+    <style>
+        /* ── Tablet optimizations (768px–1023px) ──────────────── */
+        @@media (max-width: 1023px) {
+            /* Formula card: stack vertically, hide inline operators */
+            .formula-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.5rem !important;
+            }
+            .formula-operators { display: none !important; }
+            .formula-result {
+                grid-column: 1 / -1 !important;
+                justify-content: center !important;
+            }
 
-    @* ── Header ─────────────────────────────────────────────── *@
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            /* Inventory rows: vertical stack */
+            .inv-row {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.75rem !important;
+            }
+            .inv-row .inv-numbers {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr 1fr !important;
+                gap: 0.5rem !important;
+            }
+            .inv-row .inv-numbers > div { width: auto !important; }
+            .inv-row .inv-remove {
+                position: absolute !important;
+                top: 0.5rem !important;
+                right: 0.5rem !important;
+            }
+            .inv-row { position: relative !important; }
+
+            /* Tables → cards */
+            .table-desktop { display: none !important; }
+            .cards-tablet { display: flex !important; flex-direction: column !important; gap: 0.75rem !important; }
+            .card-row {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.25rem 1rem !important;
+                padding: 1rem !important;
+                border-radius: 1rem !important;
+                background: var(--surface-container-lowest) !important;
+                box-shadow: var(--elev-ambient) !important;
+            }
+            .card-row .card-label { font-size: 0.7rem !important; color: var(--muted) !important; text-transform: uppercase !important; font-weight: 600 !important; letter-spacing: 0.05em !important; }
+            .card-row .card-value { font-size: 0.95rem !important; font-weight: 600 !important; color: var(--fg) !important; }
+            .card-row .card-full { grid-column: 1 / -1 !important; }
+
+            /* Pre-order cards */
+            .po-card {
+                padding: 1rem !important;
+                border-radius: 1rem !important;
+                background: var(--surface-container-lowest) !important;
+                box-shadow: var(--elev-ambient) !important;
+            }
+            .po-card-header {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                margin-bottom: 0.5rem !important;
+            }
+            .po-card-meta {
+                display: flex !important;
+                gap: 1rem !important;
+                font-size: 0.85rem !important;
+                color: var(--fg-2) !important;
+            }
+        }
+
+        @@media (min-width: 1024px) {
+            .cards-tablet { display: none !important; }
+        }
+
+        /* ── Sticky bottom bar ────────────────────────────────── */
+        .sticky-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            padding: 0.75rem 1rem;
+            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border-top: 1px solid var(--sidebar-border);
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+            transition: padding-left 0.3s ease;
+        }
+        @@media (min-width: 1024px) {
+            .sticky-bottom-bar { padding-left: calc(256px + 1rem); }
+        }
+
+        /* ── Larger tap targets (48px+ height) ────────────────── */
+        .tap-target {
+            min-height: 48px;
+            min-width: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        input.tap-input {
+            min-height: 48px;
+            font-size: 1rem !important;  /* prevent iOS zoom */
+        }
+
+        /* ── Formula card desktop grid ────────────────────────── */
+        @@media (min-width: 1024px) {
+            .formula-grid {
+                display: flex !important;
+                flex-wrap: wrap !important;
+            }
+        }
+
+        /* ── Extra bottom padding to clear sticky bar ─────────── */
+        .pb-safe { padding-bottom: 5rem; }
+    </style>
+}
+
+<div class="content-area space-y-4 fade-in pb-safe">
+
+    @* ── Header (simplified — no action buttons) ─────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
+            <h1 class="text-2xl md:text-3xl font-bold flex items-center gap-2" style="color: var(--fg);">
                 <span class="text-gradient">Inventario Diario</span>
             </h1>
-            <p class="text-sm mt-0.5" style="color: var(--muted);">
+            <p class="text-sm md:text-base mt-0.5" style="color: var(--muted);">
                 @today
                 @if (Model?.IsClosed == true)
                 {
@@ -29,60 +154,38 @@
                 }
             </p>
         </div>
-        <div class="flex items-center gap-3">
-            @if (Model?.IsClosed != true)
-            {
-                <button onclick="addInventoryRow()"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
-                               transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                        style="background: var(--gradient-primary);">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Agregar producto
-                </button>
-                <form method="post" action="/inventory/close" class="inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit"
-                            class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
-                                   transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                            style="background: var(--success);">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                        Cerrar día
-                    </button>
-                </form>
-            }
-        </div>
     </div>
 
-    @* ── Formula card ───────────────────────────────────────── *@
+    @* ── Formula card (tablet: 2-col grid, desktop: flex-wrap) ─ *@
     <div class="rounded-2xl p-5 shadow-ambient" style="background: var(--surface-container-lowest);">
         <h3 class="text-xs font-semibold uppercase tracking-wider mb-3 flex items-center gap-2" style="color: var(--muted);">
             <svg class="w-4 h-4" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             Fórmula de conciliación diaria
         </h3>
-        <div class="flex flex-wrap items-center gap-2 text-sm font-medium">
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl" style="background: var(--surface-container-low);">
+        <div class="formula-grid flex flex-wrap items-center gap-2 text-sm md:text-base font-medium">
+            <div class="flex items-center gap-2 px-3 py-2.5 rounded-xl" style="background: var(--surface-container-low);">
                 <span style="color: var(--muted);">Sobrante ayer</span>
-                <span class="font-bold" style="color: var(--fg);">@totalInicial.ToString("N0")</span>
+                <span class="font-bold text-lg" style="color: var(--fg);">@totalInicial.ToString("N0")</span>
             </div>
-            <span class="text-base" style="color: var(--primary);">+</span>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl" style="background: var(--surface-container-low);">
+            <span class="formula-operators text-lg" style="color: var(--primary);">+</span>
+            <div class="flex items-center gap-2 px-3 py-2.5 rounded-xl" style="background: var(--surface-container-low);">
                 <span style="color: var(--muted);">Producido</span>
-                <span class="font-bold" style="color: var(--fg);">@totalProduccion.ToString("N0")</span>
+                <span class="font-bold text-lg" style="color: var(--fg);">@totalProduccion.ToString("N0")</span>
             </div>
-            <span class="text-base" style="color: var(--danger);">−</span>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl" style="background: var(--surface-container-low);">
+            <span class="formula-operators text-lg" style="color: var(--danger);">−</span>
+            <div class="flex items-center gap-2 px-3 py-2.5 rounded-xl" style="background: var(--surface-container-low);">
                 <span style="color: var(--muted);">Merma</span>
-                <span class="font-bold" style="color: var(--danger);">@totalMerma.ToString("N0")</span>
+                <span class="font-bold text-lg" style="color: var(--danger);">@totalMerma.ToString("N0")</span>
             </div>
-            <span class="text-base" style="color: var(--danger);">−</span>
-            <div class="flex items-center gap-2 px-3 py-2 rounded-xl" style="background: var(--surface-container-low);">
+            <span class="formula-operators text-lg" style="color: var(--danger);">−</span>
+            <div class="flex items-center gap-2 px-3 py-2.5 rounded-xl" style="background: var(--surface-container-low);">
                 <span style="color: var(--muted);">Ventas</span>
-                <span class="font-bold" style="color: var(--fg);">@(salesSummary?.SaleCount ?? 0)</span>
+                <span class="font-bold text-lg" style="color: var(--fg);">@(salesSummary?.SaleCount ?? 0)</span>
             </div>
-            <span class="text-base" style="color: var(--success);">=</span>
-            <div class="flex items-center gap-2 px-4 py-2 rounded-xl" style="background: color-mix(in srgb, var(--success) 12%, transparent);">
+            <span class="formula-operators text-lg" style="color: var(--success);">=</span>
+            <div class="formula-result flex items-center gap-2 px-4 py-2.5 rounded-xl" style="background: color-mix(in srgb, var(--success) 12%, transparent);">
                 <span style="color: var(--muted);">Sobrante mañana</span>
-                <span class="text-lg font-bold" style="color: var(--success);">@totalSobrante.ToString("N0")</span>
+                <span class="text-xl font-bold" style="color: var(--success);">@totalSobrante.ToString("N0")</span>
             </div>
         </div>
     </div>
@@ -90,26 +193,26 @@
     @* ── Stats cards ────────────────────────────────────────── *@
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
-            <p class="text-xs" style="color: var(--muted);">Producido hoy</p>
-            <p class="text-2xl font-bold mt-1" style="color: var(--fg);">@totalProduccion.ToString("N0")</p>
+            <p class="text-xs md:text-sm" style="color: var(--muted);">Producido hoy</p>
+            <p class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--fg);">@totalProduccion.ToString("N0")</p>
             <p class="text-xs mt-0.5" style="color: var(--meta);">@(Model?.Lines.Count ?? 0) productos</p>
         </div>
         <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
-            <p class="text-xs" style="color: var(--muted);">Merma hoy</p>
-            <p class="text-2xl font-bold mt-1" style="color: var(--danger);">@totalMerma.ToString("N0")</p>
+            <p class="text-xs md:text-sm" style="color: var(--muted);">Merma hoy</p>
+            <p class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--danger);">@totalMerma.ToString("N0")</p>
         </div>
         <div class="rounded-xl p-4 shadow-ambient" style="background: var(--surface-container-lowest);">
-            <p class="text-xs" style="color: var(--muted);">Ventas hoy</p>
-            <p class="text-2xl font-bold mt-1" style="color: var(--fg);">$@((salesSummary?.TotalRevenue ?? 0).ToString("N0"))</p>
+            <p class="text-xs md:text-sm" style="color: var(--muted);">Ventas hoy</p>
+            <p class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--fg);">$@((salesSummary?.TotalRevenue ?? 0).ToString("N0"))</p>
             <p class="text-xs mt-0.5" style="color: var(--meta);">@(salesSummary?.SaleCount ?? 0) órdenes</p>
         </div>
         <div class="rounded-xl p-4 shadow-ambient" style="background: color-mix(in srgb, var(--success) 8%, var(--surface-container-lowest));">
-            <p class="text-xs" style="color: var(--muted);">Sobrante est.</p>
-            <p class="text-2xl font-bold mt-1" style="color: var(--success);">@totalSobrante.ToString("N0")</p>
+            <p class="text-xs md:text-sm" style="color: var(--muted);">Sobrante est.</p>
+            <p class="text-2xl md:text-3xl font-bold mt-1" style="color: var(--success);">@totalSobrante.ToString("N0")</p>
         </div>
     </div>
 
-    @* ── Main content: table or closed state ────────────────── *@
+    @* ── Main content: form or closed state ─────────────────── *@
     @if (Model?.IsClosed == true)
     {
         <div class="rounded-2xl p-6 text-center shadow-ambient"
@@ -119,11 +222,12 @@
                 <svg class="w-7 h-7" style="color: var(--success);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <h2 class="text-lg font-semibold" style="color: var(--fg);">Día cerrado</h2>
-            <p class="text-sm mt-1" style="color: var(--fg-2);">El inventario de hoy ya fue registrado. Los movimientos de inventario fueron generados.</p>
+            <p class="text-sm md:text-base mt-1" style="color: var(--fg-2);">El inventario de hoy ya fue registrado. Los movimientos de inventario fueron generados.</p>
         </div>
         @if (Model.Lines.Count > 0)
         {
-            <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+            @* Desktop: table | Tablet: cards *@
+            <div class="rounded-2xl shadow-ambient overflow-hidden table-desktop" style="background: var(--surface-container-lowest);">
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-container-low);">
@@ -148,12 +252,40 @@
                     </tbody>
                 </table>
             </div>
+
+            @* Tablet: card layout *@
+            <div class="cards-tablet" style="display:none;">
+                @foreach (var line in Model.Lines)
+                {
+                    <div class="card-row">
+                        <div class="card-full">
+                            <span class="card-value" style="font-size:1.1rem;">@line.ProductName</span>
+                        </div>
+                        <div>
+                            <div class="card-label">Sobrante ayer</div>
+                            <div class="card-value">@line.Inicial.ToString("N0")</div>
+                        </div>
+                        <div>
+                            <div class="card-label">Producido</div>
+                            <div class="card-value">@line.Produccion.ToString("N0")</div>
+                        </div>
+                        <div>
+                            <div class="card-label">Merma</div>
+                            <div class="card-value" style="color: var(--danger);">@line.Devolucion.ToString("N0")</div>
+                        </div>
+                        <div>
+                            <div class="card-label">Disponible</div>
+                            <div class="card-value" style="color: var(--success);">@line.Disponible.ToString("N0")</div>
+                        </div>
+                    </div>
+                }
+            </div>
         }
     }
     else
     {
         <form method="post" action="/inventory/upsert" id="inventory-form"
-              class="rounded-2xl shadow-ambient p-6 space-y-4" style="background: var(--surface-container-lowest);">
+              class="rounded-2xl shadow-ambient p-4 md:p-6 space-y-4" style="background: var(--surface-container-lowest);">
             @Html.AntiForgeryToken()
             <div id="inventory-rows" class="space-y-3">
                 @if (Model?.Lines != null)
@@ -161,9 +293,9 @@
                     for (int i = 0; i < Model.Lines.Count; i++)
                     {
                         var line = Model.Lines[i];
-                        <div class="inventory-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
-                            <div class="flex-1">
-                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
+                        <div class="inv-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
+                            <div class="flex-1 min-w-0">
+                                <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Producto</label>
                                 <div x-data="panaSelect" class="pana-select-wrapper">
                                     <select x-ref="native" name="lines[@i].ProductId" class="sr-only">
                                         @foreach (var p in products!)
@@ -172,7 +304,7 @@
                                         }
                                     </select>
                                     <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
-                                            class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                                            class="pana-select-trigger tap-target w-full" :class="{ 'pana-select-trigger-open': open }">
                                         <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
                                         <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
                                     </button>
@@ -197,50 +329,42 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="w-24">
-                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Sobrante ayer</label>
-                                <input type="number" name="lines[@i].Inicial" value="@line.Inicial" min="0" step="0.01"
-                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                                       style="background: var(--surface-container-high); color: var(--fg);"
-                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                            <div class="inv-numbers flex items-end gap-3">
+                                <div class="w-24 md:w-28">
+                                    <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Sobrante ayer</label>
+                                    <input type="number" name="lines[@i].Inicial" value="@line.Inicial" min="0" step="0.01" inputmode="decimal"
+                                           class="tap-input w-full px-3 rounded-xl focus:outline-none focus:ring-2"
+                                           style="background: var(--surface-container-high); color: var(--fg);"
+                                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                                </div>
+                                <div class="w-24 md:w-28">
+                                    <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Producido</label>
+                                    <input type="number" name="lines[@i].Produccion" value="@line.Produccion" min="0" step="0.01" inputmode="decimal"
+                                           class="tap-input w-full px-3 rounded-xl focus:outline-none focus:ring-2"
+                                           style="background: var(--surface-container-high); color: var(--fg);"
+                                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                                </div>
+                                <div class="w-24 md:w-28">
+                                    <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Merma</label>
+                                    <input type="number" name="lines[@i].Devolucion" value="@line.Devolucion" min="0" step="0.01" inputmode="decimal"
+                                           class="tap-input w-full px-3 rounded-xl focus:outline-none focus:ring-2"
+                                           style="background: var(--surface-container-high); color: var(--fg);"
+                                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                                </div>
                             </div>
-                            <div class="w-24">
-                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producido</label>
-                                <input type="number" name="lines[@i].Produccion" value="@line.Produccion" min="0" step="0.01"
-                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                                       style="background: var(--surface-container-high); color: var(--fg);"
-                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
-                            </div>
-                            <div class="w-24">
-                                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Merma</label>
-                                <input type="number" name="lines[@i].Devolucion" value="@line.Devolucion" min="0" step="0.01"
-                                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                                       style="background: var(--surface-container-high); color: var(--fg);"
-                                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
-                            </div>
-                            <button type="button" onclick="this.closest('.inventory-row').remove()"
-                                    class="p-2.5 rounded-xl transition-colors"
+                            <button type="button" onclick="this.closest('.inv-row').remove()"
+                                    class="inv-remove tap-target rounded-xl transition-colors flex-shrink-0"
                                     style="color: var(--meta);"
                                     onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
                                     onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'" title="Quitar">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
                     }
                 }
-            </div>
-
-            <div class="flex items-center justify-end gap-3 pt-3" style="border-top: 1px solid var(--sidebar-border);">
-                <button type="submit"
-                        class="inline-flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl
-                               transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                        style="background: var(--gradient-primary);">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                    Guardar inventario
-                </button>
             </div>
         </form>
     }
@@ -257,7 +381,9 @@
                 <h2 class="text-lg font-bold flex items-center gap-2" style="color: var(--fg);"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> Pre-órdenes activas</h2>
                 <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="background: var(--surface-container-low); color: var(--fg-2);">@activePreOrders.Count</span>
             </div>
-            <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+
+            @* Desktop: table *@
+            <div class="rounded-2xl shadow-ambient overflow-hidden table-desktop" style="background: var(--surface-container-lowest);">
                 <table class="w-full text-sm">
                     <thead>
                         <tr style="background: var(--surface-container-low);">
@@ -307,12 +433,12 @@
                                 <td class="px-6 py-3 text-right">
                                     <button hx-get="/sales/@po.Id"
                                             hx-target="#modal-container"
-                                            class="p-1.5 rounded-lg transition-colors"
+                                            class="tap-target rounded-lg transition-colors"
                                             style="color: var(--meta);"
                                             onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
                                             onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'"
                                             title="Ver detalle">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                         </svg>
@@ -323,16 +449,94 @@
                     </tbody>
                 </table>
             </div>
+
+            @* Tablet: card layout *@
+            <div class="cards-tablet" style="display:none;">
+                @foreach (var po in activePreOrders)
+                {
+                    var (poColor, poBg) = po.Status switch
+                    {
+                        "InProduction" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)"),
+                        "Confirmed" => ("var(--primary)", "color-mix(in srgb, var(--primary) 12%, transparent)"),
+                        _ => ("var(--meta)", "color-mix(in srgb, var(--meta) 12%, transparent)")
+                    };
+                    var poLabel = po.Status switch
+                    {
+                        "InProduction" => "En producción",
+                        "Confirmed" => "Confirmada",
+                        _ => po.Status
+                    };
+                    <div class="po-card">
+                        <div class="po-card-header">
+                            <div>
+                                <span class="font-semibold" style="color: var(--fg); font-size:1rem;">@po.CustomerName</span>
+                                <span class="text-xs ml-2" style="color: var(--meta);">#@po.Id.ToString()[..8]</span>
+                            </div>
+                            <span class="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
+                                  style="color: @poColor; background: @poBg;">@poLabel</span>
+                        </div>
+                        <div class="po-card-meta">
+                            <span>📦 @po.Items.Count items</span>
+                            <span>📅 @(po.ScheduledDate?.ToString("dd/MM HH:mm") ?? "—")</span>
+                            <span class="font-semibold" style="color: var(--fg);">$@po.TotalAmount.ToString("N2")</span>
+                        </div>
+                        <div class="mt-2 text-right">
+                            <button hx-get="/sales/@po.Id"
+                                    hx-target="#modal-container"
+                                    class="tap-target inline-flex items-center gap-1.5 px-3 rounded-lg transition-colors text-sm font-medium"
+                                    style="color: var(--primary); background: var(--primary-fixed);"
+                                    title="Ver detalle">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                Ver detalle
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     }
 </div>
 
+@* ── Sticky bottom action bar (thumb zone) ──────────────────── *@
+@if (Model?.IsClosed != true)
+{
+    <div class="sticky-bottom-bar">
+        <button onclick="addInventoryRow()"
+                class="tap-target flex-1 inline-flex items-center justify-center gap-2 px-4 text-white text-sm md:text-base font-semibold rounded-xl
+                       transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                style="background: var(--gradient-primary); max-width: 200px;">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Agregar
+        </button>
+        <button type="submit" form="inventory-form"
+                class="tap-target flex-1 inline-flex items-center justify-center gap-2 px-4 text-white text-sm md:text-base font-semibold rounded-xl
+                       transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                style="background: var(--gradient-primary); max-width: 240px;">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Guardar inventario
+        </button>
+        <form method="post" action="/inventory/close" class="inline-flex flex-1" style="max-width: 200px;">
+            @Html.AntiForgeryToken()
+            <button type="submit"
+                    class="tap-target w-full inline-flex items-center justify-center gap-2 px-4 text-white text-sm md:text-base font-semibold rounded-xl
+                           transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                    style="background: var(--success);">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Cerrar día
+            </button>
+        </form>
+    </div>
+}
+
 @if (Model?.IsClosed != true)
 {
     <template id="inventory-row-template">
-        <div class="inventory-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
-            <div class="flex-1">
-                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producto</label>
+        <div class="inv-row flex items-end gap-3 p-4 rounded-xl" style="background: var(--surface-container-low);">
+            <div class="flex-1 min-w-0">
+                <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Producto</label>
                 <div x-data="panaSelect" class="pana-select-wrapper">
                     <select x-ref="native" name="lines[IDX].ProductId" class="sr-only">
                         @foreach (var p in products!)
@@ -341,7 +545,7 @@
                         }
                     </select>
                     <button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey"
-                            class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }">
+                            class="pana-select-trigger tap-target w-full" :class="{ 'pana-select-trigger-open': open }">
                         <span x-text="displayText" :class="{ 'text-muted': !value }"></span>
                         <svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
                     </button>
@@ -366,36 +570,38 @@
                     </div>
                 </div>
             </div>
-            <div class="w-24">
-                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Sobrante ayer</label>
-                <input type="number" name="lines[IDX].Inicial" value="0" min="0" step="0.01"
-                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                       style="background: var(--surface-container-high); color: var(--fg);"
-                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+            <div class="inv-numbers flex items-end gap-3">
+                <div class="w-24 md:w-28">
+                    <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Sobrante ayer</label>
+                    <input type="number" name="lines[IDX].Inicial" value="0" min="0" step="0.01" inputmode="decimal"
+                           class="tap-input w-full px-3 rounded-xl focus:outline-none focus:ring-2"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+                <div class="w-24 md:w-28">
+                    <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Producido</label>
+                    <input type="number" name="lines[IDX].Produccion" value="0" min="0" step="0.01" inputmode="decimal"
+                           class="tap-input w-full px-3 rounded-xl focus:outline-none focus:ring-2"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
+                <div class="w-24 md:w-28">
+                    <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Merma</label>
+                    <input type="number" name="lines[IDX].Devolucion" value="0" min="0" step="0.01" inputmode="decimal"
+                           class="tap-input w-full px-3 rounded-xl focus:outline-none focus:ring-2"
+                           style="background: var(--surface-container-high); color: var(--fg);"
+                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                </div>
             </div>
-            <div class="w-24">
-                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Producido</label>
-                <input type="number" name="lines[IDX].Produccion" value="0" min="0" step="0.01"
-                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                       style="background: var(--surface-container-high); color: var(--fg);"
-                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
-            </div>
-            <div class="w-24">
-                <label class="block text-xs font-medium mb-1" style="color: var(--muted);">Merma</label>
-                <input type="number" name="lines[IDX].Devolucion" value="0" min="0" step="0.01"
-                       class="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2"
-                       style="background: var(--surface-container-high); color: var(--fg);"
-                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
-            </div>
-            <button type="button" onclick="this.closest('.inventory-row').remove()"
-                    class="p-2.5 rounded-xl transition-colors"
+            <button type="button" onclick="this.closest('.inv-row').remove()"
+                    class="inv-remove tap-target rounded-xl transition-colors flex-shrink-0"
                     style="color: var(--meta);"
                     onmouseover="this.style.color='var(--danger)'; this.style.background='color-mix(in srgb, var(--danger) 12%, transparent)'"
                     onmouseout="this.style.color='var(--meta)'; this.style.background='transparent'" title="Quitar">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         </div>
     </template>
@@ -411,6 +617,11 @@
             });
             document.getElementById('inventory-rows').appendChild(clone);
             invRowCount++;
+            // Scroll to the new row smoothly
+            var rows = document.getElementById('inventory-rows');
+            if (rows && rows.lastElementChild) {
+                rows.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
     </script>
 }
