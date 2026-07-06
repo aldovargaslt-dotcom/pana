@@ -366,6 +366,22 @@
             background-color: color-mix(in srgb, var(--danger) 8%, transparent);
             box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 20%, transparent);
         }
+
+        /* ── Responsive content width ──────────────────
+           Constrained by default, expands on large screens.
+           Tailwind CDN doesn't generate lg:/xl: variants,
+           so we use vanilla media queries. */
+        .content-area {
+            max-width: 72rem;   /* 1152px — comfortable reading on tablets */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @@media (min-width: 1400px) {
+            .content-area { max-width: 80rem; }  /* 1280px */
+        }
+        @@media (min-width: 1800px) {
+            .content-area { max-width: 88rem; }  /* 1408px */
+        }
     </style>
 
     @RenderSection("Styles", required: false)
