@@ -96,15 +96,15 @@
             left: 0;
             right: 0;
             z-index: 50;
-            padding: 0.75rem 1rem;
-            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+            min-height: 56px;
+            padding: 0.5rem 1rem;
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
             background: var(--glass-bg);
             backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
             border-top: 1px solid var(--sidebar-border);
             display: flex;
-            gap: 0.75rem;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             transition: padding-left 0.3s ease;
         }
@@ -135,6 +135,53 @@
 
         /* ── Extra bottom padding to clear sticky bar ─────────── */
         .pb-safe { padding-bottom: 5rem; }
+
+        /* ── Stepper buttons (+/−) for tablet counting ─────────── */
+        .stepper-group {
+            display: flex;
+            align-items: stretch;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--surface-container-high);
+            min-height: 48px;
+        }
+        .stepper-btn {
+            flex: 0 0 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            color: var(--fg);
+            background: var(--surface-container);
+            transition: background 0.15s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+        .stepper-btn:active {
+            background: var(--primary-fixed);
+            color: var(--primary);
+        }
+        .stepper-group .tap-input {
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+            border-radius: 0 !important;
+            background: var(--surface-container-high) !important;
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
+        }
+        .stepper-group input[type="number"]::-webkit-inner-spin-button,
+        .stepper-group input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .stepper-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 }
 
@@ -504,30 +551,34 @@
 @if (Model?.IsClosed != true)
 {
     <div class="sticky-bottom-bar">
+        @* Left: add product (left thumb reach) *@
         <button onclick="addInventoryRow()"
-                class="tap-target flex-1 inline-flex items-center justify-center gap-2 px-4 text-white text-sm md:text-base font-semibold rounded-xl
+                class="tap-target inline-flex items-center justify-center gap-2 px-5 text-white text-sm md:text-base font-semibold rounded-xl
                        transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                style="background: var(--gradient-primary); max-width: 200px;">
+                style="background: color-mix(in srgb, var(--primary) 75%, var(--fg)); min-width: 120px;">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Agregar
         </button>
-        <button type="submit" form="inventory-form"
-                class="tap-target flex-1 inline-flex items-center justify-center gap-2 px-4 text-white text-sm md:text-base font-semibold rounded-xl
-                       transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                style="background: var(--gradient-primary); max-width: 240px;">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            Guardar inventario
-        </button>
-        <form method="post" action="/inventory/close" class="inline-flex flex-1" style="max-width: 200px;">
-            @Html.AntiForgeryToken()
-            <button type="submit"
-                    class="tap-target w-full inline-flex items-center justify-center gap-2 px-4 text-white text-sm md:text-base font-semibold rounded-xl
+        @* Right: primary actions (right thumb reach) *@
+        <div class="flex items-center gap-3">
+            <button type="submit" form="inventory-form"
+                    class="tap-target inline-flex items-center justify-center gap-2 px-5 text-white text-sm md:text-base font-semibold rounded-xl
                            transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                    style="background: var(--success);">
+                    style="background: var(--gradient-primary);">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                Cerrar día
+                Guardar
             </button>
-        </form>
+            <form method="post" action="/inventory/close" class="inline-flex">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="tap-target inline-flex items-center justify-center gap-2 px-5 text-white text-sm md:text-base font-semibold rounded-xl
+                               transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                        style="background: var(--success);">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Cerrar día
+                </button>
+            </form>
+        </div>
     </div>
 }
 
@@ -608,6 +659,48 @@
 
     <script>
         var invRowCount = @((Model?.Lines?.Count ?? 0));
+
+        // ── Stepper: wrap number inputs with +/− buttons ──
+        function wrapStepper(input) {
+            if (input.closest('.stepper-group')) return;
+            const group = document.createElement('div');
+            group.className = 'stepper-group';
+
+            const btnDown = document.createElement('button');
+            btnDown.type = 'button';
+            btnDown.className = 'stepper-btn';
+            btnDown.textContent = '−';
+            btnDown.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                const step = parseFloat(input.step) || 1;
+                input.value = Math.max(parseFloat(input.min) || 0, (parseFloat(input.value) || 0) - step);
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            const btnUp = document.createElement('button');
+            btnUp.type = 'button';
+            btnUp.className = 'stepper-btn';
+            btnUp.textContent = '+';
+            btnUp.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                const step = parseFloat(input.step) || 1;
+                input.value = (parseFloat(input.value) || 0) + step;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            });
+
+            input.parentNode.insertBefore(group, input);
+            group.appendChild(btnDown);
+            group.appendChild(input);
+            group.appendChild(btnUp);
+        }
+
+        function wrapAllSteppers(container) {
+            (container || document).querySelectorAll('.tap-input[type="number"]').forEach(wrapStepper);
+        }
+
+        // Wrap existing inputs on page load
+        document.addEventListener('DOMContentLoaded', () => wrapAllSteppers());
+
         function addInventoryRow() {
             var tmpl = document.getElementById('inventory-row-template');
             if (!tmpl) return;
@@ -615,13 +708,12 @@
             clone.querySelectorAll('[name]').forEach(function(el) {
                 el.name = el.name.replace(/IDX/, invRowCount);
             });
-            document.getElementById('inventory-rows').appendChild(clone);
-            invRowCount++;
-            // Scroll to the new row smoothly
             var rows = document.getElementById('inventory-rows');
-            if (rows && rows.lastElementChild) {
-                rows.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            rows.appendChild(clone);
+            var newRow = rows.lastElementChild;
+            wrapAllSteppers(newRow);
+            invRowCount++;
+            newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     </script>
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
     <meta charset="utf-8" />
@@ -413,12 +413,12 @@
         </div>
 
         @* Navigation *@
-        <nav class="p-2 space-y-1">
+        <nav class="p-2 space-y-2">
             @* ── Admin section ──────────────────────────────── *@
             @if (User.IsInRole("Admin"))
             {
             <a href="/"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path == "/"
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
@@ -429,7 +429,7 @@
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Dashboard</span>
             </a>
             <a href="/products"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/products")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
@@ -440,7 +440,7 @@
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Productos</span>
             </a>
             <a href="/raw-materials"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/raw-materials")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
@@ -451,7 +451,7 @@
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Materias Primas</span>
             </a>
             <a href="/recipes"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/recipes")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
@@ -462,7 +462,7 @@
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Recetas</span>
             </a>
             <a href="/reports"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/reports")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
@@ -479,7 +479,7 @@
 
             @* ── Staff section (all roles) ──────────────────── *@
             <a href="/inventory"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/inventory")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
@@ -490,7 +490,7 @@
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Inventario</span>
             </a>
             <a href="/pos"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/pos")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
@@ -501,7 +501,7 @@
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Punto de Venta</span>
             </a>
             <a href="/activity"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
                style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/activity")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
