@@ -42,6 +42,7 @@ public class Sale : TenantEntity
     {
         public const string Draft = "Draft";
         public const string Confirmed = "Confirmed";
+        public const string Completed = "Completed";
         public const string InProduction = "InProduction";
         public const string Ready = "Ready";
         public const string Delivered = "Delivered";
@@ -58,11 +59,13 @@ public class Sale : TenantEntity
 
     /// <summary>
     /// Valid order state transitions.
+    /// Standard sales: Draft → Confirmed → Completed (auto-deduct inventory)
+    /// Pre-orders:     Draft → Confirmed → InProduction → Ready → Delivered
     /// </summary>
     private static readonly Dictionary<string, string[]> AllowedTransitions = new()
     {
         [Statuses.Draft] = new[] { Statuses.Confirmed, Statuses.Cancelled },
-        [Statuses.Confirmed] = new[] { Statuses.InProduction, Statuses.Cancelled },
+        [Statuses.Confirmed] = new[] { Statuses.Completed, Statuses.InProduction, Statuses.Cancelled },
         [Statuses.InProduction] = new[] { Statuses.Ready, Statuses.Cancelled },
         [Statuses.Ready] = new[] { Statuses.Delivered, Statuses.Cancelled },
     };
@@ -117,6 +120,17 @@ public class Sale : TenantEntity
     public void MarkReady()
     {
         TransitionTo(Statuses.Ready);
+    }
+
+    /// <summary>
+    /// Complete a standard counter sale — final state, inventory is deducted.
+    /// Only valid for standard (non-pre-order) sales.
+    /// </summary>
+    public void Complete()
+    {
+        if (OrderType != OrderTypes.Standard)
+            throw new InvalidOperationException("Complete() is only valid for standard sales. Use Deliver() for pre-orders.");
+        TransitionTo(Statuses.Completed);
     }
 
     public void Deliver()

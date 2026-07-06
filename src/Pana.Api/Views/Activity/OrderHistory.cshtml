@@ -102,7 +102,7 @@
                                 {
                                     var (statusColor, statusBg) = item.Status switch
                                     {
-                                        "Delivered" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
+                                        "Delivered" or "Completed" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
                                         "Cancelled" => ("var(--danger)", "color-mix(in srgb, var(--danger) 12%, transparent)"),
                                         "Draft" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)"),
                                         _ => ("var(--primary)", "color-mix(in srgb, var(--primary) 12%, transparent)")
@@ -110,6 +110,7 @@
                                     var statusLabel = item.Status switch
                                     {
                                         "Delivered" => "Entregada",
+                                        "Completed" => "Completada",
                                         "Cancelled" => "Cancelada",
                                         "Confirmed" => "Confirmada",
                                         "InProduction" => "En producción",

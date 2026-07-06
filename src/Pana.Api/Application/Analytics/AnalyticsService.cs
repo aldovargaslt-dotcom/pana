@@ -1,8 +1,17 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Pana.Api.Domain.Production;
+using Pana.Api.Domain.Sales;
 using Pana.Api.Infrastructure.Data;
 
 namespace Pana.Api.Application.Analytics;
+
+/// <summary>
+/// Final sale states — sales that count as completed for analytics.
+/// </summary>
+file static class FinalSaleStatuses
+{
+    public static readonly string[] Values = [Sale.Statuses.Delivered, Sale.Statuses.Completed];
+}
 
 public interface IAnalyticsService
 {
@@ -28,7 +37,7 @@ public class AnalyticsService : IAnalyticsService
 
         // ── Fetch completed (delivered) sales in range ──
         var sales = await _db.Sales
-            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
+            .Where(s => FinalSaleStatuses.Values.Contains(s.Status)
                      && s.CreatedAt >= fromDate
                      && s.CreatedAt < toDate)
             .Include(s => s.Items)
@@ -216,7 +225,7 @@ public class AnalyticsService : IAnalyticsService
         var toDate = to.Date.AddDays(1);
 
         var sales = await _db.Sales
-            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
+            .Where(s => FinalSaleStatuses.Values.Contains(s.Status)
                      && s.CreatedAt >= fromDate && s.CreatedAt < toDate)
             .OrderBy(s => s.CreatedAt)
             .ToListAsync(ct);
@@ -256,14 +265,14 @@ public class AnalyticsService : IAnalyticsService
 
         // Current period sales
         var currentSales = await _db.Sales
-            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
+            .Where(s => FinalSaleStatuses.Values.Contains(s.Status)
                      && s.CreatedAt >= fromDate && s.CreatedAt < toDate)
             .Include(s => s.Items)
             .ToListAsync(ct);
 
         // Previous period sales
         var prevSales = await _db.Sales
-            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
+            .Where(s => FinalSaleStatuses.Values.Contains(s.Status)
                      && s.CreatedAt >= prevFrom && s.CreatedAt < fromDate)
             .Include(s => s.Items)
             .ToListAsync(ct);

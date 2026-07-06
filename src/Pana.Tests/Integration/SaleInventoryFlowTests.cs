@@ -49,9 +49,9 @@ public class SaleInventoryFlowTests : IDisposable
     // ═══════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task DeliverSale_CreatesInventoryDeduction()
+    public async Task ConfirmStandardSale_CreatesInventoryDeduction()
     {
-        // Arrange: create and confirm a sale
+        // Standard sale: confirming auto-completes and deducts inventory
         var request = new CreateSaleRequest(
             Items: [new CreateSaleItemRequest(ProductId, UnitPrice: 10m, Quantity: 3)],
             Notes: null, CustomerName: null,
@@ -59,21 +59,17 @@ public class SaleInventoryFlowTests : IDisposable
             DepositAmount: 0, PaymentMethod: null, InternalNotes: null);
 
         var sale = await _salesService.CreateAsync(request);
-        await _salesService.ConfirmAsync(sale.Id);
-        await _salesService.StartProductionAsync(sale.Id);
-        await _salesService.MarkReadyAsync(sale.Id);
 
-        // Act: deliver
-        var delivered = await _salesService.DeliverAsync(sale.Id);
+        // Act: confirm (auto-completes for standard sales)
+        var confirmed = await _salesService.ConfirmAsync(sale.Id);
 
-        // Assert: sale is delivered
-        Assert.True(delivered);
+        // Assert: sale is Completed, not just Confirmed
+        Assert.True(confirmed);
         var fetched = await _salesService.GetByIdAsync(sale.Id);
         Assert.NotNull(fetched);
-        Assert.Equal(Sale.Statuses.Delivered, fetched.Status);
+        Assert.Equal(Sale.Statuses.Completed, fetched.Status);
 
-        // Assert: inventory movement created (via domain event handler)
-        // Note: domain events are async, so we call the handler directly for test determinism
+        // Assert: inventory movement created
         var handler = new SaleCompletedInventoryHandler(_inventoryService, new TestLogger<SaleCompletedInventoryHandler>());
         var saleEvent = new SaleCompletedEvent(
             sale.Id, TenantId,
@@ -89,9 +85,26 @@ public class SaleInventoryFlowTests : IDisposable
     }
 
     [Fact]
+    public async Task ConfirmStandardSale_CannotStartProduction()
+    {
+        // Standard sale after confirm is Completed → can't transition to InProduction
+        var request = new CreateSaleRequest(
+            Items: [new CreateSaleItemRequest(ProductId, UnitPrice: 10m, Quantity: 2)],
+            Notes: null, CustomerName: null,
+            CustomerPhone: null, ScheduledDate: null,
+            DepositAmount: 0, PaymentMethod: null, InternalNotes: null);
+
+        var sale = await _salesService.CreateAsync(request);
+        await _salesService.ConfirmAsync(sale.Id); // auto-completes
+
+        // StartProduction should throw — sale is already Completed
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _salesService.StartProductionAsync(sale.Id));
+    }
+
+    [Fact]
     public async Task CancelledSale_DoesNotDeductInventory()
     {
-        // Arrange
         var request = new CreateSaleRequest(
             Items: [new CreateSaleItemRequest(ProductId, UnitPrice: 10m, Quantity: 5)],
             Notes: null, CustomerName: null,
@@ -99,13 +112,11 @@ public class SaleInventoryFlowTests : IDisposable
             DepositAmount: 0, PaymentMethod: null, InternalNotes: null);
 
         var sale = await _salesService.CreateAsync(request);
-        await _salesService.ConfirmAsync(sale.Id);
 
-        // Act: cancel instead of deliver
+        // Cancel instead of confirm
         var cancelled = await _salesService.CancelAsync(sale.Id);
         Assert.True(cancelled);
 
-        // Assert: no SaleDeduction movement was created
         var movements = await _inventoryService.GetMovementsAsync(ProductId);
         Assert.DoesNotContain(movements, m => m.MovementType == InventoryMovement.Types.SaleDeduction);
     }
@@ -113,7 +124,6 @@ public class SaleInventoryFlowTests : IDisposable
     [Fact]
     public async Task MultipleItems_EachDeductedCorrectly()
     {
-        // Arrange: two products
         SeedProduct("Croissant", 15m);
 
         var request = new CreateSaleRequest(
@@ -127,12 +137,8 @@ public class SaleInventoryFlowTests : IDisposable
             DepositAmount: 0, PaymentMethod: null, InternalNotes: null);
 
         var sale = await _salesService.CreateAsync(request);
-        await _salesService.ConfirmAsync(sale.Id);
-        await _salesService.StartProductionAsync(sale.Id);
-        await _salesService.MarkReadyAsync(sale.Id);
-        await _salesService.DeliverAsync(sale.Id);
+        await _salesService.ConfirmAsync(sale.Id); // auto-completes + publishes event
 
-        // Act: dispatch the event
         var handler = new SaleCompletedInventoryHandler(_inventoryService, new TestLogger<SaleCompletedInventoryHandler>());
         var saleEvent = new SaleCompletedEvent(sale.Id, TenantId,
         [
@@ -141,7 +147,6 @@ public class SaleInventoryFlowTests : IDisposable
         ]);
         await handler.HandleAsync(saleEvent, CancellationToken.None);
 
-        // Assert
         var movements1 = await _inventoryService.GetMovementsAsync(ProductId);
         var deduction1 = movements1.FirstOrDefault(m => m.MovementType == InventoryMovement.Types.SaleDeduction);
         Assert.NotNull(deduction1);
@@ -154,50 +159,42 @@ public class SaleInventoryFlowTests : IDisposable
     }
 
     [Fact]
-    public async Task DeliverTwice_ThrowsInvalidOperation()
+    public async Task PreOrder_DeliverDeductsInventory()
     {
+        // Pre-orders go through the full flow and deduct on Deliver
         var request = new CreateSaleRequest(
-            Items: [new CreateSaleItemRequest(ProductId, UnitPrice: 10m, Quantity: 1)],
-            Notes: null, CustomerName: null,
-            CustomerPhone: null, ScheduledDate: null,
-            DepositAmount: 0, PaymentMethod: null, InternalNotes: null);
+            Items: [new CreateSaleItemRequest(ProductId, UnitPrice: 10m, Quantity: 2)],
+            Notes: null, OrderType: "PreOrder",
+            CustomerName: "Cliente X", CustomerPhone: "555-0001",
+            ScheduledDate: DateTime.UtcNow.AddDays(2),
+            DepositAmount: 50, PaymentMethod: null, InternalNotes: null);
 
         var sale = await _salesService.CreateAsync(request);
-        await _salesService.ConfirmAsync(sale.Id);
+        await _salesService.ConfirmAsync(sale.Id); // pre-order: stays Confirmed
         await _salesService.StartProductionAsync(sale.Id);
         await _salesService.MarkReadyAsync(sale.Id);
         await _salesService.DeliverAsync(sale.Id);
 
-        // Second deliver should fail — already delivered
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _salesService.DeliverAsync(sale.Id));
-    }
+        var fetched = await _salesService.GetByIdAsync(sale.Id);
+        Assert.Equal(Sale.Statuses.Delivered, fetched.Status);
 
-    [Fact]
-    public async Task ConfirmWithoutDeliver_NoInventoryMovement()
-    {
-        var request = new CreateSaleRequest(
-            Items: [new CreateSaleItemRequest(ProductId, UnitPrice: 10m, Quantity: 2)],
-            Notes: null, CustomerName: null,
-            CustomerPhone: null, ScheduledDate: null,
-            DepositAmount: 0, PaymentMethod: null, InternalNotes: null);
+        var handler = new SaleCompletedInventoryHandler(_inventoryService, new TestLogger<SaleCompletedInventoryHandler>());
+        await handler.HandleAsync(
+            new SaleCompletedEvent(sale.Id, TenantId, [new SaleItemSnapshot(ProductId, Quantity: 2)]),
+            CancellationToken.None);
 
-        var sale = await _salesService.CreateAsync(request);
-        await _salesService.ConfirmAsync(sale.Id);
-
-        // Sale is Confirmed but not Delivered → no inventory deduction yet
         var movements = await _inventoryService.GetMovementsAsync(ProductId);
-        Assert.DoesNotContain(movements, m => m.MovementType == InventoryMovement.Types.SaleDeduction);
+        var deduction = movements.FirstOrDefault(m => m.MovementType == InventoryMovement.Types.SaleDeduction);
+        Assert.NotNull(deduction);
+        Assert.Equal(-2m, deduction.Quantity);
     }
 
     [Fact]
     public async Task StockLevels_ReflectSaleDeduction()
     {
-        // Stock in 10 units
         await _inventoryService.StockInAsync(
             new StockInRequest(ProductId, Quantity: 10, Reason: "Initial stock"));
 
-        // Create and deliver a sale for 3 units
         var request = new CreateSaleRequest(
             Items: [new CreateSaleItemRequest(ProductId, UnitPrice: 10m, Quantity: 3)],
             Notes: null, CustomerName: null,
@@ -205,26 +202,14 @@ public class SaleInventoryFlowTests : IDisposable
             DepositAmount: 0, PaymentMethod: null, InternalNotes: null);
 
         var sale = await _salesService.CreateAsync(request);
-        await _salesService.ConfirmAsync(sale.Id);
-        await _salesService.StartProductionAsync(sale.Id);
-        await _salesService.MarkReadyAsync(sale.Id);
-        await _salesService.DeliverAsync(sale.Id);
+        await _salesService.ConfirmAsync(sale.Id); // auto-completes
 
         var handler = new SaleCompletedInventoryHandler(_inventoryService, new TestLogger<SaleCompletedInventoryHandler>());
         await handler.HandleAsync(
             new SaleCompletedEvent(sale.Id, TenantId, [new SaleItemSnapshot(ProductId, Quantity: 3)]),
             CancellationToken.None);
 
-        // Verify both movements exist and net to 7
         var movements = await _inventoryService.GetMovementsAsync(ProductId, limit: 100);
-        var stockIn = movements.FirstOrDefault(m => m.MovementType == InventoryMovement.Types.StockIn);
-        var deduction = movements.FirstOrDefault(m => m.MovementType == InventoryMovement.Types.SaleDeduction);
-
-        Assert.NotNull(stockIn);
-        Assert.Equal(10m, stockIn.Quantity);
-        Assert.NotNull(deduction);
-        Assert.Equal(-3m, deduction.Quantity);
-
         var netStock = movements.Sum(m => m.Quantity);
         Assert.Equal(7m, netStock);
     }

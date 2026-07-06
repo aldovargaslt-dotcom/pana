@@ -107,10 +107,31 @@ public class SalesService : ISalesService
 
     public async Task<bool> ConfirmAsync(Guid id, CancellationToken ct = default)
     {
-        var sale = await _db.Sales.FindAsync([id], ct);
+        var sale = await _db.Sales
+            .Include(s => s.Items)
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+
         if (sale is null) return false;
 
         sale.Confirm();
+
+        // Standard sales: auto-complete and deduct inventory immediately
+        if (sale.OrderType == Sale.OrderTypes.Standard)
+        {
+            sale.Complete();
+            await _db.SaveChangesAsync(ct);
+
+            var items = sale.Items
+                .Where(i => !i.IsVoided)
+                .Select(i => new SaleItemSnapshot(i.ProductId, i.Quantity))
+                .ToList();
+            await _eventDispatcher.PublishAsync(
+                new SaleCompletedEvent(sale.Id, sale.TenantId, items), ct);
+
+            return true;
+        }
+
+        // Pre-orders: just confirm, inventory is deducted later on Deliver
         await _db.SaveChangesAsync(ct);
         return true;
     }
@@ -197,7 +218,8 @@ public class SalesService : ISalesService
 
         var sales = await _db.Sales
             .Include(s => s.Items)
-            .Where(s => s.CreatedAt >= targetDate && s.CreatedAt < nextDate && s.Status == Sale.Statuses.Delivered)
+            .Where(s => s.CreatedAt >= targetDate && s.CreatedAt < nextDate
+                     && (s.Status == Sale.Statuses.Delivered || s.Status == Sale.Statuses.Completed))
             .ToListAsync(ct);
 
         var totalRevenue = sales.Sum(s => s.TotalAmount);
