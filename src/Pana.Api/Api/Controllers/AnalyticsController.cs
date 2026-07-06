@@ -69,4 +69,23 @@ public class AnalyticsController : ControllerBase
         var result = await _analyticsService.GetSalesTrendsAsync(from, to, ct);
         return Ok(result);
     }
+
+    /// <summary>
+    /// BCG Matrix — product portfolio classification.
+    /// Classifies products as Stars, Cash Cows, Question Marks, or Dogs
+    /// based on relative market share and sales growth rate.
+    /// </summary>
+    [HttpGet("bcg-matrix")]
+    [ProducesResponseType(typeof(BcgMatrixDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBcgMatrix(
+        [FromQuery] DateTime from,
+        [FromQuery] DateTime to,
+        CancellationToken ct)
+    {
+        if (from > to) return BadRequest("'from' must be before 'to'.");
+        if ((to - from).TotalDays > 365) return BadRequest("Date range cannot exceed 365 days.");
+
+        var result = await _analyticsService.GetBcgMatrixAsync(from, to, ct);
+        return Ok(result);
+    }
 }

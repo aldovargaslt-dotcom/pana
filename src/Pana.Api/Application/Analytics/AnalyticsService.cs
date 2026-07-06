@@ -9,6 +9,7 @@ public interface IAnalyticsService
     Task<PlSummaryDto> GetProfitLossAsync(DateTime from, DateTime to, CancellationToken ct = default);
     Task<WasteAnalysisDto> GetWasteAnalysisAsync(DateTime from, DateTime to, CancellationToken ct = default);
     Task<SalesTrendsDto> GetSalesTrendsAsync(DateTime from, DateTime to, CancellationToken ct = default);
+    Task<BcgMatrixDto> GetBcgMatrixAsync(DateTime from, DateTime to, CancellationToken ct = default);
 }
 
 public class AnalyticsService : IAnalyticsService
@@ -244,5 +245,76 @@ public class AnalyticsService : IAnalyticsService
             .ToList();
 
         return new SalesTrendsDto(ventasTotales, totalTransacciones, ticketPromedio, paymentMethods, dailyTrend, from, to);
+    }
+
+    public async Task<BcgMatrixDto> GetBcgMatrixAsync(DateTime from, DateTime to, CancellationToken ct = default)
+    {
+        var fromDate = from.Date;
+        var toDate = to.Date.AddDays(1);
+        var periodDays = (decimal)(toDate - fromDate).TotalDays;
+        var prevFrom = fromDate.AddDays(-(double)periodDays);
+
+        // Current period sales
+        var currentSales = await _db.Sales
+            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
+                     && s.CreatedAt >= fromDate && s.CreatedAt < toDate)
+            .Include(s => s.Items)
+            .ToListAsync(ct);
+
+        // Previous period sales
+        var prevSales = await _db.Sales
+            .Where(s => s.Status == Domain.Sales.Sale.Statuses.Delivered
+                     && s.CreatedAt >= prevFrom && s.CreatedAt < fromDate)
+            .Include(s => s.Items)
+            .ToListAsync(ct);
+
+        // Aggregate by product
+        var currentByProduct = currentSales
+            .SelectMany(s => s.Items.Where(i => !i.IsVoided))
+            .GroupBy(i => i.ProductId)
+            .ToDictionary(g => g.Key, g => (
+                Name: g.First().ProductName,
+                Qty: g.Sum(i => (decimal)i.Quantity),
+                Revenue: g.Sum(i => i.LineTotal)
+            ));
+
+        var prevByProduct = prevSales
+            .SelectMany(s => s.Items.Where(i => !i.IsVoided))
+            .GroupBy(i => i.ProductId)
+            .ToDictionary(g => g.Key, g => g.Sum(i => (decimal)i.Quantity));
+
+        if (currentByProduct.Count == 0)
+            return new BcgMatrixDto([], from, to, 0, 0);
+
+        var avgSales = currentByProduct.Values.Average(p => p.Qty);
+
+        var growthRates = new Dictionary<Guid, decimal>();
+        foreach (var (productId, curr) in currentByProduct)
+        {
+            var prevQty = prevByProduct.GetValueOrDefault(productId, 0m);
+            growthRates[productId] = prevQty > 0
+                ? ((curr.Qty - prevQty) / prevQty) * 100m
+                : 100m;
+        }
+        var avgGrowth = growthRates.Values.Average();
+
+        var products = currentByProduct
+            .Select(kvp =>
+            {
+                var relativeShare = avgSales > 0 ? kvp.Value.Qty / avgSales : 0m;
+                var growth = growthRates.GetValueOrDefault(kvp.Key, 0m);
+                var quadrant = BcgProductDto.DeriveQuadrant(relativeShare, growth, avgGrowth);
+                return new BcgProductDto(
+                    kvp.Key, kvp.Value.Name, kvp.Value.Qty, kvp.Value.Revenue,
+                    Math.Round(relativeShare, 2), Math.Round(growth, 1),
+                    quadrant, BcgProductDto.DeriveStrategy(quadrant));
+            })
+            .OrderByDescending(p => p.Quadrant == "Star" ? 4
+                : p.Quadrant == "CashCow" ? 3
+                : p.Quadrant == "QuestionMark" ? 2 : 1)
+            .ThenByDescending(p => p.Revenue)
+            .ToList();
+
+        return new BcgMatrixDto(products, from, to, Math.Round(avgSales, 2), Math.Round(avgGrowth, 1));
     }
 }

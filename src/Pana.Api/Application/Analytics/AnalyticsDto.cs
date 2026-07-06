@@ -80,3 +80,41 @@ public record DailyTrendPointDto(
     int Transacciones,
     decimal TicketPromedio
 );
+
+/// <summary>BCG Matrix — product portfolio classification (Stars, Cash Cows, Question Marks, Dogs).</summary>
+public record BcgMatrixDto(
+    List<BcgProductDto> Products,
+    DateTime From,
+    DateTime To,
+    decimal AvgSales,
+    decimal AvgGrowthPct
+);
+
+public record BcgProductDto(
+    Guid ProductId,
+    string ProductName,
+    decimal UnitsSold,
+    decimal Revenue,
+    decimal RelativeShare,
+    decimal GrowthPct,
+    string Quadrant,     // "Star", "CashCow", "QuestionMark", "Dog"
+    string Strategy       // Human-readable recommendation
+)
+{
+    public static string DeriveQuadrant(decimal relativeShare, decimal growthPct, decimal avgGrowth)
+    {
+        if (relativeShare >= 1.0m && growthPct >= avgGrowth) return "Star";
+        if (relativeShare >= 1.0m && growthPct < avgGrowth) return "CashCow";
+        if (relativeShare < 1.0m && growthPct >= avgGrowth) return "QuestionMark";
+        return "Dog";
+    }
+
+    public static string DeriveStrategy(string quadrant) => quadrant switch
+    {
+        "Star" => "Invertir y promover — alto crecimiento y alta participación.",
+        "CashCow" => "Mantener y capitalizar — genera utilidades estables.",
+        "QuestionMark" => "Evaluar — tiene potencial pero poca participación aún.",
+        "Dog" => "Considerar descontinuar o reposicionar.",
+        _ => "Sin clasificación."
+    };
+}
