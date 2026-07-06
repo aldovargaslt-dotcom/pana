@@ -64,7 +64,7 @@ public class ProductsController : Controller
             return PartialView("_Form", form);
         }
 
-        var request = new ProductRequest(form.Name, form.Sku, form.Price, form.Cost, form.Description);
+        var request = new ProductRequest { Name = form.Name, Sku = form.Sku, Price = form.Price, Cost = form.Cost, Description = form.Description };
         await productService.CreateAsync(request, ct);
 
         Response.Headers["HX-Trigger"] = "product-created";
@@ -101,7 +101,7 @@ public class ProductsController : Controller
             return PartialView("_Form", form);
         }
 
-        var request = new ProductRequest(form.Name, form.Sku, form.Price, form.Cost, form.Description);
+        var request = new ProductRequest { Name = form.Name, Sku = form.Sku, Price = form.Price, Cost = form.Cost, Description = form.Description };
         await productService.UpdateAsync(id, request, ct);
 
         // Refresh just this row

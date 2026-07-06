@@ -36,13 +36,14 @@ public record UnitOfMeasureDto(
 /// <summary>
 /// Request to create or update a product.
 /// </summary>
-public record ProductRequest(
-    string Name,
-    string Sku,
-    decimal Price,
-    decimal Cost,
-    string? Description = null,
-    string? ProductType = null,
-    Guid? UnitOfMeasureId = null,
-    Guid? PurchaseUnitOfMeasureId = null
-);
+public record ProductRequest
+{
+    public string Name { get; init; } = string.Empty;
+    public string Sku { get; init; } = string.Empty;
+    public decimal Price { get; init; }
+    public decimal Cost { get; init; }
+    public string? Description { get; init; }
+    public string? ProductType { get; init; }
+    public Guid? UnitOfMeasureId { get; init; }
+    public Guid? PurchaseUnitOfMeasureId { get; init; }
+}
