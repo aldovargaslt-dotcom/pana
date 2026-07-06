@@ -107,8 +107,16 @@ public class ReportsController : Controller
         ViewData["Title"] = "Reportes";
         ViewData["ActiveNav"] = "reports";
 
+        // BCG Matrix (last 30 days)
+        var bcgFrom = now.Date.AddDays(-30);
+        var bcgTo = now;
+        var bcg = await analyticsService.GetBcgMatrixAsync(bcgFrom, bcgTo, ct);
+        var bcgProducts = bcg.Products.Select(p => new BcgProductViewModel(
+            p.ProductId, p.ProductName, p.UnitsSold, p.Revenue,
+            p.Quadrant, p.Strategy, BcgProductViewModel.GetIcon(p.Quadrant))).ToList();
+
         var vm = new ReportsViewModel(
-            periodLabel, from, to, metrics, dailyTrend, topProducts, allOrders);
+            periodLabel, from, to, metrics, dailyTrend, topProducts, allOrders, bcgProducts);
         return View(vm);
     }
 }

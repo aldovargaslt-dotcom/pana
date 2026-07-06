@@ -121,7 +121,8 @@ public record ReportsViewModel(
     ReportsMetricsViewModel Metrics,
     List<DailyTrendPointViewModel> DailyTrend,
     List<TopProductViewModel> TopProducts,
-    List<OrderHistoryItemViewModel> AllOrders
+    List<OrderHistoryItemViewModel> AllOrders,
+    List<BcgProductViewModel>? BcgProducts
 );
 
 public record ReportsMetricsViewModel(
@@ -149,3 +150,23 @@ public record TopProductViewModel(
     int TotalOrders,
     decimal TotalSold
 );
+
+public record BcgProductViewModel(
+    Guid ProductId,
+    string ProductName,
+    decimal UnitsSold,
+    decimal Revenue,
+    string Quadrant,
+    string Strategy,
+    string Icon
+)
+{
+    public static string GetIcon(string quadrant) => quadrant switch
+    {
+        "Star" => "⭐",
+        "CashCow" => "🐄",
+        "QuestionMark" => "❓",
+        "Dog" => "🐕",
+        _ => "📦"
+    };
+}

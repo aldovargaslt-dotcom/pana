@@ -204,6 +204,74 @@
         </div>
     </div>
 
+    @* ── BCG Matrix ─────────────────────────────────────────── *@
+    @if (Model.BcgProducts is { Count: > 0 })
+    {
+        <div class="rounded-2xl p-5 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold flex items-center gap-2" style="color: var(--fg);">
+                    <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Matriz BCG · Clasificación de Productos
+                </h3>
+                <span class="text-xs" style="color: var(--meta);">Últimos 30 días</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                @foreach (var p in Model.BcgProducts)
+                {
+                    var cardBg = p.Quadrant switch
+                    {
+                        "Star" => "color-mix(in srgb, var(--primary) 8%, transparent)",
+                        "CashCow" => "color-mix(in srgb, var(--success) 8%, transparent)",
+                        "QuestionMark" => "color-mix(in srgb, var(--tertiary) 8%, transparent)",
+                        _ => "var(--surface-container-low)"
+                    };
+                    var cardAccent = p.Quadrant switch
+                    {
+                        "Star" => "var(--primary)",
+                        "CashCow" => "var(--success)",
+                        "QuestionMark" => "var(--tertiary)",
+                        _ => "var(--muted)"
+                    };
+                    <div class="rounded-xl p-4" style="background: @cardBg;">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-2xl">@p.Icon</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                  style="color: @cardAccent; background: color-mix(in srgb, @cardAccent 15%, transparent);">
+                                @p.Quadrant
+                            </span>
+                        </div>
+                        <p class="font-semibold text-sm mb-1" style="color: var(--fg);">@p.ProductName</p>
+                        <div class="flex items-center gap-3 text-xs" style="color: var(--fg-2);">
+                            <span>@p.UnitsSold.ToString("N0") vendidos</span>
+                            <span>$@p.Revenue.ToString("N0")</span>
+                        </div>
+                        <p class="text-xs mt-2 leading-relaxed" style="color: var(--muted);">@p.Strategy</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="rounded-2xl p-5 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold flex items-center gap-2" style="color: var(--fg);">
+                    <svg class="w-5 h-5" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    Matriz BCG
+                </h3>
+                <span class="text-xs" style="color: var(--meta);">Últimos 30 días</span>
+            </div>
+            <div class="text-center py-8">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+                     style="background: var(--surface-container);">
+                    <svg class="w-6 h-6" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <p class="text-sm" style="color: var(--meta);">Sin datos suficientes para la matriz BCG</p>
+                <p class="text-xs mt-1" style="color: var(--meta);">Se necesitan ventas completadas en los últimos 30 días</p>
+            </div>
+        </div>
+    }
+
     @* ── All orders table ────────────────────────────────────── *@
     <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
         <div class="px-5 py-4 flex items-center justify-between" style="background: var(--surface-container-low);">
