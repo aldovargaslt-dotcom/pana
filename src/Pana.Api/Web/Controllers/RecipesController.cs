@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Pana.Api.Application.Production;
 using Pana.Api.Web.ViewModels;
 
@@ -131,7 +132,7 @@ public class RecipesController : Controller
         ViewBag.RecipeId = id;
         ViewBag.Materials = materials
             .Where(m => m.IsActive)
-            .Select(m => new { m.Id, m.Name, m.PurchaseUnit })
+            .Select(m => new SelectListItem { Value = m.Id.ToString(), Text = $"{m.Name} ({m.PurchaseUnit})" })
             .ToList();
 
         return PartialView("_IngredientForm");

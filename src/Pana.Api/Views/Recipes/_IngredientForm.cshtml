@@ -1,7 +1,7 @@
 @* Views/Recipes/_IngredientForm.cshtml — Add ingredient form (loaded via HTMX modal) *@
 @{
     var recipeId = ViewBag.RecipeId as Guid?;
-    var materials = ViewBag.Materials as List<dynamic>;
+    var materials = ViewBag.Materials as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
 }
 
 <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
@@ -38,7 +38,7 @@
                             {
                                 foreach (var m in materials)
                                 {
-                                    <option value="@m.Id">@m.Name (@m.PurchaseUnit)</option>
+                                    <option value="@m.Value">@m.Text</option>
                                 }
                             }
                         </select>
