@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Pana.Api.Application.Common;
 using Pana.Api.Application.Products;
 
 namespace Pana.Api.Api.Controllers;
@@ -18,13 +19,13 @@ public class ProductsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all products for the current tenant.
+    /// Get paginated products for the current tenant.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<ProductDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    [ProducesResponseType(typeof(PagedList<ProductDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
     {
-        var products = await _productService.GetAllAsync(ct);
+        var products = await _productService.GetAllAsync(page, pageSize, ct);
         return Ok(products);
     }
 

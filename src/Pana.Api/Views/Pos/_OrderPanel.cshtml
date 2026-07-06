@@ -2,7 +2,7 @@
 @model Pana.Api.Web.ViewModels.PosActiveOrderViewModel
 
 @* Order header *@
-<div class="p-4" style="border-bottom: 1px solid var(--surface-container-low);">
+<div class="p-4" style="background: var(--surface-container-low);">
     <h2 class="font-bold text-xl flex items-center gap-2" style="color: var(--fg);">
         <svg class="w-6 h-6" style="color: var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Orden actual
@@ -16,7 +16,7 @@
 </div>
 
 @* Order type selector *@
-<div class="px-4 py-2 flex gap-2" style="border-bottom: 1px solid var(--surface-container-low);">
+<div class="px-4 py-2 flex gap-2" style="background: var(--surface-container-low);">
     <button @@click="orderType = 'Standard'"
             class="flex-1 py-3 rounded-xl text-base font-medium transition-all duration-200 flex items-center justify-center gap-2"
             :class="orderType === 'Standard' ? 'text-white' : ''"
@@ -85,7 +85,7 @@
 @* Order items list (scrollable) *@
 <div class="flex-1 overflow-y-auto p-4" style="scrollbar-width: thin;" id="order-items-list">
     <template x-for="(item, idx) in cart" :key="idx">
-        <div class="flex items-center gap-3 py-3" style="border-bottom: 1px solid var(--surface-container-low);">
+        <div class="flex items-center gap-3 py-3">
             <div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center"
                  style="background: var(--surface-container-low);">
                 <svg class="w-5 h-5" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
@@ -123,7 +123,7 @@
 </div>
 
 @* Order summary + actions (sticky bottom) *@
-<div class="p-4 space-y-3 flex-shrink-0" style="border-top: 1px solid var(--surface-container-low); background: var(--surface-container-lowest);">
+<div class="p-4 space-y-3 flex-shrink-0" style="background: var(--surface-container-lowest);">
     <div class="space-y-1.5 text-sm">
         <div class="flex justify-between">
             <span style="color: var(--muted);">Subtotal</span>
@@ -137,7 +137,7 @@
             <span style="color: var(--success);">Descuento</span>
             <span style="color: var(--success);" x-text="'-$' + discount.toFixed(2)"></span>
         </div>
-        <div class="flex justify-between font-bold text-lg pt-2" style="border-top: 1px solid var(--surface-container-low);">
+        <div class="flex justify-between font-bold text-lg pt-3">
             <span style="color: var(--fg);">Total</span>
             <span style="color: var(--primary);" x-text="'$' + total.toFixed(2)"></span>
         </div>

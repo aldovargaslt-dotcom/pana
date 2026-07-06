@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Pana.Api.Application.Common;
 using Pana.Api.Domain.Common;
 using Pana.Api.Domain.Sales;
 using Pana.Api.Infrastructure.Data;
@@ -7,7 +8,8 @@ namespace Pana.Api.Application.Sales;
 
 public interface ISalesService
 {
-    Task<List<SaleDto>> GetAllAsync(CancellationToken ct = default);
+    Task<PagedList<SaleDto>> GetAllAsync(int page, int pageSize, CancellationToken ct = default);
+    Task<List<SaleDto>> GetAllAsync(CancellationToken ct);
     Task<SaleDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<SaleDto> CreateAsync(CreateSaleRequest request, Guid? soldByUserId = null, CancellationToken ct = default);
     Task<bool> ConfirmAsync(Guid id, CancellationToken ct = default);
@@ -34,13 +36,27 @@ public class SalesService : ISalesService
         _eventDispatcher = eventDispatcher;
     }
 
-    public async Task<List<SaleDto>> GetAllAsync(CancellationToken ct = default)
+    public async Task<List<SaleDto>> GetAllAsync(CancellationToken ct)
     {
         return await _db.Sales
             .Include(s => s.Items)
             .OrderByDescending(s => s.CreatedAt)
             .Select(s => MapToDto(s))
             .ToListAsync(ct);
+    }
+
+    public async Task<PagedList<SaleDto>> GetAllAsync(int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = _db.Sales
+            .Include(s => s.Items)
+            .OrderByDescending(s => s.CreatedAt);
+        var totalCount = await query.CountAsync(ct);
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(s => MapToDto(s))
+            .ToListAsync(ct);
+        return new PagedList<SaleDto>(items, totalCount, page, pageSize);
     }
 
     public async Task<SaleDto?> GetByIdAsync(Guid id, CancellationToken ct = default)

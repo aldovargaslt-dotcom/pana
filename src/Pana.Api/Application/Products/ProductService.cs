@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Pana.Api.Application.Common;
 using Pana.Api.Domain.Products;
 using Pana.Api.Infrastructure.Data;
 
@@ -6,7 +7,8 @@ namespace Pana.Api.Application.Products;
 
 public interface IProductService
 {
-    Task<List<ProductDto>> GetAllAsync(CancellationToken ct = default);
+    Task<PagedList<ProductDto>> GetAllAsync(int page, int pageSize, CancellationToken ct = default);
+    Task<List<ProductDto>> GetAllAsync(CancellationToken ct);
     Task<ProductDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<ProductDto> CreateAsync(ProductRequest request, CancellationToken ct = default);
     Task<ProductDto?> UpdateAsync(Guid id, ProductRequest request, CancellationToken ct = default);
@@ -24,12 +26,24 @@ public class ProductService : IProductService
         _tenantContext = tenantContext;
     }
 
-    public async Task<List<ProductDto>> GetAllAsync(CancellationToken ct = default)
+    public async Task<List<ProductDto>> GetAllAsync(CancellationToken ct)
     {
         return await _db.Products
             .OrderBy(p => p.Name)
             .Select(p => MapToDto(p))
             .ToListAsync(ct);
+    }
+
+    public async Task<PagedList<ProductDto>> GetAllAsync(int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = _db.Products.OrderBy(p => p.Name);
+        var totalCount = await query.CountAsync(ct);
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => MapToDto(p))
+            .ToListAsync(ct);
+        return new PagedList<ProductDto>(items, totalCount, page, pageSize);
     }
 
     public async Task<ProductDto?> GetByIdAsync(Guid id, CancellationToken ct = default)

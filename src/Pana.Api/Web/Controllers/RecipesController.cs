@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Pana.Api.Application.Production;
@@ -15,7 +15,7 @@ public class RecipesController : Controller
         [FromServices] IRecipeService recipeService,
         CancellationToken ct)
     {
-        var recipes = await recipeService.GetAllAsync(ct);
+        var recipes = await recipeService.GetAllAsync(ct: ct);
         var vm = recipes.Select(r => new RecipeRowViewModel(
             r.Id, r.Name, r.Yield, r.YieldUnit, r.CostPerUnit, r.TotalBatchCost,
             r.Ingredients.Count, r.IsActive, r.CreatedAt
@@ -33,7 +33,7 @@ public class RecipesController : Controller
         [FromQuery] string? q,
         CancellationToken ct)
     {
-        var recipes = await recipeService.GetAllAsync(ct);
+        var recipes = await recipeService.GetAllAsync(ct: ct);
         var rows = recipes.Select(r => new RecipeRowViewModel(
             r.Id, r.Name, r.Yield, r.YieldUnit, r.CostPerUnit, r.TotalBatchCost,
             r.Ingredients.Count, r.IsActive, r.CreatedAt

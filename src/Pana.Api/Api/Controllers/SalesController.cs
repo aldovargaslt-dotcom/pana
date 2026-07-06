@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Pana.Api.Application.Common;
 using Pana.Api.Application.Sales;
 
 namespace Pana.Api.Api.Controllers;
@@ -18,13 +19,13 @@ public class SalesController : BaseApiController
     }
 
     /// <summary>
-    /// Get all sales for the current tenant, newest first.
+    /// Get paginated sales for the current tenant, newest first.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<SaleDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    [ProducesResponseType(typeof(PagedList<SaleDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
     {
-        var sales = await _salesService.GetAllAsync(ct);
+        var sales = await _salesService.GetAllAsync(page, pageSize, ct);
         return Ok(sales);
     }
 

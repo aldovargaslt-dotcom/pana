@@ -285,7 +285,7 @@
                             <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Disponible</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                    <tbody class="table-tonal">
                         @foreach (var line in Model.Lines)
                         {
                             <tr>
@@ -442,7 +442,7 @@
                             <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y" style="border-color: var(--surface-container-low);">
+                    <tbody class="table-tonal">
                         @foreach (var po in activePreOrders)
                         {
                             var (poColor, poBg) = po.Status switch
