@@ -31,12 +31,22 @@ public class RawMaterial : TenantEntity
     public bool IsActive { get; private set; } = true;
 
     /// <summary>
-    /// Computed effective cost per base unit, accounting for yield loss.
-    /// Formula: purchasePrice / (presentationQty × yieldPct/100)
+    /// Computed effective cost per base unit, accounting for yield loss
+    /// and converting from purchase unit to base unit.
+    /// Formula: purchasePrice / (presentationQty × purchaseToBaseFactor × yieldPct/100)
     /// </summary>
-    public decimal CostPerBaseUnit => PresentationQty > 0 && YieldPct > 0
-        ? PurchasePrice / (PresentationQty * (YieldPct / 100m))
-        : 0;
+    public decimal CostPerBaseUnit
+    {
+        get
+        {
+            if (PresentationQty <= 0 || YieldPct <= 0) return 0;
+            var factor = UnitConversion.GetFactor(PurchaseUnit);
+            var baseFactor = UnitConversion.GetFactor(BaseUnit);
+            // Convert presentation qty from purchase unit to base unit
+            var qtyInBaseUnit = PresentationQty * (factor / baseFactor);
+            return PurchasePrice / (qtyInBaseUnit * (YieldPct / 100m));
+        }
+    }
 
     public static class Categories
     {
