@@ -3,7 +3,7 @@
     ViewData["Title"] = Model.Name;
 }
 
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="content-area space-y-5">
 
     @* ── Back + Header ──────────────────────────────────────── *@
     <div>
@@ -38,8 +38,16 @@
 
     @* ── Ingredients Table ──────────────────────────────────── *@
     <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
-        <div class="px-6 py-4 rounded-t-2xl" style="background: var(--surface-container-low);">
+        <div class="px-6 py-4 rounded-t-2xl flex items-center justify-between" style="background: var(--surface-container-low);">
             <h2 class="text-sm font-semibold uppercase tracking-wider" style="color: var(--muted);">Ingredientes</h2>
+            <button hx-get="/recipes/@Model.Id/ingredients-form"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all duration-200 shadow-ambient active:scale-[0.98]"
+                    style="background: var(--gradient-primary);">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Agregar
+            </button>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -50,13 +58,14 @@
                         <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Cantidad</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Costo unitario</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Costo total</th>
+                        <th class="px-6 py-3 text-center text-xs font-semibold uppercase" style="color: var(--muted);"></th>
                     </tr>
                 </thead>
                 <tbody class="table-tonal">
                     @if (!Model.Ingredients.Any())
                     {
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
+                            <td colspan="6" class="px-6 py-12 text-center">
                                 <p style="color: var(--meta);">Esta receta no tiene ingredientes todavía.</p>
                             </td>
                         </tr>
@@ -65,7 +74,7 @@
                     {
                         @foreach (var ing in Model.Ingredients)
                         {
-                            <tr>
+                            <tr class="group">
                                 <td class="px-6 py-3 font-medium" style="color: var(--fg);">@ing.MaterialName</td>
                                 <td class="px-6 py-3">
                                     <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
@@ -76,6 +85,18 @@
                                 <td class="px-6 py-3 text-right font-mono" style="color: var(--fg-2);">@ing.Qty @ing.Unit</td>
                                 <td class="px-6 py-3 text-right font-mono text-xs" style="color: var(--meta);">$@ing.MaterialCostPerBaseUnit.ToString("N4")/u</td>
                                 <td class="px-6 py-3 text-right font-mono font-medium" style="color: var(--fg);">$@ing.ComputedCost.ToString("N2")</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button hx-delete="/recipes/@Model.Id/ingredients/@ing.Id"
+                                            hx-target="main"
+                                            hx-swap="outerHTML"
+                                            class="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                                            style="color: var(--danger);"
+                                            onmouseover="this.style.background='color-mix(in srgb, var(--danger) 8%, transparent)'"
+                                            onmouseout="this.style.background='transparent'"
+                                            title="Quitar ingrediente">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                </td>
                             </tr>
                         }
                     }

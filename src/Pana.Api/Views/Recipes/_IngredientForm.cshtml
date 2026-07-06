@@ -1,0 +1,96 @@
+@* Views/Recipes/_IngredientForm.cshtml — Add ingredient form (loaded via HTMX modal) *@
+@{
+    var recipeId = ViewBag.RecipeId as Guid?;
+    var materials = ViewBag.Materials as List<dynamic>;
+}
+
+<div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal-content rounded-2xl p-0 overflow-hidden scale-in"
+         style="max-width: 480px; width: 92vw; background: var(--surface-container-lowest); box-shadow: var(--elev-modal);"
+         onclick="event.stopPropagation()">
+
+        <div class="flex items-center justify-between px-6 py-4 rounded-t-2xl"
+             style="background: var(--surface-container-low);">
+            <h2 class="text-lg font-semibold" style="color: var(--fg);">Agregar ingrediente</h2>
+            <button onclick="this.closest('.modal-overlay').remove()"
+                    class="p-2 rounded-xl transition-colors" style="color: var(--meta);"
+                    onmouseover="this.style.background='var(--surface-container)'; this.style.color='var(--fg-2)'"
+                    onmouseout="this.style.background='transparent'; this.style.color='var(--meta)'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <form hx-post="/recipes/@recipeId/ingredients"
+                  hx-target="main"
+                  hx-swap="outerHTML"
+                  class="space-y-4">
+                @Html.AntiForgeryToken()
+
+                <div>
+                    <label class="text-sm font-medium block mb-1.5" style="color: var(--fg-2);">Material</label>
+                    <select name="MaterialId" required
+                            class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                            style="background: var(--surface-container-high); color: var(--fg); border: none;"
+                            onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                            onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
+                        <option value="">Seleccionar material...</option>
+                        @if (materials != null)
+                        {
+                            foreach (var m in materials)
+                            {
+                                <option value="@m.Id">@m.Name (@m.PurchaseUnit)</option>
+                            }
+                        }
+                    </select>
+                    @if (ViewContext.ModelState["MaterialId"]?.Errors.Count > 0)
+                    {
+                        <p class="text-xs mt-1" style="color: var(--danger);">@ViewContext.ModelState["MaterialId"]?.Errors[0].ErrorMessage</p>
+                    }
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-medium block mb-1.5" style="color: var(--fg-2);">Cantidad</label>
+                        <input type="number" name="Qty" step="0.01" min="0.01" value="1" required
+                               class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                               style="background: var(--surface-container-high); color: var(--fg); border: none;"
+                               onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                               onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium block mb-1.5" style="color: var(--fg-2);">Unidad</label>
+                        <select name="Unit" required
+                                class="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all"
+                                style="background: var(--surface-container-high); color: var(--fg); border: none;"
+                                onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                                onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
+                            <option value="g">g</option>
+                            <option value="kg">kg</option>
+                            <option value="ml">ml</option>
+                            <option value="L">L</option>
+                            <option value="unidad">unidad</option>
+                            <option value="cda">cucharada</option>
+                            <option value="cdita">cucharadita</option>
+                            <option value="taza">taza</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="this.closest('.modal-overlay').remove()"
+                            class="flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-200"
+                            style="color: var(--fg-2); background: var(--surface-container-low);">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="flex-[2] py-3 rounded-xl text-white font-bold transition-all duration-200
+                                   shadow-ambient hover:shadow-modal active:scale-[0.98]"
+                            style="background: var(--gradient-primary);">
+                        Agregar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

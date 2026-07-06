@@ -117,6 +117,89 @@ public class RecipesController : Controller
         return await TableRows(recipeService, null, ct);
     }
 
+    [HttpGet("{id:guid}/ingredients-form")]
+    public async Task<IActionResult> IngredientsForm(
+        [FromServices] IRecipeService recipeService,
+        [FromServices] IRawMaterialService materialService,
+        Guid id,
+        CancellationToken ct)
+    {
+        var recipe = await recipeService.GetByIdAsync(id, ct);
+        if (recipe is null) return NotFound();
+
+        var materials = await materialService.GetAllAsync(ct: ct);
+        ViewBag.RecipeId = id;
+        ViewBag.Materials = materials
+            .Where(m => m.IsActive)
+            .Select(m => new { m.Id, m.Name, m.PurchaseUnit })
+            .ToList();
+
+        return PartialView("_IngredientForm");
+    }
+
+    [HttpPost("{id:guid}/ingredients")]
+    public async Task<IActionResult> AddIngredient(
+        [FromServices] IRecipeService recipeService,
+        Guid id,
+        [FromForm] Guid MaterialId,
+        [FromForm] decimal Qty,
+        [FromForm] string Unit,
+        CancellationToken ct)
+    {
+        if (MaterialId == Guid.Empty || Qty <= 0 || string.IsNullOrWhiteSpace(Unit))
+        {
+            Response.Headers["HX-Retarget"] = "#modal-container";
+            var materials = HttpContext.RequestServices.GetRequiredService<IRawMaterialService>();
+            var allMaterials = await materials.GetAllAsync(ct: ct);
+            ViewBag.RecipeId = id;
+            ViewBag.Materials = allMaterials
+                .Where(m => m.IsActive)
+                .Select(m => new { m.Id, m.Name, m.PurchaseUnit })
+                .ToList();
+            if (MaterialId == Guid.Empty)
+                ModelState.AddModelError("MaterialId", "Seleccioná un material.");
+            if (Qty <= 0)
+                ModelState.AddModelError("Qty", "La cantidad debe ser mayor a 0.");
+            return PartialView("_IngredientForm");
+        }
+
+        // Get current recipe to append ingredient
+        var recipe = await recipeService.GetByIdAsync(id, ct);
+        if (recipe is null) return NotFound();
+
+        var currentIngredients = recipe.Ingredients
+            .Select(i => new CreateRecipeIngredientRequest(i.MaterialId, i.Qty, i.Unit))
+            .ToList();
+        currentIngredients.Add(new CreateRecipeIngredientRequest(MaterialId, Qty, Unit));
+
+        await recipeService.SetIngredientsAsync(id, new SetRecipeIngredientsRequest(currentIngredients), ct);
+
+        // Reload the detail
+        var updated = await recipeService.GetByIdAsync(id, ct);
+        return View("Detail", updated);
+    }
+
+    [HttpDelete("{id:guid}/ingredients/{ingredientId:guid}")]
+    public async Task<IActionResult> RemoveIngredient(
+        [FromServices] IRecipeService recipeService,
+        Guid id,
+        Guid ingredientId,
+        CancellationToken ct)
+    {
+        var recipe = await recipeService.GetByIdAsync(id, ct);
+        if (recipe is null) return NotFound();
+
+        var remaining = recipe.Ingredients
+            .Where(i => i.Id != ingredientId)
+            .Select(i => new CreateRecipeIngredientRequest(i.MaterialId, i.Qty, i.Unit))
+            .ToList();
+
+        await recipeService.SetIngredientsAsync(id, new SetRecipeIngredientsRequest(remaining), ct);
+
+        var updated = await recipeService.GetByIdAsync(id, ct);
+        return View("Detail", updated);
+    }
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(
         [FromServices] IRecipeService recipeService,
