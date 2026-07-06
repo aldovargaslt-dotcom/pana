@@ -1,0 +1,72 @@
+@* _Head.cshtml — Shared <head> content for all layouts (auth + app)
+   Every layout includes this partial to avoid duplicating fonts, tokens, and Tailwind config. *@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>@ViewData["Title"] — Pana</title>
+
+@* ── Google Fonts (Plus Jakarta Sans) ──────────────────── *@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+@* ── Pana Design Tokens (Open Design schema, v2 "The Modern Hearth") ── *@
+<link rel="stylesheet" href="/css/pana-tokens.css" />
+
+@* ── Tailwind CSS v4 (CDN) ─────────────────────────────── *@
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
+                },
+                colors: {
+                    primary: 'var(--primary)',
+                    'primary-container': 'var(--primary-container)',
+                    'primary-fixed': 'var(--primary-fixed)',
+                    'on-primary': 'var(--on-primary)',
+                    tertiary: 'var(--tertiary)',
+                    'tertiary-fixed': 'var(--tertiary-fixed)',
+                    'on-tertiary-fixed': 'var(--on-tertiary-fixed)',
+                    surface: 'var(--surface)',
+                    'surface-lowest': 'var(--surface-container-lowest)',
+                    'surface-low': 'var(--surface-container-low)',
+                    'surface-container': 'var(--surface-container)',
+                    'surface-high': 'var(--surface-container-high)',
+                    'surface-highest': 'var(--surface-container-highest)',
+                    fg: 'var(--fg)',
+                    'fg-2': 'var(--fg-2)',
+                    muted: 'var(--muted)',
+                    success: 'var(--success)',
+                    warn: 'var(--warn)',
+                    danger: 'var(--danger)',
+                    brand: {
+                        50: '#fff5f5',
+                        100: '#ffe0e0',
+                        200: '#ffc2c2',
+                        300: '#ff9494',
+                        400: '#ff6666',
+                        500: '#c41e24',
+                        600: '#b31a20',
+                        700: '#9e0012',
+                        800: '#7a0010',
+                        900: '#5c000c',
+                        950: '#3d0008',
+                    }
+                },
+                boxShadow: {
+                    'ambient': '0px 4px 16px rgba(28, 28, 25, 0.04), 0px 12px 32px rgba(28, 28, 25, 0.06)',
+                    'modal': '0px 20px 60px rgba(28, 28, 25, 0.12), 0px 0px 0px 1px rgba(28, 28, 25, 0.04)',
+                    'card': 'var(--elev-ambient)',
+                },
+                borderRadius: {
+                    'sm': '4px',
+                    'md': '12px',
+                    'lg': '16px',
+                    'xl': '24px',
+                }
+            }
+        }
+    }
+</script>

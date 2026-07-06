@@ -12,6 +12,12 @@ namespace Pana.Api.Api.Controllers;
 [Authorize]
 public class WasteController : BaseApiController
 {
+    private readonly ITenantContext _tenantContext;
+
+    public WasteController(ITenantContext tenantContext)
+    {
+        _tenantContext = tenantContext;
+    }
     [HttpGet("categories")]
     public async Task<IActionResult> GetCategories(
         [FromServices] IWasteCategoryService service,
@@ -61,7 +67,7 @@ public class WasteController : BaseApiController
         CancellationToken ct)
     {
         var userId = GetCurrentUserId();
-        var tenantId = Guid.Parse("00000000-0000-0000-0000-000000000001"); // TODO: from tenant context
+        var tenantId = _tenantContext.TenantId;
 
         var movement = new InventoryMovement(
             tenantId,

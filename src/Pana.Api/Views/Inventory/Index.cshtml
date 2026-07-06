@@ -568,7 +568,8 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 Guardar
             </button>
-            <form method="post" action="/inventory/close" class="inline-flex">
+            <form method="post" action="/inventory/close" class="inline-flex"
+                  onsubmit="return confirm('¿Cerrar el día? Esta acción no se puede deshacer.')">
                 @Html.AntiForgeryToken()
                 <button type="submit"
                         class="tap-target inline-flex items-center justify-center gap-2 px-5 text-white text-sm md:text-base font-semibold rounded-xl
