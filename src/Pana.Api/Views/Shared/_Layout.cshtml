@@ -290,6 +290,25 @@
             color: var(--meta);
         }
 
+        /* ── Inline search input (inside trigger) ──── */
+        .pana-select-search-inline {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: var(--font-body);
+            font-size: var(--text-body-sm);
+            font-weight: var(--weight-body);
+            color: var(--fg);
+            padding: 0;
+            line-height: var(--leading-body);
+        }
+        .pana-select-search-inline::placeholder {
+            color: var(--muted);
+            font-weight: var(--weight-body);
+        }
+
         /* ── Table tonal rows (No-Line Rule compliant) ─ */
         tbody.table-tonal tr:nth-child(even) { background: var(--surface-container-low); }
 
@@ -596,6 +615,60 @@
                         }
                     });
 
+                    // ── Inject inline search input into trigger ──
+                    const trigger = this.$refs.trigger;
+                    if (trigger) {
+                        const span = trigger.querySelector('span');
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'pana-select-search-inline';
+                        input.setAttribute('placeholder', 'Buscar...');
+                        input.setAttribute('autocomplete', 'off');
+                        input.setAttribute('x-ref', 'search');
+                        input.style.display = 'none';
+                        if (span) span.after(input);
+                        this._inlineSearch = input;
+                        this._triggerSpan = span;
+
+                        // Sync input → query
+                        input.addEventListener('input', (e) => {
+                            this.query = e.target.value;
+                        });
+
+                        // Forward keyboard events from inline input
+                        input.addEventListener('keydown', (e) => {
+                            this.onSearchKey(e);
+                            if (e.key === 'Escape') {
+                                e.preventDefault();
+                                this.close();
+                            }
+                        });
+
+                        // Watch open to toggle between span and input
+                        this.$watch('open', (isOpen) => {
+                            if (span) span.style.display = isOpen ? 'none' : '';
+                            input.style.display = isOpen ? '' : 'none';
+                            if (isOpen) {
+                                this.$nextTick(() => {
+                                    input.value = this.query;
+                                    input.focus();
+                                    // Move cursor to end
+                                    const len = input.value.length;
+                                    input.setSelectionRange(len, len);
+                                });
+                            } else {
+                                input.value = '';
+                                input.blur();
+                            }
+                        });
+                    }
+
+                    // Hide dropdown search bar — inline input replaces it
+                    this.$nextTick(() => {
+                        const dropdownSearch = this.$refs.dropdown?.querySelector('.pana-select-search');
+                        if (dropdownSearch) dropdownSearch.style.display = 'none';
+                    });
+
                     // Recalculate position on scroll/resize
                     this._onWinEvent = () => { if (this.open) this._reposition(); };
                     window.addEventListener('scroll', this._onWinEvent, true);
@@ -631,8 +704,6 @@
                             this._reposition();
                             this.query = '';
                             this.highlightIndex = this.filteredOptions.findIndex(o => o.value === this.value);
-                            const search = this.$refs.search;
-                            if (search) setTimeout(() => search.focus(), 50);
                         });
                     }
                 },
@@ -673,14 +744,27 @@
 
                 // ── Keyboard ──────────────────────────
                 onTriggerKey(e) {
-                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    // Character key: open, set query, focus inline input
+                    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
                         e.preventDefault();
+                        this.query = e.key;
                         this.open = true;
                         this.$nextTick(() => {
                             this._reposition();
-                            const search = this.$refs.search;
-                            if (search) setTimeout(() => search.focus(), 50);
+                            const inp = this._inlineSearch;
+                            if (inp) {
+                                inp.value = this.query;
+                                inp.focus();
+                                inp.setSelectionRange(1, 1);
+                            }
                         });
+                        return;
+                    }
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.query = '';
+                        this.open = true;
+                        this.$nextTick(() => this._reposition());
                     }
                 },
 
