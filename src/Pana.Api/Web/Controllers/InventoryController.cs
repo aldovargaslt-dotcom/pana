@@ -32,6 +32,9 @@ public class InventoryController : Controller
             .Where(p => p.IsActive)
             .Select(p => new { p.Id, p.Name })
             .ToList();
+        ViewBag.ProductOptions = string.Join("",
+            products.Where(p => p.IsActive).Select(p =>
+                $"<option value=\"{p.Id}\">{System.Net.WebUtility.HtmlEncode(p.Name)}</option>"));
         ViewBag.SalesSummary = salesSummary;
 
         return View("RegistroDiario", today);
