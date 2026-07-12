@@ -87,15 +87,15 @@ public class InventoryE2ETests : IAsyncLifetime
         var title = await page.TitleAsync();
         Assert.Contains("Pana", title);
 
-        // Assert — the three action buttons exist
+        // Assert — the three action buttons exist (tablet-first layout)
+        await Assertions.Expect(page.Locator("button:has-text('AGREGAR PRODUCCIÓN')").First).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("button:has-text('Inicial')").First).ToBeVisibleAsync();
-        await Assertions.Expect(page.Locator("button:has-text('Agregar producción')").First).ToBeVisibleAsync();
         await Assertions.Expect(page.Locator("button:has-text('Devolución')").First).ToBeVisibleAsync();
 
-        // Assert — daily metrics cards exist
-        await Assertions.Expect(page.Locator("text=Sobrante ayer").First).ToBeVisibleAsync();
-        await Assertions.Expect(page.Locator("text=Producido hoy").First).ToBeVisibleAsync();
-        await Assertions.Expect(page.Locator("text=Devolución hoy").First).ToBeVisibleAsync();
+        // Assert — daily metrics exist (compact KPI bar)
+        await Assertions.Expect(page.Locator("text=Sobrante").First).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("text=Producido").First).ToBeVisibleAsync();
+        await Assertions.Expect(page.Locator("text=Devolución").First).ToBeVisibleAsync();
 
         // Screenshot for visual verification
         var screenshotDir = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "E2E_Screenshots");

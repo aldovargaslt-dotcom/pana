@@ -13,9 +13,17 @@
 }
 @section Styles {
 <style>
-.kpi-card{transition:transform .2s ease,box-shadow .2s ease}.kpi-card:hover{transform:translateY(-2px)}
-.action-card{cursor:pointer;transition:all .2s ease}.action-card:hover{transform:translateY(-1px)}
+/* KPI compact cards */
+.kpi-card{transition:transform .15s ease}.kpi-card:active{transform:scale(.97)}
+/* Primary action — the big one */
+.action-primary{min-height:56px;cursor:pointer;transition:all .15s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.action-primary:active{transform:scale(.98)}
+/* Secondary actions */
+.action-secondary{min-height:48px;cursor:pointer;transition:all .15s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.action-secondary:active{transform:scale(.97)}
+/* Timeline */
 .timeline-row{transition:background .15s ease}.timeline-row:hover{background:var(--surface-container-low)}
+/* Stepper (modal) */
 .stepper{display:flex;align-items:stretch;border-radius:.75rem;overflow:hidden;background:var(--surface-container-high);min-height:52px;box-shadow:inset 0 1px 3px rgba(28,28,25,.06)}
 .stepper-btn{flex:0 0 52px;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:600;border:none;cursor:pointer;color:var(--fg);background:var(--surface-container-highest);user-select:none;transition:all .12s ease;-webkit-tap-highlight-color:transparent}
 .stepper-btn:active{background:var(--primary-fixed);color:var(--primary);transform:scale(.9)}
@@ -23,7 +31,6 @@
 .stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .quick-add-btn{flex:1;padding:.75rem .75rem;border-radius:.75rem;font-size:.875rem;font-weight:600;border:none;cursor:pointer;color:var(--fg);background:var(--surface-container-lowest);box-shadow:var(--elev-ambient);transition:all .12s ease;user-select:none;-webkit-tap-highlight-color:transparent}
 .quick-add-btn:active{background:var(--primary-fixed);color:var(--primary);transform:scale(.95);box-shadow:none}
-.quick-add-btn:active{background:var(--primary-fixed);color:var(--primary);transform:scale(.95)}
 </style>
 }
 <div class="content-area space-y-5 fade-in pb-safe">
@@ -37,17 +44,35 @@
 @if(TempData["Error"] is string error){<div class="rounded-xl p-4 text-sm" style="background:color-mix(in srgb,var(--danger) 10%,transparent);color:var(--danger)">@error</div>}
 @if(TempData["Success"] is string s){<div class="rounded-xl p-4 text-sm" style="background:color-mix(in srgb,var(--success) 10%,transparent);color:var(--success)">@s</div>}
 @if(isClosed){<div class="rounded-2xl p-6 text-center shadow-ambient" style="background:color-mix(in srgb,var(--success) 8%,var(--surface-container-lowest))"><div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style="background:color-mix(in srgb,var(--success) 20%,transparent)"><svg class="w-7 h-7" style="color:var(--success)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div><h2 class="text-lg font-semibold" style="color:var(--fg)">Día cerrado</h2><p class="text-sm mt-1" style="color:var(--fg-2)">La producción ya fue registrada y el inventario actualizado.</p></div>}
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-<div class="kpi-card rounded-2xl p-5 shadow-ambient" style="background:var(--surface-container-lowest)"><p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--muted)">Sobrante ayer</p><p class="text-3xl font-bold mt-1" style="color:var(--fg)">@sobranteAyer</p><p class="text-xs mt-1" style="color:var(--meta)">Conteo inicial</p></div>
-<div class="kpi-card rounded-2xl p-5 shadow-ambient" style="background:var(--surface-container-lowest)"><p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--muted)">Producido hoy</p><p class="text-3xl font-bold mt-1" style="color:var(--fg)">@totalProduccion</p><p class="text-xs mt-1" style="color:var(--meta)">Total producción</p></div>
-<div class="kpi-card rounded-2xl p-5 shadow-ambient" style="background:var(--surface-container-lowest)"><p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--muted)">Devolución hoy</p><p class="text-3xl font-bold mt-1" style="color:var(--danger)">@totalDevolucion</p><p class="text-xs mt-1" style="color:var(--meta)">Total devoluciones</p></div>
+<div class="grid grid-cols-3 gap-3">
+<div class="kpi-card rounded-xl px-4 py-3 text-center shadow-ambient" style="background:var(--surface-container-lowest)"><p class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--muted)">Sobrante</p><p class="text-2xl font-bold mt-0.5" style="color:var(--fg)">@sobranteAyer</p></div>
+<div class="kpi-card rounded-xl px-4 py-3 text-center shadow-ambient" style="background:var(--surface-container-lowest)"><p class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--muted)">Producido</p><p class="text-2xl font-bold mt-0.5" style="color:var(--fg)">@totalProduccion</p></div>
+<div class="kpi-card rounded-xl px-4 py-3 text-center shadow-ambient" style="background:var(--surface-container-lowest)"><p class="text-[10px] font-semibold uppercase tracking-wider" style="color:var(--muted)">Devolución</p><p class="text-2xl font-bold mt-0.5" style="color:var(--danger)">@totalDevolucion</p></div>
 </div>
 @if (!isClosed)
 {
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-<button type="button" onclick="openEventModal('Inicial')" class="action-card rounded-2xl p-5 text-left shadow-ambient border-2 border-dashed transition-all" style="background:var(--surface-container-lowest);border-color:var(--surface-container-high)"><div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:color-mix(in srgb,var(--tertiary) 12%,transparent)"><span class="text-xl">🌅</span></div><h3 class="font-semibold" style="color:var(--fg)">Inicial</h3><p class="text-xs mt-1" style="color:var(--meta)">Registrar conteo de la mañana</p></button>
-<button type="button" onclick="openEventModal('Produccion')" class="action-card rounded-2xl p-5 text-left shadow-ambient border-2 border-dashed transition-all" style="background:var(--surface-container-lowest);border-color:var(--surface-container-high)"><div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:color-mix(in srgb,var(--primary) 12%,transparent)"><span class="text-xl">🍞</span></div><h3 class="font-semibold" style="color:var(--fg)">Agregar producción</h3><p class="text-xs mt-1" style="color:var(--meta)">Registrar lote del horno</p></button>
-<button type="button" onclick="openEventModal('Devolucion')" class="action-card rounded-2xl p-5 text-left shadow-ambient border-2 border-dashed transition-all" style="background:var(--surface-container-lowest);border-color:var(--surface-container-high)"><div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style="background:color-mix(in srgb,var(--danger) 12%,transparent)"><span class="text-xl">🔄</span></div><h3 class="font-semibold" style="color:var(--fg)">Devolución</h3><p class="text-xs mt-1" style="color:var(--meta)">Registrar devolución del mostrador</p></button>
+<div class="space-y-3">
+@* ── Primary action: biggest, most frequent, centered ── *@
+<button type="button" onclick="openEventModal('Produccion')"
+    class="action-primary w-full rounded-2xl p-5 text-center shadow-ambient font-bold text-base flex items-center justify-center gap-3"
+    style="background:var(--primary-fixed);color:var(--primary)">
+    <span class="text-2xl">🍞</span> AGREGAR PRODUCCIÓN
+</button>
+@* ── Secondary actions: smaller, side by side ── *@
+<div class="grid grid-cols-2 gap-3">
+<button type="button" onclick="openEventModal('Inicial')"
+    class="action-secondary rounded-2xl p-4 text-left shadow-ambient flex items-center gap-3"
+    style="background:var(--tertiary-fixed);color:var(--on-tertiary-fixed)">
+    <span class="text-xl flex-shrink-0">🌅</span>
+    <div><p class="font-semibold text-sm">Inicial</p><p class="text-[11px] opacity-70">Conteo mañana</p></div>
+</button>
+<button type="button" onclick="openEventModal('Devolucion')"
+    class="action-secondary rounded-2xl p-4 text-left shadow-ambient flex items-center gap-3"
+    style="background:color-mix(in srgb,var(--danger) 10%,var(--surface-container-lowest));color:var(--danger)">
+    <span class="text-xl flex-shrink-0">🔄</span>
+    <div><p class="font-semibold text-sm">Devolución</p><p class="text-[11px] opacity-70">Del mostrador</p></div>
+</button>
+</div>
 </div>
 }
 <div class="rounded-2xl shadow-ambient overflow-hidden" style="background:var(--surface-container-lowest)"><div class="px-6 py-4 flex items-center justify-between" style="background:var(--surface-container-low)"><h2 class="font-semibold flex items-center gap-2" style="color:var(--fg)"><svg class="w-5 h-5" style="color:var(--muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.5"/><path stroke-linecap="round" stroke-width="1.5" d="M12 6v6l4 2"/></svg>Timeline · Hoy</h2><span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:var(--surface-container-high);color:var(--fg-2)">@(Model?.Events.Count ?? 0) registros</span></div>
