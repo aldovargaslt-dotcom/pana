@@ -161,11 +161,42 @@ app.MapHealthChecks("/health");
 
     await db.Database.EnsureCreatedAsync();
 
+    var defaultTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
     var tenantExists = await db.Tenants.AnyAsync();
     if (!tenantExists)
     {
-        var defaultTenantId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         db.Tenants.Add(new Pana.Api.Domain.Common.Tenant(defaultTenantId, "Default Bakery", "default-bakery"));
+        await db.SaveChangesAsync();
+    }
+
+    // ── Seed default users ─────────────────────────────────────
+    var usersExist = await db.Users.AnyAsync();
+    if (!usersExist)
+    {
+        var users = new[]
+        {
+            new Pana.Api.Domain.Identity.User(
+                defaultTenantId,
+                "admin@pana.com",
+                BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                "Admin",
+                Pana.Api.Domain.Identity.User.Roles.Admin),
+            new Pana.Api.Domain.Identity.User(
+                defaultTenantId,
+                "manager@pana.com",
+                BCrypt.Net.BCrypt.HashPassword("Manager123!"),
+                "Manager",
+                Pana.Api.Domain.Identity.User.Roles.Manager),
+            new Pana.Api.Domain.Identity.User(
+                defaultTenantId,
+                "staff@pana.com",
+                BCrypt.Net.BCrypt.HashPassword("Staff123!"),
+                "Staff",
+                Pana.Api.Domain.Identity.User.Roles.Staff),
+        };
+
+        db.Users.AddRange(users);
         await db.SaveChangesAsync();
     }
 }

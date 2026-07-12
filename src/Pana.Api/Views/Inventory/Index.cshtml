@@ -1,16 +1,22 @@
-@* Views/Inventory/Index.cshtml — Unified Daily Inventory (tablet-optimized v2) *@
+@* Views/Inventory/Index.cshtml — Registro Diario unificado (v3) *@
 @model Pana.Api.Application.Operations.DailyProductionDto?
 @{
-    ViewData["Title"] = "Inventario Diario";
+    ViewData["Title"] = "Registro Diario";
     var products = ViewBag.Products as List<dynamic> ?? new List<dynamic>();
-    var salesSummary = ViewBag.SalesSummary as Pana.Api.Application.Sales.DailySalesSummary;
-    var today = DateTime.Now.ToString("dddd, d 'de' MMMM 'de' yyyy",
+    var today = DateTime.Now.ToString("dddd, d \\de MMMM \\de yyyy",
         new System.Globalization.CultureInfo("es-MX"));
 
-    var totalInicial = Model?.Lines.Sum(l => l.Inicial) ?? 0;
-    var totalProduccion = Model?.Lines.Sum(l => l.Produccion) ?? 0;
-    var totalMerma = Model?.Lines.Sum(l => l.Devolucion) ?? 0;
-    var totalSobrante = totalInicial + totalProduccion - totalMerma - (salesSummary?.SaleCount ?? 0);
+    var totalProduccion = Model?.Events
+        .Where(e => e.EventType == "Produccion")
+        .Sum(e => e.Quantity) ?? 0;
+    var totalDevolucion = Model?.Events
+        .Where(e => e.EventType == "Devolucion")
+        .Sum(e => e.Quantity) ?? 0;
+    var totalInicial = Model?.Events
+        .Where(e => e.EventType == "Inicial")
+        .Sum(e => e.Quantity) ?? 0;
+    var sobranteAyer = totalInicial;
+    var isClosed = Model?.IsClosed == true;
 }
 
 @section Styles {

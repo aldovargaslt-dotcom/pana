@@ -20,6 +20,9 @@ public class DailyProduction : TenantEntity
     private readonly List<DailyProductionLine> _lines = new();
     public IReadOnlyCollection<DailyProductionLine> Lines => _lines.AsReadOnly();
 
+    private readonly List<ProductionEvent> _events = new();
+    public IReadOnlyCollection<ProductionEvent> Events => _events.AsReadOnly();
+
     private DailyProduction() { } // EF Core
 
     public DailyProduction(Guid tenantId, Guid dailyContextId, DateTime date)
@@ -42,6 +45,17 @@ public class DailyProduction : TenantEntity
         _lines.Add(line);
         MarkUpdated();
         return line;
+    }
+
+    public ProductionEvent AddEvent(Guid productId, string productName, string eventType, decimal quantity, Guid registeredByUserId, string? notes = null)
+    {
+        if (IsClosed)
+            throw new InvalidOperationException("Cannot add events to a closed production day.");
+
+        var evt = new ProductionEvent(Id, productId, productName, eventType, quantity, registeredByUserId, notes);
+        _events.Add(evt);
+        MarkUpdated();
+        return evt;
     }
 
     public void Close(Guid userId)

@@ -7,8 +7,9 @@ using Pana.Api.Application.Sales;
 namespace Pana.Api.Web.Controllers;
 
 /// <summary>
-/// Daily inventory reconciliation — unified Production + Waste + Sales view.
-/// Formula: yesterday's leftover + today's production − waste/returns − sales = tomorrow's leftover.
+/// Unified daily register — the staff's operational hub.
+/// Combines: inventory reconciliation, production tracking, waste/returns, and day closure.
+/// Routes: /inventory (legacy) and /registro-diario (canonical).
 /// </summary>
 [Authorize]
 [Route("inventory")]
@@ -24,18 +25,39 @@ public class InventoryController : Controller
         var today = await captureService.GetTodayAsync(ct);
         var products = await productService.GetAllAsync(ct);
         var salesSummary = await salesService.GetDailySummaryAsync(null, ct);
-        var preOrders = await salesService.GetPreOrdersAsync(ct);
 
-        ViewData["Title"] = "Inventario Diario";
-        ViewData["ActiveNav"] = "inventory";
+        ViewData["Title"] = "Registro Diario";
+        ViewData["ActiveNav"] = "registro-diario";
         ViewBag.Products = products
             .Where(p => p.IsActive)
             .Select(p => new { p.Id, p.Name })
             .ToList();
         ViewBag.SalesSummary = salesSummary;
-        ViewBag.PreOrders = preOrders;
 
-        return View(today);
+        return View("RegistroDiario", today);
+    }
+
+    [HttpPost("event")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddEvent(
+        [FromServices] IProductionCaptureService captureService,
+        [FromForm] AddProductionEventRequest request,
+        CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        try
+        {
+            await captureService.AddEventAsync(request, userId, ct);
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+            return RedirectToAction(nameof(Index));
+        }
     }
 
     [HttpPost("upsert")]
@@ -46,23 +68,40 @@ public class InventoryController : Controller
     {
         if (lines == null || lines.Count == 0)
         {
-            Response.Headers["HX-Trigger"] = "{\"showToast\": \"Agregá al menos un producto.\"}";
-            return NoContent();
+            TempData["Error"] = "Agregá al menos un producto.";
+            return RedirectToAction(nameof(Index));
         }
 
         await captureService.UpsertTodayAsync(new UpsertDailyProductionRequest(lines), ct);
-
-        Response.Headers["HX-Trigger"] = "inventory-updated";
         return RedirectToAction(nameof(Index));
     }
 
     [HttpPost("close")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CloseDay(
         [FromServices] IProductionCaptureService captureService,
         CancellationToken ct)
     {
-        await captureService.CloseTodayAsync(Guid.Empty, ct);
-        Response.Headers["HX-Trigger"] = "inventory-updated";
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty)
+            return Unauthorized();
+
+        try
+        {
+            await captureService.CloseTodayAsync(userId, ct);
+            TempData["Success"] = "Día cerrado correctamente. El inventario fue actualizado.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
         return RedirectToAction(nameof(Index));
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var claim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(claim, out var id) ? id : Guid.Empty;
     }
 }

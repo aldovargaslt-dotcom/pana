@@ -1,0 +1,354 @@
+@* Views/Inventory/Index.cshtml — Registro Diario unificado (v3) *@
+@model Pana.Api.Application.Operations.DailyProductionDto?
+@{
+    ViewData["Title"] = "Registro Diario";
+    var products = ViewBag.Products as List<dynamic> ?? new List<dynamic>();
+    var today = DateTime.Now.ToString("dddd, d 'de' MMMM 'de' yyyy",
+        new System.Globalization.CultureInfo("es-MX"));
+
+    var totalProduccion = Model?.Events
+        .Where(e => e.EventType == "Produccion")
+        .Sum(e => e.Quantity) ?? 0;
+    var totalDevolucion = Model?.Events
+        .Where(e => e.EventType == "Devolucion")
+        .Sum(e => e.Quantity) ?? 0;
+    var totalInicial = Model?.Events
+        .Where(e => e.EventType == "Inicial")
+        .Sum(e => e.Quantity) ?? 0;
+    var sobranteAyer = totalInicial;
+    var isClosed = Model?.IsClosed == true;
+}
+
+@section Styles {
+    <style>
+        .kpi-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .kpi-card:hover { transform: translateY(-2px); }
+        .action-card { cursor: pointer; transition: all 0.2s ease; }
+        .action-card:hover { transform: translateY(-1px); }
+        .timeline-row { transition: background 0.15s ease; }
+        .timeline-row:hover { background: var(--surface-container-low); }
+        .modal-backdrop {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-panel {
+            width: 100%; max-width: 440px; border-radius: 1.25rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: modalIn 0.2s ease-out;
+        }
+        @@keyframes modalIn {
+            from { opacity: 0; transform: translateY(16px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+}
+
+<div class="content-area space-y-5 fade-in pb-safe">
+
+    @* ── Header ─────────────────────────────────────────────── *@
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold flex items-center gap-2" style="color: var(--fg);">
+                <span class="text-gradient">Registro Diario</span>
+            </h1>
+            <p class="text-sm md:text-base mt-0.5" style="color: var(--muted);">
+                @today
+                @if (isClosed)
+                {
+                    <span class="font-medium ml-2" style="color: var(--success);">· Día cerrado</span>
+                }
+                else
+                {
+                    <span class="font-medium ml-2" style="color: var(--primary);">· Abierto</span>
+                }
+            </p>
+        </div>
+        @if (!isClosed)
+        {
+            <button type="button" onclick="document.getElementById('closeDayModal').classList.remove('hidden')"
+                    class="inline-flex items-center gap-2 px-5 py-3 text-white text-sm font-semibold rounded-xl
+                           transition-all duration-200 shadow-ambient hover:shadow-lg active:scale-[0.98]"
+                    style="background: var(--gradient-primary);">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Cerrar día
+            </button>
+        }
+    </div>
+
+    @* ── Feedback ───────────────────────────────────────────── *@
+    @if (TempData["Error"] is string error)
+    {
+        <div class="rounded-xl p-4 text-sm flex items-start gap-3"
+             style="background: color-mix(in srgb, var(--danger) 10%, transparent); color: var(--danger);">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>@error</span>
+        </div>
+    }
+    @if (TempData["Success"] is string success)
+    {
+        <div class="rounded-xl p-4 text-sm flex items-start gap-3"
+             style="background: color-mix(in srgb, var(--success) 10%, transparent); color: var(--success);">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>@success</span>
+        </div>
+    }
+
+    @* ── Día cerrado ────────────────────────────────────────── *@
+    @if (isClosed)
+    {
+        <div class="rounded-2xl p-6 text-center shadow-ambient"
+             style="background: color-mix(in srgb, var(--success) 8%, var(--surface-container-lowest));">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                 style="background: color-mix(in srgb, var(--success) 20%, transparent);">
+                <svg class="w-7 h-7" style="color: var(--success);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h2 class="text-lg font-semibold" style="color: var(--fg);">Día cerrado</h2>
+            <p class="text-sm mt-1" style="color: var(--fg-2);">La producción de hoy ya fue registrada y el inventario actualizado.</p>
+            @if (Model?.ClosedAt is not null)
+            {
+                <p class="text-xs mt-2" style="color: var(--meta);">
+                    Cerrado el @Model.ClosedAt.Value.ToString("dd/MM/yyyy HH:mm", new System.Globalization.CultureInfo("es-MX"))
+                </p>
+            }
+        </div>
+    }
+
+    @* ── KPI Cards ──────────────────────────────────────────── *@
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="kpi-card rounded-2xl p-5 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <p class="text-xs font-semibold uppercase tracking-wide" style="color: var(--muted);">Sobrante ayer</p>
+            <p class="text-3xl font-bold mt-1" style="color: var(--fg);">@sobranteAyer</p>
+            <p class="text-xs mt-1" style="color: var(--meta);">Conteo inicial del día</p>
+        </div>
+        <div class="kpi-card rounded-2xl p-5 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <p class="text-xs font-semibold uppercase tracking-wide" style="color: var(--muted);">Producido hoy</p>
+            <p class="text-3xl font-bold mt-1" style="color: var(--fg);">@totalProduccion</p>
+            <p class="text-xs mt-1" style="color: var(--meta);">Total de producción registrada</p>
+        </div>
+        <div class="kpi-card rounded-2xl p-5 shadow-ambient" style="background: var(--surface-container-lowest);">
+            <p class="text-xs font-semibold uppercase tracking-wide" style="color: var(--muted);">Devolución hoy</p>
+            <p class="text-3xl font-bold mt-1" style="color: var(--danger);">@totalDevolucion</p>
+            <p class="text-xs mt-1" style="color: var(--meta);">Total de devoluciones</p>
+        </div>
+    </div>
+
+    @* ── Action Cards ───────────────────────────────────────── *@
+    @if (!isClosed)
+    {
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button type="button" onclick="openEventModal('Inicial')"
+                    class="action-card rounded-2xl p-5 text-left shadow-ambient border-2 border-dashed transition-all"
+                    style="background: var(--surface-container-lowest); border-color: var(--surface-container-high);">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                     style="background: color-mix(in srgb, var(--tertiary) 12%, transparent);"><span class="text-xl">🌅</span></div>
+                <h3 class="font-semibold" style="color: var(--fg);">Inicial</h3>
+                <p class="text-xs mt-1" style="color: var(--meta);">Registrar conteo de la mañana</p>
+            </button>
+            <button type="button" onclick="openEventModal('Produccion')"
+                    class="action-card rounded-2xl p-5 text-left shadow-ambient border-2 border-dashed transition-all"
+                    style="background: var(--surface-container-lowest); border-color: var(--surface-container-high);">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                     style="background: color-mix(in srgb, var(--primary) 12%, transparent);"><span class="text-xl">🍞</span></div>
+                <h3 class="font-semibold" style="color: var(--fg);">Agregar producción</h3>
+                <p class="text-xs mt-1" style="color: var(--meta);">Registrar lote del horno</p>
+            </button>
+            <button type="button" onclick="openEventModal('Devolucion')"
+                    class="action-card rounded-2xl p-5 text-left shadow-ambient border-2 border-dashed transition-all"
+                    style="background: var(--surface-container-lowest); border-color: var(--surface-container-high);">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                     style="background: color-mix(in srgb, var(--danger) 12%, transparent);"><span class="text-xl">🔄</span></div>
+                <h3 class="font-semibold" style="color: var(--fg);">Devolución</h3>
+                <p class="text-xs mt-1" style="color: var(--meta);">Registrar devolución del mostrador</p>
+            </button>
+        </div>
+    }
+
+    @* ── Timeline ───────────────────────────────────────────── *@
+    <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
+        <div class="px-6 py-4 flex items-center justify-between" style="background: var(--surface-container-low);">
+            <h2 class="font-semibold flex items-center gap-2" style="color: var(--fg);">
+                <svg class="w-5 h-5" style="color: var(--muted);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.5"/><path stroke-linecap="round" stroke-width="1.5" d="M12 6v6l4 2"/></svg>
+                Timeline · Hoy
+            </h2>
+            <span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background: var(--surface-container-high); color: var(--fg-2);">
+                @(Model?.Events.Count ?? 0) registros
+            </span>
+        </div>
+        @if (Model?.Events is null || Model.Events.Count == 0)
+        {
+            <div class="px-6 py-12 text-center">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+                     style="background: var(--surface-container-low);">
+                    <svg class="w-6 h-6" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <p class="text-sm font-medium" style="color: var(--fg-2);">Sin registros todavía</p>
+                <p class="text-xs mt-1" style="color: var(--meta);">Usá los botones de arriba para comenzar el día</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr style="background: var(--surface-container-low);">
+                            <th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Hora</th>
+                            <th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Usuario</th>
+                            <th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Tipo</th>
+                            <th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Producto</th>
+                            <th class="px-6 py-2.5 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var evt in Model.Events.OrderBy(e => e.CreatedAt))
+                        {
+                            var typeIcon = evt.EventType switch
+                            {
+                                "Inicial" => "🌅",
+                                "Produccion" => "🍞",
+                                "Devolucion" => "🔄",
+                                _ => "📋"
+                            };
+                            var quantityColor = evt.EventType == "Devolucion" ? "var(--danger)" : "var(--fg)";
+                            var quantityPrefix = evt.EventType == "Devolucion" ? "−" : "+";
+
+                            <tr class="timeline-row">
+                                <td class="px-6 py-3 whitespace-nowrap" style="color: var(--meta);">
+                                    @evt.CreatedAt.ToString("HH:mm", new System.Globalization.CultureInfo("es-MX"))
+                                </td>
+                                <td class="px-6 py-3 whitespace-nowrap" style="color: var(--fg-2);">@evt.RegisteredByUserName</td>
+                                <td class="px-6 py-3 whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <span>@typeIcon</span>
+                                        <span style="color: var(--fg);">@evt.EventType</span>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 font-medium" style="color: var(--fg);">@evt.ProductName</td>
+                                <td class="px-6 py-3 text-right font-semibold tabular-nums whitespace-nowrap" style="color: @quantityColor;">@quantityPrefix@evt.Quantity</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@* ── Modal: Agregar evento ──────────────────────────────────── *@
+<div id="eventModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeEventModal()">
+    <div class="modal-panel p-6 space-y-4 mx-4" style="background: var(--surface-container-lowest);">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold" id="eventModalTitle" style="color: var(--fg);">Agregar</h3>
+            <button type="button" onclick="closeEventModal()" class="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style="background: var(--surface-container-high); color: var(--fg-2);">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form method="post" action="/registro-diario/event" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="EventType" id="eventTypeInput" />
+            <div>
+                <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Producto</label>
+                <select name="ProductId" required class="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2"
+                        style="background: var(--surface-container-high); color: var(--fg);"
+                        onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                        onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'">
+                    <option value="">Seleccionar producto...</option>
+                    @foreach (var p in products)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
+                </select>
+                <input type="hidden" name="ProductName" id="eventProductName" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Cantidad</label>
+                <input type="number" name="Quantity" required min="0.01" step="0.01"
+                       class="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
+                       placeholder="0.00" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium mb-1.5" style="color: var(--muted);">Nota (opcional)</label>
+                <input type="text" name="Notes" maxlength="500"
+                       class="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2"
+                       style="background: var(--surface-container-high); color: var(--fg);"
+                       onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
+                       onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
+                       placeholder="Ej: Primer lote del día" />
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" onclick="closeEventModal()"
+                        class="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                        style="background: var(--surface-container-high); color: var(--fg-2);">Cancelar</button>
+                <button type="submit"
+                        class="flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* ── Modal: Cerrar día ─────────────────────────────────────── *@
+<div id="closeDayModal" class="modal-backdrop hidden" onclick="if(event.target===this)document.getElementById('closeDayModal').classList.add('hidden')">
+    <div class="modal-panel p-6 space-y-5 mx-4 text-center" style="background: var(--surface-container-lowest);">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
+             style="background: color-mix(in srgb, var(--danger) 12%, transparent);">
+            <svg class="w-7 h-7" style="color: var(--danger);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L2.73 16.5C1.96 17.333 2.922 19 4.462 19z"/></svg>
+        </div>
+        <div>
+            <h3 class="text-lg font-semibold" style="color: var(--fg);">¿Cerrar el día?</h3>
+            <p class="text-sm mt-2" style="color: var(--fg-2);">
+                Se actualizará el inventario con la producción y devoluciones registradas.
+                <strong>Esta acción no se puede deshacer.</strong>
+            </p>
+        </div>
+        <div class="rounded-xl p-3 text-left text-xs space-y-1"
+             style="background: var(--surface-container-low); color: var(--fg-2);">
+            <p>📦 Producción a ingresar: <strong style="color: var(--fg);">@totalProduccion</strong></p>
+            <p>🔄 Devolución a descontar: <strong style="color: var(--danger);">@totalDevolucion</strong></p>
+        </div>
+        <div class="flex gap-3">
+            <button type="button" onclick="document.getElementById('closeDayModal').classList.add('hidden')"
+                    class="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all"
+                    style="background: var(--surface-container-high); color: var(--fg-2);">Cancelar</button>
+            <form method="post" action="/registro-diario/close" class="flex-1">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="w-full px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">Confirmar cierre</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEventModal(eventType) {
+        document.getElementById('eventTypeInput').value = eventType;
+        const titles = {
+            'Inicial': '🌅 Registrar conteo inicial',
+            'Produccion': '🍞 Agregar producción',
+            'Devolucion': '🔄 Registrar devolución'
+        };
+        document.getElementById('eventModalTitle').textContent = titles[eventType] || 'Agregar';
+        document.getElementById('eventModal').classList.remove('hidden');
+    }
+    function closeEventModal() { document.getElementById('eventModal').classList.add('hidden'); }
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.querySelector('#eventModal select[name="ProductId"]');
+        const nameInput = document.querySelector('#eventModal input[name="ProductName"]');
+        if (select && nameInput) {
+            select.addEventListener('change', function() {
+                nameInput.value = select.options[select.selectedIndex].text;
+            });
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEventModal();
+                document.getElementById('closeDayModal').classList.add('hidden');
+            }
+        });
+    });
+</script>

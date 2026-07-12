@@ -43,6 +43,7 @@ public class PanaDbContext : DbContext
     public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
     public DbSet<DailyProduction> DailyProductions => Set<DailyProduction>();
     public DbSet<DailyProductionLine> DailyProductionLines => Set<DailyProductionLine>();
+    public DbSet<ProductionEvent> ProductionEvents => Set<ProductionEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

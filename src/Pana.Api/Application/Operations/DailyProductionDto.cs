@@ -10,8 +10,38 @@ public record DailyProductionDto(
     bool IsClosed,
     DateTime? ClosedAt,
     List<DailyProductionLineDto> Lines,
+    List<ProductionEventDto> Events,
     DateTime CreatedAt,
     DateTime? UpdatedAt
+);
+
+// ── Event-based model (NEW — replaces line counters for UI) ──
+
+/// <summary>
+/// A single event in the daily production timeline.
+/// </summary>
+public record ProductionEventDto(
+    Guid Id,
+    Guid DailyProductionId,
+    Guid ProductId,
+    string ProductName,
+    string EventType,
+    decimal Quantity,
+    string? Notes,
+    Guid RegisteredByUserId,
+    string RegisteredByUserName,
+    DateTime CreatedAt
+);
+
+/// <summary>
+/// Request to add a single production event (inicial, produccion, or devolucion).
+/// </summary>
+public record AddProductionEventRequest(
+    Guid ProductId,
+    string ProductName,
+    string EventType,
+    decimal Quantity,
+    string? Notes
 );
 
 public record DailyProductionLineDto(

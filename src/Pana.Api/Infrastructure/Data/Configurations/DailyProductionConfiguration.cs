@@ -27,6 +27,11 @@ public class DailyProductionConfiguration : IEntityTypeConfiguration<DailyProduc
             .HasForeignKey(l => l.DailyProductionId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(d => d.Events)
+            .WithOne()
+            .HasForeignKey(e => e.DailyProductionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(d => new { d.TenantId, d.Date }).IsUnique();
         builder.HasIndex(d => d.DailyContextId);
     }
