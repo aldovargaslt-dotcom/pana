@@ -27,28 +27,6 @@
         /* ── Selection ──────────────────────────────── */
         ::selection { background: var(--primary); color: var(--on-primary); }
 
-        /* ── Global loading bar (HTMX-aware) ────────── */
-        #loading-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 2px;
-            z-index: 9999;
-            width: 0;
-            opacity: 0;
-            background: var(--gradient-primary);
-            transition: width .3s ease, opacity .15s ease;
-        }
-        #loading-bar.active {
-            width: 70%;
-            opacity: 1;
-        }
-        #loading-bar.done {
-            width: 100%;
-            opacity: 0;
-            transition: width .2s ease, opacity .3s ease .15s;
-        }
-
         /* ── HTMX animations ────────────────────────── */
         .htmx-indicator { display: none; }
         .htmx-request .htmx-indicator { display: inline-flex; }
@@ -470,9 +448,6 @@
       style="background-color: var(--bg); color: var(--fg);"
       x-data="appShell">
 
-    @* ── Global loading bar ───────────────────────────────── *@
-    <div id="loading-bar"></div>
-
     @* ═══════════════════════════════════════════════════════════
        SIDEBAR — Glass Morphism, collapsible (The Modern Hearth)
        ═══════════════════════════════════════════════════════════ *@
@@ -495,11 +470,8 @@
             </div>
         </div>
 
-        @* Navigation *@
-        <nav class="p-2 space-y-2">
-            @* ── Admin section ──────────────────────────────── *@
-            @if (User.IsInRole("Admin"))
-            {
+        @* Navigation — Square-style: 5 items, no divider *@
+        <nav class="p-2 space-y-1">
             <a href="/"
                class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
@@ -511,10 +483,25 @@
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Dashboard</span>
             </a>
+
+            @* ── VENDER — highlighted primary action ───────── *@
+            <a href="/pos"
+               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-all duration-200 shadow-ambient"
+               :class="sidebarExpanded ? '' : 'justify-center px-0'"
+               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/pos")
+                          ? "background: var(--gradient-primary); color: #fff;"
+                          : "background: var(--gradient-primary); color: #fff;")"
+               onmouseover="this.style.transform='scale(1.02)'"
+               onmouseout="this.style.transform='scale(1)'">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Vender</span>
+            </a>
+
+            @* ── PRODUCTOS — catalog hub ──────────────────── *@
             <a href="/products"
                class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
-               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/products")
+               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/products") || ViewContext.HttpContext.Request.Path.StartsWithSegments("/raw-materials") || ViewContext.HttpContext.Request.Path.StartsWithSegments("/recipes")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
@@ -522,45 +509,8 @@
                 <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 <span x-show="sidebarExpanded" x-transition.duration.200ms>Productos</span>
             </a>
-            <a href="/raw-materials"
-               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
-               :class="sidebarExpanded ? '' : 'justify-center px-0'"
-               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/raw-materials")
-                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
-                          : "color: var(--sidebar-fg);")"
-               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
-               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                <span x-show="sidebarExpanded" x-transition.duration.200ms>Materias Primas</span>
-            </a>
-            <a href="/recipes"
-               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
-               :class="sidebarExpanded ? '' : 'justify-center px-0'"
-               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/recipes")
-                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
-                          : "color: var(--sidebar-fg);")"
-               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
-               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                <span x-show="sidebarExpanded" x-transition.duration.200ms>Recetas</span>
-            </a>
-            <a href="/reports"
-               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
-               :class="sidebarExpanded ? '' : 'justify-center px-0'"
-               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/reports")
-                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
-                          : "color: var(--sidebar-fg);")"
-               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
-               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                <span x-show="sidebarExpanded" x-transition.duration.200ms>Reportes</span>
-            </a>
 
-            @* ── Divider ──────────────────────────────────── *@
-            <div class="my-3" style="border-top: 1px solid var(--sidebar-border);"></div>
-            }
-
-            @* ── Staff section (all roles) ──────────────────── *@
+            @* ── PRODUCCIÓN — daily register ──────────────── *@
             <a href="/inventory"
                class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
@@ -569,30 +519,23 @@
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                <span x-show="sidebarExpanded" x-transition.duration.200ms>Inventario</span>
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 7c-1-1.5-1-3.5 0-5m4 5c1-1.5 1-3.5 0-5M7 16c0-6 4-9 9-9s9 3 9 9M9 16v8a2 2 0 002 2h10a2 2 0 002-2v-8"/></svg>
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Producción</span>
             </a>
-            <a href="/pos"
+
+            @* ── REPORTES — analytics + history ───────────── *@
+            <a href="/reports"
                class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
                :class="sidebarExpanded ? '' : 'justify-center px-0'"
-               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/pos")
+               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/reports") || ViewContext.HttpContext.Request.Path.StartsWithSegments("/activity")
                           ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
                           : "color: var(--sidebar-fg);")"
                onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
                onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                <span x-show="sidebarExpanded" x-transition.duration.200ms>Punto de Venta</span>
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                <span x-show="sidebarExpanded" x-transition.duration.200ms>Reportes</span>
             </a>
-            <a href="/activity"
-               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200"
-               :class="sidebarExpanded ? '' : 'justify-center px-0'"
-               style="@(ViewContext.HttpContext.Request.Path.StartsWithSegments("/activity")
-                          ? "background: var(--sidebar-accent); color: var(--sidebar-fg-active);"
-                          : "color: var(--sidebar-fg);")"
-               onmouseover="if(!this.classList.contains('active')) this.style.background='rgba(28,28,25,0.04)'"
-               onmouseout="if(!this.classList.contains('active')) this.style.background='transparent'">
-                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                <span x-show="sidebarExpanded" x-transition.duration.200ms>Actividad</span>
+        </nav>
             </a>
         </nav>
 
@@ -627,7 +570,7 @@
 
         @* ── Top bar (glass morphism — The Modern Hearth) ──── *@
         <header class="sticky top-0 z-20 px-4 md:px-6 py-3 flex items-center justify-between"
-                style="background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); box-shadow: 0 1px 0 0 color-mix(in srgb, var(--fg) 5%, transparent);">
+                style="background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border-bottom: 1px solid var(--sidebar-border);">
             <button @@click="sidebarExpanded = !sidebarExpanded"
                     class="p-2 -ml-2 rounded-xl hover:bg-black/5 transition-colors" style="color: var(--fg-2);"
                     title="Toggle sidebar">
@@ -1051,16 +994,5 @@
     </script>
 
     @RenderSection("Scripts", required: false)
-    @* ── HTMX loading bar ─────────────────────────────── *@
-    <script>
-        document.body.addEventListener('htmx:beforeRequest', function() {
-            document.getElementById('loading-bar').classList.add('active');
-            document.getElementById('loading-bar').classList.remove('done');
-        });
-        document.body.addEventListener('htmx:afterRequest', function() {
-            document.getElementById('loading-bar').classList.add('done');
-            document.getElementById('loading-bar').classList.remove('active');
-        });
-    </script>
 </body>
 </html>

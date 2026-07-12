@@ -39,6 +39,13 @@
         </div>
     </div>
 
+    @* ── Catalog sub-navigation ─────────────────────────────── *@
+    <div class="flex items-center gap-2">
+        <a href="/products" class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200" style="color: var(--fg-2); background: var(--surface-container-low);" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='var(--surface-container-low)'">Productos</a>
+        <a href="/raw-materials" class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200" style="color: var(--fg-2); background: var(--surface-container-low);" onmouseover="this.style.background='var(--surface-container)'" onmouseout="this.style.background='var(--surface-container-low)'">Materias Primas</a>
+        <span class="px-4 py-2 rounded-xl text-sm font-semibold text-white shadow-ambient" style="background: var(--gradient-primary);">Recetas</span>
+    </div>
+
     @* ── Recipe Card Grid ───────────────────────────────────── *@
     <div id="recipe-grid"
          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
