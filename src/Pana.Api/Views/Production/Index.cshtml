@@ -29,14 +29,14 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Agregar producto
                 </button>
-                <button type="button" onclick="if(confirm('¿Confirmás el cierre del día? Se actualizará el inventario y no se podrá modificar.')){document.getElementById('close-day-form').submit()}"
+                <button type="button"
+                        onclick="window.dispatchEvent(new CustomEvent('pana-modal:open',{detail:{id:'closeDayModal'}}))"
                         class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
                                transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
-                        style="background: var(--gradient-primary);">
+                        style="background: var(--danger);">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     Cerrar día
                 </button>
-                <form method="post" action="/production/close" id="close-day-form" class="hidden"></form>
             }
         </div>
     </div>
@@ -174,6 +174,15 @@
             </div>
         </form>
     }
+</div>
+
+@* ── Close Day Confirmation Modal ──────────────────────────── *@
+<div x-data="panaModal('closeDayModal')" x-show="open" x-transition.opacity.duration.200ms class="pana-modal-backdrop" @@click.self="close" @@keydown.escape.window="close" aria-modal="true" role="dialog">
+<div class="pana-modal-panel p-6 space-y-5 text-center" @@click.stop x-transition.scale.origin.top.duration.200ms>
+<div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto" style="background:color-mix(in srgb,var(--danger) 12%,transparent)"><svg class="w-7 h-7" style="color:var(--danger)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L2.73 16.5C1.96 17.333 2.922 19 4.462 19z"/></svg></div>
+<div><h3 class="text-lg font-semibold" style="color:var(--fg)">¿Cerrar el día?</h3><p class="text-sm mt-2" style="color:var(--fg-2)">Se actualizará el inventario con la producción y devoluciones registradas. <strong>Esta acción no se puede deshacer.</strong></p></div>
+<div class="flex gap-3"><button type="button" @@click="close" class="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all" style="background:var(--surface-container-high);color:var(--fg-2)">Cancelar</button><form method="post" action="/production/close" class="flex-1">@Html.AntiForgeryToken()<button type="submit" class="w-full px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all shadow-ambient active:scale-[0.98]" style="background:var(--danger)">Confirmar cierre</button></form></div>
+</div>
 </div>
 
 @if (Model?.IsClosed != true)

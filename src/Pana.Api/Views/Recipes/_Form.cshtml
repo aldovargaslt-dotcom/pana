@@ -19,8 +19,8 @@
         </header>
 
         <form hx-post="@(Model.Id is null ? "/recipes/create" : $"/recipes/{Model.Id}/edit")"
-              hx-target="#table-body"
-              hx-swap="outerHTML"
+              hx-target="#recipe-grid"
+              hx-swap="innerHTML"
               class="space-y-4">
             @Html.AntiForgeryToken()
 

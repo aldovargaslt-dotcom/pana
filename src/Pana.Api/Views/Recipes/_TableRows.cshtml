@@ -1,75 +1,92 @@
+@* Recipes/_TableRows.cshtml — Card grid for HTMX search/refresh *@
 @model List<Pana.Api.Web.ViewModels.RecipeRowViewModel>
 
 @if (!Model.Any())
 {
-    <tr>
-        <td colspan="4" class="px-6 py-16 text-center">
-            <div class="flex flex-col items-center gap-3">
-                <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
-                    <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                </div>
-                <p class="font-medium" style="color: var(--meta);">No hay recetas aún</p>
-                <p class="text-xs" style="color: var(--meta);">Crea tu primera receta para calcular costos</p>
-            </div>
-        </td>
-    </tr>
+    <div class="col-span-full text-center py-16">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+             style="background: var(--surface-container);">
+            <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <p class="font-medium" style="color: var(--meta);">Sin resultados</p>
+        <p class="text-xs mt-1" style="color: var(--meta);">Intentá con otra búsqueda</p>
+    </div>
 }
 else
 {
     @foreach (var r in Model)
     {
-        <tr class="hover:bg-[var(--surface-container-low)] transition-colors group cursor-pointer"
-            onclick="window.location.href='/recipes/@r.Id'">
-            <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs"
-                         style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent), color-mix(in srgb, var(--primary) 10%, transparent)); color: var(--primary);">
-                        @r.Name[..Math.Min(2, r.Name.Length)].ToUpper()
-                    </div>
-                    <div>
-                        <p class="font-medium" style="color: var(--fg);">@r.Name</p>
-                    </div>
+        <div class="recipe-card group rounded-2xl p-5 shadow-ambient cursor-pointer transition-all duration-200
+                    hover:shadow-modal hover:-translate-y-0.5 fade-in"
+             style="background: var(--surface-container-lowest);"
+             id="recipe-card-@r.Id"
+             onclick="window.location.href='/recipes/@r.Id'">
+            @* Icon + yield info *@
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm"
+                     style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 8%, transparent), color-mix(in srgb, var(--primary) 16%, transparent)); color: var(--primary);">
+                    @r.Name[..Math.Min(2, r.Name.Length)].ToUpper()
                 </div>
-            </td>
-            <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@r.Yield.ToString("N0") @r.YieldUnit</td>
-            <td class="px-6 py-4 text-right font-mono font-medium" style="color: var(--fg);">
-                @if (r.IngredientCount == 0)
-                {
-                    <span style="color: var(--meta);">—</span>
-                }
-                else
-                {
-                    <span>$@r.TotalBatchCost.ToString("N2")</span>
-                }
-            </td>
-            <td class="px-6 py-4 text-right font-mono font-semibold" style="color: var(--primary);">
-                @if (r.IngredientCount == 0)
-                {
-                    <span style="color: var(--meta);">—</span>
-                }
-                else
-                {
-                    <span>$@r.CostPerUnit.ToString("N2")</span>
-                }
-                <div class="flex justify-end gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                      style="background: var(--surface-container-high); color: var(--fg-2);">
+                    @r.Yield.ToString("N0") @r.YieldUnit
+                </span>
+            </div>
+
+            @* Recipe name *@
+            <h3 class="font-semibold text-lg mb-1" style="color: var(--fg);">@r.Name</h3>
+            <p class="text-xs mb-3" style="color: var(--meta);">@r.IngredientCount ingredientes</p>
+
+            @* Cost per unit — THE hero number *@
+            <div class="flex items-baseline gap-1 mb-3">
+                <span class="text-2xl font-bold" style="color: var(--primary);">
+                    @if (r.IngredientCount == 0)
+                    {
+                        <span style="color: var(--meta);">—</span>
+                    }
+                    else
+                    {
+                        <span>$@r.CostPerUnit.ToString("N2")</span>
+                    }
+                </span>
+                <span class="text-sm" style="color: var(--muted);">/ unidad</span>
+            </div>
+
+            @* Footer: batch cost + hover actions *@
+            <div class="flex items-center justify-between pt-3"
+                 style="border-top: 1px solid var(--surface-container-high);">
+                <span class="text-xs" style="color: var(--muted);">
+                    Lote: 
+                    @if (r.IngredientCount == 0)
+                    {
+                        <span style="color: var(--meta);">—</span>
+                    }
+                    else
+                    {
+                        <span class="font-mono font-medium" style="color: var(--fg);">$@r.TotalBatchCost.ToString("N2")</span>
+                    }
+                </span>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150" onclick="event.stopPropagation()">
                     <button hx-get="/recipes/@r.Id/edit-form"
                             hx-target="#modal-container"
-                            class="text-xs px-2 py-1 rounded-lg transition-colors"
+                            class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
                             style="color: var(--fg-2);"
                             onmouseover="this.style.background='var(--surface-container)'"
                             onmouseout="this.style.background='transparent'">
                         Editar
                     </button>
                     <button hx-delete="/recipes/@r.Id"
-                            hx-confirm="¿Desactivar esta receta?"
-                            class="text-xs px-2 py-1 rounded-lg transition-colors"
+                            hx-confirm="¿Eliminar esta receta?"
+                            hx-target="#recipe-card-@r.Id"
+                            hx-swap="delete swap:0.3s"
+                            class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
                             style="color: var(--danger);"
-                            onmouseover="this.style.background='var(--primary-fixed)'"
+                            onmouseover="this.style.background='color-mix(in srgb, var(--danger) 8%, transparent)'"
                             onmouseout="this.style.background='transparent'">
                         Eliminar
                     </button>
                 </div>
-            </td>
-        </tr>
+            </div>
+        </div>
     }
 }

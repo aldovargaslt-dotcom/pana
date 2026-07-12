@@ -1,9 +1,10 @@
+@* Recipes/Index.cshtml — Square-style card grid v2 *@
 @model Pana.Api.Web.ViewModels.RecipeListViewModel
 @{
     ViewData["Title"] = "Recetas";
 }
 
-<div class="content-area space-y-5">
+<div class="content-area space-y-5 fade-in">
 
     @* ── Header ─────────────────────────────────────────────── *@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -19,8 +20,8 @@
                 <input type="search" name="q" placeholder="Buscar recetas..."
                        hx-get="/recipes/table-rows"
                        hx-trigger="keyup changed delay:300ms"
-                       hx-target="#table-body"
-                       hx-indicator="#table-body"
+                       hx-target="#recipe-grid"
+                       hx-indicator="#recipe-grid"
                        class="pl-9 pr-4 py-2.5 rounded-xl text-sm
                               focus:outline-none focus:ring-2 w-48 sm:w-64 transition-all duration-200"
                        style="background: var(--surface-container-high); color: var(--fg);"
@@ -29,88 +30,124 @@
             </div>
             <button hx-get="/recipes/create-form"
                     hx-target="#modal-container"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
-                           transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                    class="inline-flex items-center gap-2 px-5 py-3 text-white text-sm font-semibold rounded-xl
+                           transition-all duration-200 shadow-ambient hover:shadow-modal active:scale-[0.98]"
                     style="background: var(--gradient-primary);">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Nueva
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nueva receta
             </button>
         </div>
     </div>
 
-    @* ── Table ──────────────────────────────────────────────── *@
-    <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr style="background: var(--surface-container-low);">
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Receta</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Rendimiento</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Costo total</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Costo / unidad</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body" class="table-tonal"
-                       hx-get="/recipes/table-rows" hx-trigger="recipe-created from:body">
-                    @if (!Model.Recipes.Any())
-                    {
-                        <tr>
-                            <td colspan="4" class="px-6 py-16 text-center">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
-                                        <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                                    </div>
-                                    <p class="font-medium" style="color: var(--meta);">No hay recetas aún</p>
-                                    <p class="text-xs" style="color: var(--meta);">Crea tu primera receta para calcular costos</p>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        @foreach (var r in Model.Recipes)
-                        {
-                            <tr class="hover:bg-[var(--surface-container-low)] transition-colors group cursor-pointer"
-                                onclick="window.location.href='/recipes/@r.Id'">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs"
-                                             style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent), color-mix(in srgb, var(--primary) 10%, transparent)); color: var(--primary);">
-                                            @r.Name[..Math.Min(2, r.Name.Length)].ToUpper()
-                                        </div>
-                                        <div>
-                                            <p class="font-medium" style="color: var(--fg);">@r.Name</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-right" style="color: var(--fg-2);">@r.Yield.ToString("N0") @r.YieldUnit</td>
-                                <td class="px-6 py-4 text-right font-mono font-medium" style="color: var(--fg);">$@r.TotalBatchCost.ToString("N2")</td>
-                                <td class="px-6 py-4 text-right font-mono font-semibold" style="color: var(--primary);">
-                                    $@r.CostPerUnit.ToString("N2")
-                                    <div class="flex justify-end gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" onclick="event.stopPropagation()">
-                                        <button hx-get="/recipes/@r.Id/edit-form"
-                                                hx-target="#modal-container"
-                                                class="text-xs px-2 py-1 rounded-lg transition-colors"
-                                                style="color: var(--fg-2);"
-                                                onmouseover="this.style.background='var(--surface-container)'"
-                                                onmouseout="this.style.background='transparent'">
-                                            Editar
-                                        </button>
-                                        <button hx-delete="/recipes/@r.Id"
-                                                hx-confirm="¿Desactivar esta receta?"
-                                                class="text-xs px-2 py-1 rounded-lg transition-colors"
-                                                style="color: var(--danger);"
-                                                onmouseover="this.style.background='var(--primary-fixed)'"
-                                                onmouseout="this.style.background='transparent'">
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
+    @* ── Recipe Card Grid ───────────────────────────────────── *@
+    <div id="recipe-grid"
+         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+         hx-get="/recipes/table-rows" hx-trigger="recipe-created from:body">
+        @if (!Model.Recipes.Any())
+        {
+            <div class="col-span-full text-center py-20">
+                <div class="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5"
+                     style="background: var(--surface-container);">
+                    <svg class="w-10 h-10" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                </div>
+                <h2 class="text-lg font-semibold" style="color: var(--fg);">No hay recetas aún</h2>
+                <p class="text-sm mt-2" style="color: var(--muted);">Creá tu primera receta para calcular costos</p>
+                <button hx-get="/recipes/create-form"
+                        hx-target="#modal-container"
+                        class="inline-flex items-center gap-2 mt-5 px-6 py-3 text-white text-sm font-semibold rounded-xl
+                               transition-all duration-200 shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Nueva receta
+                </button>
+            </div>
+        }
+        else
+        {
+            @foreach (var r in Model.Recipes)
+            {
+                <div class="recipe-card group rounded-2xl p-5 shadow-ambient cursor-pointer transition-all duration-200
+                            hover:shadow-modal hover:-translate-y-0.5"
+                     style="background: var(--surface-container-lowest);"
+                     id="recipe-card-@r.Id"
+                     onclick="window.location.href='/recipes/@r.Id'">
+                    @* Icon + yield info *@
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm"
+                             style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 8%, transparent), color-mix(in srgb, var(--primary) 16%, transparent)); color: var(--primary);">
+                            @r.Name[..Math.Min(2, r.Name.Length)].ToUpper()
+                        </div>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                              style="background: var(--surface-container-high); color: var(--fg-2);">
+                            @r.Yield.ToString("N0") @r.YieldUnit
+                        </span>
+                    </div>
+
+                    @* Recipe name *@
+                    <h3 class="font-semibold text-lg mb-1" style="color: var(--fg);">@r.Name</h3>
+                    <p class="text-xs mb-3" style="color: var(--meta);">@r.IngredientCount ingredientes</p>
+
+                    @* Cost per unit — THE hero number *@
+                    <div class="flex items-baseline gap-1 mb-3">
+                        <span class="text-2xl font-bold" style="color: var(--primary);">
+                            @if (r.IngredientCount == 0)
+                            {
+                                <span style="color: var(--meta);">—</span>
+                            }
+                            else
+                            {
+                                <span>$@r.CostPerUnit.ToString("N2")</span>
+                            }
+                        </span>
+                        <span class="text-sm" style="color: var(--muted);">/ unidad</span>
+                    </div>
+
+                    @* Footer: batch cost + hover actions *@
+                    <div class="flex items-center justify-between pt-3"
+                         style="border-top: 1px solid var(--surface-container-high);">
+                        <span class="text-xs" style="color: var(--muted);">
+                            Lote: 
+                            @if (r.IngredientCount == 0)
+                            {
+                                <span style="color: var(--meta);">—</span>
+                            }
+                            else
+                            {
+                                <span class="font-mono font-medium" style="color: var(--fg);">$@r.TotalBatchCost.ToString("N2")</span>
+                            }
+                        </span>
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150" onclick="event.stopPropagation()">
+                            <button hx-get="/recipes/@r.Id/edit-form"
+                                    hx-target="#modal-container"
+                                    class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                                    style="color: var(--fg-2);"
+                                    onmouseover="this.style.background='var(--surface-container)'"
+                                    onmouseout="this.style.background='transparent'">
+                                Editar
+                            </button>
+                            <button hx-delete="/recipes/@r.Id"
+                                    hx-confirm="¿Eliminar esta receta?"
+                                    hx-target="#recipe-card-@r.Id"
+                                    hx-swap="delete swap:0.3s"
+                                    class="px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                                    style="color: var(--danger);"
+                                    onmouseover="this.style.background='color-mix(in srgb, var(--danger) 8%, transparent)'"
+                                    onmouseout="this.style.background='transparent'">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
     </div>
+
+    @* ── Footer ─────────────────────────────────────────────── *@
+    <div class="flex items-center justify-between text-sm">
+        <span style="color: var(--meta);">@Model.Recipes.Count de @Model.TotalCount recetas</span>
+        <a href="/" class="font-medium transition-colors" style="color: var(--primary);">← Dashboard</a>
+    </div>
+
 </div>
+
+<div id="modal-container"></div>
