@@ -52,6 +52,10 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.UpdatedAt)
             .HasColumnName("updated_at");
 
+        builder.Property(p => p.ImageUrl)
+            .HasColumnName("image_url")
+            .HasMaxLength(500);
+
         builder.HasIndex(p => new { p.TenantId, p.Sku }).IsUnique();
         builder.HasIndex(p => p.TenantId);
     }
