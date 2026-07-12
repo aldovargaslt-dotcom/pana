@@ -27,6 +27,28 @@
         /* ── Selection ──────────────────────────────── */
         ::selection { background: var(--primary); color: var(--on-primary); }
 
+        /* ── Global loading bar (HTMX-aware) ────────── */
+        #loading-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            z-index: 9999;
+            width: 0;
+            opacity: 0;
+            background: var(--gradient-primary);
+            transition: width .3s ease, opacity .15s ease;
+        }
+        #loading-bar.active {
+            width: 70%;
+            opacity: 1;
+        }
+        #loading-bar.done {
+            width: 100%;
+            opacity: 0;
+            transition: width .2s ease, opacity .3s ease .15s;
+        }
+
         /* ── HTMX animations ────────────────────────── */
         .htmx-indicator { display: none; }
         .htmx-request .htmx-indicator { display: inline-flex; }
@@ -447,6 +469,9 @@
 <body class="min-h-screen font-sans antialiased"
       style="background-color: var(--bg); color: var(--fg);"
       x-data="appShell">
+
+    @* ── Global loading bar ───────────────────────────────── *@
+    <div id="loading-bar"></div>
 
     @* ═══════════════════════════════════════════════════════════
        SIDEBAR — Glass Morphism, collapsible (The Modern Hearth)
@@ -1026,5 +1051,16 @@
     </script>
 
     @RenderSection("Scripts", required: false)
+    @* ── HTMX loading bar ─────────────────────────────── *@
+    <script>
+        document.body.addEventListener('htmx:beforeRequest', function() {
+            document.getElementById('loading-bar').classList.add('active');
+            document.getElementById('loading-bar').classList.remove('done');
+        });
+        document.body.addEventListener('htmx:afterRequest', function() {
+            document.getElementById('loading-bar').classList.add('done');
+            document.getElementById('loading-bar').classList.remove('active');
+        });
+    </script>
 </body>
 </html>
