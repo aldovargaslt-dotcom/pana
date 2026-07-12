@@ -54,56 +54,65 @@
 
     @* ── Recent Records ─────────────────────────────────────── *@
     <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
-        <div class="px-6 py-4" style="background: var(--surface-container-low);">
+        <div class="px-6 py-4 flex items-center justify-between" style="background: var(--surface-container-low);">
             <h2 class="font-semibold" style="color: var(--fg);">Registros recientes</h2>
+            @if (Model.RecentRecords.Any())
+            {
+                <span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background: var(--surface-container-high); color: var(--fg-2);">@Model.RecentRecords.Count registros</span>
+            }
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr style="background: var(--surface-container-low);">
-                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Producto</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Categoría</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Cantidad</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Motivo</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Fecha</th>
-                    </tr>
-                </thead>
-                <tbody id="waste-table-body" class="table-tonal"
-                       hx-get="/waste/table-rows" hx-trigger="waste-recorded from:body">
-                    @if (!Model.RecentRecords.Any())
-                    {
-                        <tr>
-                            <td colspan="5" class="px-6 py-16 text-center">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
-                                        <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    </div>
-                                    <p class="font-medium" style="color: var(--meta);">Sin registros aún</p>
-                                    <p class="text-xs" style="color: var(--meta);">Registrá tu primer desperdicio</p>
-                                </div>
-                            </td>
+        @if (!Model.RecentRecords.Any())
+        {
+            <div class="px-6 py-16 text-center">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3" style="background: var(--surface-container);">
+                    <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </div>
+                <p class="font-medium" style="color: var(--meta);">Sin registros aún</p>
+                <p class="text-xs mt-1" style="color: var(--meta);">Registrá tu primer desperdicio</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr style="background: var(--surface-container-low);">
+                            <th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Producto</th>
+                            <th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color: var(--muted);">Categoría</th>
+                            <th class="px-6 py-2.5 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Cantidad</th>
+                            <th class="px-6 py-2.5 text-right text-xs font-semibold uppercase" style="color: var(--muted);">Fecha</th>
                         </tr>
-                    }
-                    else
-                    {
+                    </thead>
+                    <tbody id="waste-table-body" class="table-tonal"
+                           hx-get="/waste/table-rows" hx-trigger="waste-recorded from:body">
                         @foreach (var r in Model.RecentRecords)
                         {
                             <tr class="transition-colors" onmouseover="this.style.background='var(--surface-container-low)'" onmouseout="this.style.background='transparent'">
-                                <td class="px-6 py-3 font-medium" style="color: var(--fg);">@r.ProductName</td>
+                                <td class="px-6 py-3">
+                                    <p class="font-medium" style="color: var(--fg);">@r.ProductName</p>
+                                    @if (!string.IsNullOrEmpty(r.Reason))
+                                    {
+                                        <p class="text-xs mt-0.5" style="color: var(--meta);">@r.Reason</p>
+                                    }
+                                </td>
                                 <td class="px-6 py-3">
                                     <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full"
                                           style="color: var(--danger); background: color-mix(in srgb, var(--danger) 12%, transparent);">
                                         @r.CategoryName
                                     </span>
                                 </td>
-                                <td class="px-6 py-3 text-right font-medium" style="color: var(--danger);">@r.Quantity</td>
-                                <td class="px-6 py-3" style="color: var(--muted);">@(r.Reason ?? "—")</td>
-                                <td class="px-6 py-3 text-right text-xs" style="color: var(--meta);">@r.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="px-6 py-3 text-right">
+                                    <span class="inline-flex items-center gap-1 font-semibold" style="color: var(--danger);">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                        @r.Quantity
+                                    </span>
+                                </td>
+                                <td class="px-6 py-3 text-right text-xs" style="color: var(--meta);">@r.CreatedAt.ToString("dd/MM HH:mm")</td>
                             </tr>
                         }
-                    }
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>
