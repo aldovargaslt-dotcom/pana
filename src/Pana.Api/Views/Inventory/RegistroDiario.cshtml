@@ -55,11 +55,9 @@
     class="pos-action-card rounded-2xl p-4 text-center shadow-ambient flex flex-col items-center justify-center gap-2"
     style="background:var(--surface-container);color:var(--fg)">
     <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="16" cy="18" r="5"/>
-        <path d="M16 4v8"/>
-        <path d="M10 12h12"/>
-        <path d="M8 22c-2-1-3-3-3-5"/>
-        <path d="M24 22c2-1 3-3 3-5"/>
+        <rect x="6" y="5" width="20" height="23" rx="2"/>
+        <path d="M12 3v4m8-4v4"/>
+        <path d="M10 14h12m-12 4h12m-12 4h8"/>
     </svg>
     <div>
         <p class="font-semibold text-sm leading-tight">Inicial</p>
@@ -71,9 +69,10 @@
     class="pos-action-card rounded-2xl p-4 text-center shadow-ambient flex flex-col items-center justify-center gap-2"
     style="background:var(--primary-fixed);color:var(--primary)">
     <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <ellipse cx="16" cy="16" rx="10" ry="7"/>
-        <path d="M6 16c0-4 4-7 10-7s10 3 10 7"/>
-        <path d="M11 13h3m-2 3h2"/>
+        <path d="M8 28V16c0-6 4-10 8-10s8 4 8 10v12"/>
+        <path d="M6 16h20"/>
+        <path d="M16 6c-2 0-4 2-4 4m4-4c2 0 4 2 4 4"/>
+        <path d="M14 22c.5 2 1 2 2 2s1.5 0 2-2"/>
     </svg>
     <div>
         <p class="font-semibold text-sm leading-tight">Producción</p>
@@ -85,10 +84,9 @@
     class="pos-action-card rounded-2xl p-4 text-center shadow-ambient flex flex-col items-center justify-center gap-2"
     style="background:color-mix(in srgb,var(--danger) 6%,var(--surface-container-lowest));color:var(--danger)">
     <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 10l4-4 4 4"/>
-        <path d="M12 6v10a5 5 0 005 5h0a5 5 0 005-5v-3"/>
-        <path d="M24 20l-4 4-4-4"/>
-        <path d="M20 24V11"/>
+        <path d="M8 16l-4 4 4 4"/>
+        <path d="M4 20h16a8 8 0 100-16h-4"/>
+        <path d="M12 4l-4 4 4 4"/>
     </svg>
     <div>
         <p class="font-semibold text-sm leading-tight">Devolución</p>
@@ -107,10 +105,10 @@ else
 <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr style="background:var(--surface-container-low)"><th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color:var(--muted)">Hora</th><th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color:var(--muted)">Usuario</th><th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color:var(--muted)">Tipo</th><th class="px-6 py-2.5 text-left text-xs font-semibold uppercase" style="color:var(--muted)">Producto</th><th class="px-6 py-2.5 text-right text-xs font-semibold uppercase" style="color:var(--muted)">Cantidad</th></tr></thead><tbody>
 @foreach (var evt in Model.Events.OrderBy(e => e.CreatedAt))
 {
-var typeIcon = evt.EventType switch { "Inicial" => "🌅", "Produccion" => "🍞", "Devolucion" => "🔄", _ => "📋" };
+var typeColor = evt.EventType switch { "Inicial" => "var(--muted)", "Produccion" => "var(--primary)", "Devolucion" => "var(--danger)", _ => "var(--muted)" };
 var qtyColor = evt.EventType == "Devolucion" ? "var(--danger)" : "var(--fg)";
 var prefix = evt.EventType == "Devolucion" ? "−" : "+";
-<tr class="timeline-row"><td class="px-6 py-3 whitespace-nowrap" style="color:var(--meta)">@evt.CreatedAt.ToString("HH:mm", new System.Globalization.CultureInfo("es-MX"))</td><td class="px-6 py-3 whitespace-nowrap" style="color:var(--fg-2)">@evt.RegisteredByUserName</td><td class="px-6 py-3 whitespace-nowrap"><span class="inline-flex items-center gap-1.5"><span>@typeIcon</span><span style="color:var(--fg)">@evt.EventType</span></span></td><td class="px-6 py-3 font-medium" style="color:var(--fg)">@evt.ProductName</td><td class="px-6 py-3 text-right font-semibold tabular-nums whitespace-nowrap" style="color:@qtyColor">@prefix@evt.Quantity</td></tr>
+<tr class="timeline-row"><td class="px-6 py-3 whitespace-nowrap" style="color:var(--meta)">@evt.CreatedAt.ToString("HH:mm", new System.Globalization.CultureInfo("es-MX"))</td><td class="px-6 py-3 whitespace-nowrap" style="color:var(--fg-2)">@evt.RegisteredByUserName</td><td class="px-6 py-3 whitespace-nowrap"><span class="inline-flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:@typeColor">@(evt.EventType switch { "Inicial" => @Html.Raw("<rect x='6' y='5' width='20' height='23' rx='2'/><path d='M12 3v4m8-4v4'/><path d='M10 14h12m-12 4h12m-12 4h8'/>"), "Produccion" => @Html.Raw("<path d='M8 28V16c0-6 4-10 8-10s8 4 8 10v12'/><path d='M6 16h20'/><path d='M16 6c-2 0-4 2-4 4m4-4c2 0 4 2 4 4'/><path d='M14 22c.5 2 1 2 2 2s1.5 0 2-2'/>"), "Devolucion" => @Html.Raw("<path d='M8 16l-4 4 4 4'/><path d='M4 20h16a8 8 0 100-16h-4'/><path d='M12 4l-4 4 4 4'/>"), _ => @Html.Raw("<circle cx='16' cy='16' r='10'/><path d='M16 10v6l3 3'/>") })</svg><span style="color:var(--fg)">@evt.EventType</span></span></td><td class="px-6 py-3 font-medium" style="color:var(--fg)">@evt.ProductName</td><td class="px-6 py-3 text-right font-semibold tabular-nums whitespace-nowrap" style="color:@qtyColor">@prefix@((int)evt.Quantity)</td></tr>
 }
 </tbody></table></div>
 }
@@ -126,7 +124,7 @@ var prefix = evt.EventType == "Devolucion" ? "−" : "+";
 <div><label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">Producto</label><div x-data="panaSelect" class="pana-select-wrapper"><select x-ref="native" name="ProductId" required class="sr-only"><option value="">Seleccionar producto...</option>
 @Html.Raw(ViewBag.ProductOptions)
 </select><button type="button" x-ref="trigger" @@click="toggle" @@keydown="onTriggerKey" class="pana-select-trigger" :class="{ 'pana-select-trigger-open': open }"><span x-text="displayText" :class="{ 'text-muted': !value }"></span><svg class="pana-select-chevron" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg></button><div x-show="open" x-transition @@click.outside="close" x-ref="dropdown" class="pana-select-dropdown" :style="dropdownStyle" @@keydown="onDropdownKey"><div class="pana-select-search"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35" stroke-linecap="round"/></svg><input x-ref="search" x-model="query" @@keydown="onSearchKey" placeholder="Buscar..." autocomplete="off"></div><div x-ref="optionsList" class="pana-select-options"><template x-for="(opt, i) in filteredOptions" :key="opt.value"><div @@click="select(opt)" @@keydown="onOptionKey($event, opt, i)" @@mouseenter="highlightIndex = i" tabindex="0" class="pana-select-option" :class="{ 'pana-select-option-selected': opt.value === value, 'pana-select-option-highlighted': highlightIndex === i }"><span x-text="opt.label"></span><svg x-show="opt.value === value" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></div></template><div x-show="filteredOptions.length === 0" class="pana-select-empty">Sin resultados</div></div></div></div><input type="hidden" name="ProductName" id="eventProductName"/></div>
-<div><label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">Cantidad</label><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDown()" style="border-radius:0.75rem 0 0 0.75rem">−</button><input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]*" id="qtyInput" name="Quantity" required class="flex-1 min-w-0 text-center font-semibold text-base px-1 py-3 focus:outline-none" style="background:var(--surface-container-high);color:var(--fg);caret-color:var(--primary)" value="1" placeholder="0.00" autocomplete="off" onfocus="this.select()"/><button type="button" class="stepper-btn" onclick="stepperUp()" style="border-radius:0 0.75rem 0.75rem 0">+</button></div><div class="flex gap-2 mt-2"><button type="button" onclick="addToQty(1)" class="quick-add-btn">+1</button><button type="button" onclick="addToQty(5)" class="quick-add-btn">+5</button><button type="button" onclick="addToQty(10)" class="quick-add-btn">+10</button></div></div>
+<div><label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">Cantidad</label><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDown()" style="border-radius:0.75rem 0 0 0.75rem">−</button><input type="text" inputmode="numeric" pattern="[0-9]*" id="qtyInput" name="Quantity" required class="flex-1 min-w-0 text-center font-semibold text-base px-1 py-3 focus:outline-none" style="background:var(--surface-container-high);color:var(--fg);caret-color:var(--primary)" value="1" placeholder="0" autocomplete="off" onfocus="this.select()"/><button type="button" class="stepper-btn" onclick="stepperUp()" style="border-radius:0 0.75rem 0.75rem 0">+</button></div><div class="flex gap-2 mt-2"><button type="button" onclick="addToQty(1)" class="quick-add-btn">+1</button><button type="button" onclick="addToQty(5)" class="quick-add-btn">+5</button><button type="button" onclick="addToQty(10)" class="quick-add-btn">+10</button></div></div>
 <div><label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">Nota (opcional)</label><input type="text" name="Notes" maxlength="500" class="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2" style="background:var(--surface-container-high);color:var(--fg)" onfocus="this.style.background='var(--primary-fixed)';this.style.boxShadow='0 0 0 2px color-mix(in srgb,var(--primary) 20%,transparent)'" onblur="this.style.background='var(--surface-container-high)';this.style.boxShadow='none'" placeholder="Ej: Primer lote del día"/></div>
 <div class="flex gap-3 pt-2"><button type="button" @@click="close" class="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all" style="background:var(--surface-container-high);color:var(--fg-2)">Cancelar</button><button type="submit" class="flex-1 px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all shadow-ambient active:scale-[0.98]" style="background:var(--gradient-primary)">Guardar</button></div>
 </form>
@@ -137,16 +135,16 @@ var prefix = evt.EventType == "Devolucion" ? "−" : "+";
 <div class="pana-modal-panel p-6 space-y-5 text-center" @@click.stop x-transition.scale.origin.top.duration.200ms>
 <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto" style="background:color-mix(in srgb,var(--danger) 12%,transparent)"><svg class="w-7 h-7" style="color:var(--danger)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L2.73 16.5C1.96 17.333 2.922 19 4.462 19z"/></svg></div>
 <div><h3 class="text-lg font-semibold" style="color:var(--fg)">¿Cerrar el día?</h3><p class="text-sm mt-2" style="color:var(--fg-2)">Se actualizará el inventario con la producción y devoluciones registradas. <strong>Esta acción no se puede deshacer.</strong></p></div>
-<div class="rounded-xl p-3 text-left text-xs space-y-1" style="background:var(--surface-container-low);color:var(--fg-2)"><p>📦 Producción a ingresar: <strong style="color:var(--fg)">@totalProduccion</strong></p><p>🔄 Devolución a descontar: <strong style="color:var(--danger)">@totalDevolucion</strong></p></div>
+<div class="rounded-xl p-3 text-left text-xs space-y-1" style="background:var(--surface-container-low);color:var(--fg-2)"><p><svg class="w-4 h-4 inline-block mr-1 -mt-0.5" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--fg)"><path d="M8 28V16c0-6 4-10 8-10s8 4 8 10v12"/><path d="M6 16h20"/></svg> Producción a ingresar: <strong style="color:var(--fg)">@((int)totalProduccion)</strong></p><p><svg class="w-4 h-4 inline-block mr-1 -mt-0.5" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--danger)"><path d="M8 16l-4 4 4 4"/><path d="M4 20h16a8 8 0 100-16h-4"/><path d="M12 4l-4 4 4 4"/></svg> Devolución a descontar: <strong style="color:var(--danger)">@((int)totalDevolucion)</strong></p></div>
 <div class="flex gap-3"><button type="button" @@click="close" class="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all" style="background:var(--surface-container-high);color:var(--fg-2)">Cancelar</button><form method="post" action="/inventory/close" class="flex-1">@Html.AntiForgeryToken()<button type="submit" class="w-full px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all shadow-ambient active:scale-[0.98]" style="background:var(--gradient-primary)">Confirmar cierre</button></form></div>
 </div>
 </div>
 
 <script>
-function openEventModal(et){document.getElementById('eventTypeInput').value=et;var t={'Inicial':'🌅 Registrar conteo inicial','Produccion':'🍞 Agregar producción','Devolucion':'🔄 Registrar devolución'};document.getElementById('eventModalTitle').textContent=t[et]||'Agregar';window.dispatchEvent(new CustomEvent('pana-modal:open',{detail:{id:'eventModal'}}));document.getElementById('qtyInput').value=1;}
+function openEventModal(et){document.getElementById('eventTypeInput').value=et;var t={'Inicial':'Registrar conteo inicial','Produccion':'Agregar producción','Devolucion':'Registrar devolución'};document.getElementById('eventModalTitle').textContent=t[et]||'Agregar';window.dispatchEvent(new CustomEvent('pana-modal:open',{detail:{id:'eventModal'}}));document.getElementById('qtyInput').value=1;}
 function closeEventModal(){window.dispatchEvent(new CustomEvent('pana-modal:close',{detail:{id:'eventModal'}}));}
-function stepperUp(){var i=document.getElementById('qtyInput');i.value=((parseFloat(i.value)||0)+1).toFixed(2);}
-function stepperDown(){var i=document.getElementById('qtyInput');var v=parseFloat(i.value)||0;if(v>0.01)i.value=(v-1).toFixed(2);}
-function addToQty(n){var i=document.getElementById('qtyInput');i.value=((parseFloat(i.value)||0)+n).toFixed(2);}
+function stepperUp(){var i=document.getElementById('qtyInput');i.value=(parseInt(i.value)||0)+1;}
+function stepperDown(){var i=document.getElementById('qtyInput');var v=parseInt(i.value)||0;if(v>1)i.value=v-1;}
+function addToQty(n){var i=document.getElementById('qtyInput');i.value=(parseInt(i.value)||0)+n;}
 document.addEventListener('DOMContentLoaded',function(){var s=document.querySelector('[x-data*="eventModal"] select[name="ProductId"]');var n=document.querySelector('[x-data*="eventModal"] input[name="ProductName"]');if(s&&n){s.addEventListener('change',function(){n.value=s.options[s.selectedIndex].text;});}});
 </script>
