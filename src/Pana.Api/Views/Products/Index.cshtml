@@ -77,10 +77,22 @@
                             hover:shadow-modal hover:-translate-y-0.5"
                      style="background: var(--surface-container-lowest);"
                      id="product-card-@p.Id">
-                    @* Product image placeholder *@
-                    <div class="w-full aspect-[4/3] rounded-xl mb-4 flex items-center justify-center relative overflow-hidden"
-                         style="background: linear-gradient(135deg, var(--surface-container-low), var(--surface-container));">
-                        <svg class="w-12 h-12" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    @* Product image — bakery-themed placeholder *@
+                    @{
+                        var prodColors = new[] {
+                            ("#c44b3c", "#f0c9b0"), ("#d4982a", "#fce4b8"),
+                            ("#a0522d", "#e8c9a0"), ("#8b6b3c", "#dcc8a0"),
+                            ("#b85c38", "#f0d0b8"), ("#9e7c4a", "#e8d5b8"),
+                            ("#c4784a", "#f5dcc8"), ("#7a5c3c", "#d4c0a0")
+                        };
+                        var prodColorIdx = Math.Abs(p.Name.GetHashCode()) % prodColors.Length;
+                        var (prodBg, prodFg) = prodColors[prodColorIdx];
+                        var prodInit = p.Name.Length >= 2 ? p.Name[..2].ToUpper() : p.Name.ToUpper();
+                    }
+                    <div class="w-full aspect-square rounded-xl mb-4 flex items-center justify-center relative overflow-hidden"
+                         style="background: linear-gradient(135deg, @prodBg, @prodFg);">
+                        <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
+                        <span class="relative text-4xl font-extrabold tracking-tight opacity-80 select-none" style="color: @prodBg; filter: brightness(0.4);">@prodInit</span>
                         @* Quick actions overlay on hover *@
                         <div class="absolute inset-0 flex items-center justify-center gap-2
                                     opacity-0 group-hover:opacity-100 transition-opacity duration-200"
