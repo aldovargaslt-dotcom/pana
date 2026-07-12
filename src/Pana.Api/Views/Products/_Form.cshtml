@@ -32,7 +32,7 @@
         @* Body *@
         <div class="overflow-y-auto p-6">
             <form hx-post="@(isCreate ? "/products/create" : $"/products/{Model.Id}/edit")"
-                  hx-target="@(isCreate ? "#table-body-name" : $"#product-row-{Model.Id}")"
+                  hx-target="@(isCreate ? "#product-grid" : $"#product-card-{Model.Id}")"
                   hx-swap="@(isCreate ? "innerHTML" : "outerHTML")"
                   hx-on::after-request="if(event.detail.successful) document.getElementById('@modalId').remove()"
                   class="space-y-5">

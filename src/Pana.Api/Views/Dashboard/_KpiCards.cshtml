@@ -9,7 +9,7 @@
         : (decimal?)null;
 }
 
-<div id="kpi-cards" class="grid grid-cols-2 lg:grid-cols-4 gap-4"
+<div id="kpi-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-4"
      hx-get="/web/dashboard/widget/kpi-cards" hx-trigger="every 60s" hx-swap="outerHTML">
 
     @* ── Today's Revenue ────────────────────────────────────── *@
@@ -136,41 +136,5 @@
         </div>
     </div>
 
-    @* ── Active Products ────────────────────────────────────── *@
-    <div class="group relative overflow-hidden rounded-2xl p-5 shadow-ambient hover:shadow-ambient hover:-translate-y-0.5 transition-all duration-300"
-         style="background: var(--surface-container-lowest);">
-        <div class="absolute top-0 right-0 w-24 h-24 rounded-bl-full"
-             style="background: radial-gradient(circle at top right, color-mix(in srgb, var(--primary-container) 12%, transparent), transparent 70%);"></div>
-        <div class="relative">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Productos</p>
-                    <p class="mt-1 text-2xl font-bold tabular-nums" style="color: var(--fg);">@Model.ActiveProductCount</p>
-                    <div class="flex items-center gap-1 mt-1">
-                        @if (Model.LowStockCount > 0)
-                        {
-                            <span class="text-xs font-semibold inline-flex items-center gap-1" style="color: var(--danger);"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg> @Model.LowStockCount bajo stock</span>
-                        }
-                        else
-                        {
-                            <span class="text-xs" style="color: var(--meta);">en catálogo</span>
-                        }
-                    </div>
-                </div>
-                <div class="p-2.5 rounded-xl group-hover:scale-110 transition-transform duration-300"
-                     style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary-container) 10%, transparent), color-mix(in srgb, var(--primary-container) 20%, transparent)); color: var(--primary-container);">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                </div>
-            </div>
-            @* Drilldown trigger *@
-            <button onclick="openKpiDrilldown('products', this)"
-                    class="mt-3 w-full flex items-center justify-center gap-1 py-1.5 rounded-lg text-xs font-medium
-                           opacity-0 group-hover:opacity-100 transition-all duration-200 hover:shadow-sm"
-                    style="color: var(--primary-container); background: color-mix(in srgb, var(--primary-container) 6%, transparent);">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                Ver detalle
-            </button>
-        </div>
-    </div>
-
 </div>
+

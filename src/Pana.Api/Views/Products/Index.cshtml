@@ -1,9 +1,10 @@
+@* Products/Index.cshtml — Square-style card grid v2 *@
 @model Pana.Api.Web.ViewModels.ProductListViewModel
 @{
     ViewData["Title"] = "Productos";
 }
 
-<div class="content-area space-y-5">
+<div class="content-area space-y-5 fade-in">
 
     @* ── Header ─────────────────────────────────────────────── *@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -11,7 +12,7 @@
             <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--fg);">
                 <span class="text-gradient">Productos</span>
             </h1>
-            <p class="text-sm mt-1" style="color: var(--muted);">@Model.TotalCount productos registrados</p>
+            <p class="text-sm mt-1" style="color: var(--muted);">@Model.TotalCount productos en catálogo</p>
         </div>
         <div class="flex items-center gap-3">
             <div class="relative">
@@ -19,8 +20,8 @@
                 <input type="search" name="q" placeholder="Buscar productos..."
                        hx-get="/products/table-rows"
                        hx-trigger="keyup changed delay:300ms"
-                       hx-target="#table-body-name"
-                       hx-indicator="#table-body-name"
+                       hx-target="#product-grid"
+                       hx-indicator="#product-grid"
                        class="pl-9 pr-4 py-2.5 rounded-xl text-sm
                               focus:outline-none focus:ring-2 w-48 sm:w-64 transition-all duration-200"
                        style="background: var(--surface-container-high); color: var(--fg);"
@@ -29,87 +30,101 @@
             </div>
             <button hx-get="/products/create-form"
                     hx-target="#modal-container"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-medium rounded-xl
-                           transition-all duration-200 shadow-ambient hover:shadow-ambient active:scale-[0.98]"
+                    class="inline-flex items-center gap-2 px-5 py-3 text-white text-sm font-semibold rounded-xl
+                           transition-all duration-200 shadow-ambient hover:shadow-modal active:scale-[0.98]"
                     style="background: var(--gradient-primary);">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Nuevo
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nuevo producto
             </button>
         </div>
     </div>
 
-    @* ── Table ──────────────────────────────────────────────── *@
-    <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr style="background: var(--surface-container-low);">
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Producto</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">SKU</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Precio</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Costo</th>
-                        <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Margen</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Estado</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body-name" class="table-tonal"
-                       hx-get="/products/table-rows" hx-trigger="product-created from:body">
-                    @if (!Model.Products.Any())
-                    {
-                        <tr>
-                            <td colspan="6" class="px-6 py-16 text-center">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: var(--surface-container);">
-                                        <svg class="w-7 h-7" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                                    </div>
-                                    <p class="font-medium" style="color: var(--meta);">No hay productos aún</p>
-                                    <p class="text-xs" style="color: var(--meta);">Crea tu primer producto para empezar</p>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        @foreach (var p in Model.Products)
-                        {
-                            var margin = p.Price > 0 ? ((p.Price - p.Cost) / p.Price * 100) : 0;
-                            <tr class="hover:bg-[var(--surface-container-low)] transition-colors group">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs"
-                                             style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent), color-mix(in srgb, var(--primary) 10%, transparent)); color: var(--primary);">
-                                            @p.Name[..Math.Min(2, p.Name.Length)].ToUpper()
-                                        </div>
-                                        <span class="font-medium" style="color: var(--fg);">@p.Name</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 font-mono text-xs" style="color: var(--muted);">@p.Sku</td>
-                                <td class="px-6 py-4 text-right font-medium" style="color: var(--fg);">$@p.Price.ToString("F2")</td>
-                                <td class="px-6 py-4 text-right" style="color: var(--muted);">$@p.Cost.ToString("F2")</td>
-                                <td class="px-6 py-4 text-right">
-                                    <span class="font-medium" style="color: @(margin >= 30 ? "var(--success)" : margin >= 15 ? "var(--tertiary)" : "var(--danger)");">
-                                        @margin.ToString("F0")%
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full"
-                                          style="color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent);">
-                                        <span class="w-1.5 h-1.5 rounded-full" style="background: var(--success);"></span> Activo
-                                    </span>
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
+    @* ── Product Card Grid ──────────────────────────────────── *@
+    <div id="product-grid"
+         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+         hx-get="/products/table-rows" hx-trigger="product-created from:body">
+        @if (!Model.Products.Any())
+        {
+            <div class="col-span-full text-center py-20">
+                <div class="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5"
+                     style="background: var(--surface-container);">
+                    <svg class="w-10 h-10" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+                <h2 class="text-lg font-semibold" style="color: var(--fg);">No hay productos aún</h2>
+                <p class="text-sm mt-2" style="color: var(--muted);">Creá tu primer producto para empezar a vender</p>
+                <button hx-get="/products/create-form"
+                        hx-target="#modal-container"
+                        class="inline-flex items-center gap-2 mt-5 px-6 py-3 text-white text-sm font-semibold rounded-xl
+                               transition-all duration-200 shadow-ambient active:scale-[0.98]"
+                        style="background: var(--gradient-primary);">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Nuevo producto
+                </button>
+            </div>
+        }
+        else
+        {
+            @foreach (var p in Model.Products)
+            {
+                <div class="product-card group rounded-2xl p-5 shadow-ambient transition-all duration-200
+                            hover:shadow-modal hover:-translate-y-0.5"
+                     style="background: var(--surface-container-lowest);"
+                     id="product-card-@p.Id">
+                    @* Product image placeholder *@
+                    <div class="w-full aspect-[4/3] rounded-xl mb-4 flex items-center justify-center relative overflow-hidden"
+                         style="background: linear-gradient(135deg, var(--surface-container-low), var(--surface-container));">
+                        <svg class="w-12 h-12" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        @* Quick actions overlay on hover *@
+                        <div class="absolute inset-0 flex items-center justify-center gap-2
+                                    opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                             style="background: rgba(28,28,25,0.4); backdrop-filter: blur(2px);">
+                            <button hx-get="/products/@p.Id/edit-form"
+                                    hx-target="#modal-container"
+                                    class="w-10 h-10 rounded-xl flex items-center justify-center transition-transform hover:scale-110"
+                                    style="background: var(--surface-container-lowest); color: var(--fg);"
+                                    title="Editar">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </button>
+                            <button hx-post="/products/@p.Id/delete"
+                                    hx-confirm="¿Eliminar @p.Name?"
+                                    hx-target="#product-card-@p.Id"
+                                    hx-swap="delete swap:0.3s"
+                                    class="w-10 h-10 rounded-xl flex items-center justify-center transition-transform hover:scale-110"
+                                    style="background: var(--surface-container-lowest); color: var(--danger);"
+                                    title="Eliminar">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
 
-        @* Footer *@
-        <div class="px-6 py-3 flex items-center justify-between"
-             style="background: var(--surface-container-low); border-top: 1px solid var(--sidebar-border);">
-            <span class="text-xs" style="color: var(--meta);">Mostrando @Model.Products.Count de @Model.TotalCount productos</span>
-            <a href="/" class="text-xs font-medium transition-colors" style="color: var(--primary);">← Dashboard</a>
-        </div>
+                    @* Product name *@
+                    <h3 class="font-semibold text-lg mb-1" style="color: var(--fg);">@p.Name</h3>
+
+                    @* Price — THE dominant element *@
+                    <div class="flex items-baseline gap-1 mb-3">
+                        <span class="text-2xl font-bold" style="color: var(--primary);">$@p.Price.ToString("N2")</span>
+                    </div>
+
+                    @* Footer row: status + SKU (subtle) *@
+                    <div class="flex items-center justify-between">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                              style="color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent);">
+                            <span class="w-1.5 h-1.5 rounded-full" style="background: var(--success);"></span>
+                            Activo
+                        </span>
+                        <span class="text-xs font-mono" style="color: var(--meta);">@p.Sku</span>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    @* ── Footer ─────────────────────────────────────────────── *@
+    <div class="flex items-center justify-between text-sm">
+        <span style="color: var(--meta);">@Model.Products.Count de @Model.TotalCount productos</span>
+        <a href="/" class="font-medium transition-colors" style="color: var(--primary);">← Dashboard</a>
     </div>
 
 </div>
+
+<div id="modal-container"></div>

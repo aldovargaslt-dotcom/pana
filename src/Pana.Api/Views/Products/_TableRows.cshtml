@@ -1,17 +1,16 @@
+@* Products/_TableRows.cshtml — Card grid for HTMX search/refresh *@
 @model List<Pana.Api.Web.ViewModels.ProductRowViewModel>
 
 @if (Model.Count == 0)
 {
-    <tr>
-        <td colspan="6" class="p-12">
-            @await Component.InvokeAsync("EmptyState", new {
-                title = "Sin productos",
-                description = "Creá tu primer producto para empezar.",
-                actionLabel = "Nuevo Producto",
-                actionHxGet = "/products/create-form"
-            })
-        </td>
-    </tr>
+    <div class="col-span-full text-center py-16">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+             style="background: var(--surface-container);">
+            <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </div>
+        <p class="font-medium" style="color: var(--meta);">Sin resultados</p>
+        <p class="text-xs mt-1" style="color: var(--meta);">Intentá con otra búsqueda</p>
+    </div>
 }
 else
 {

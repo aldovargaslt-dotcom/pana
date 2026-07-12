@@ -1,4 +1,4 @@
-@* Views/Dashboard/Index.cshtml — Production-ready KPI Dashboard *@
+@* Views/Dashboard/Index.cshtml — Square-style Dashboard v2 *@
 @model Pana.Api.Web.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
@@ -14,51 +14,49 @@
         greeting = "Buenas noches";
 }
 
-<div class="content-area space-y-5 fade-in">
+<div class="content-area space-y-6 fade-in">
 
-    @* ── Welcome header ─────────────────────────────────────── *@
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-            <h1 class="text-2xl font-bold" style="color: var(--fg);">
-                @greeting, <span class="text-gradient">@Model.TenantName</span>
-                <svg class="w-5 h-5 inline-block ml-1 -mt-1" style="color: var(--tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a2.5 2.5 0 015 0v6m0 4.5V14m0 0v-1.5a2.5 2.5 0 00-2.5-2.5h-2a2.5 2.5 0 000 5h2a2.5 2.5 0 012.5 2.5V19"/></svg>
-            </h1>
-            <p class="text-sm mt-0.5" style="color: var(--muted);">
-                @todayName
-            </p>
-        </div>
-        <div class="flex items-center gap-3">
-            @* System status *@
-            <div class="flex items-center gap-2 text-xs rounded-lg px-3 py-1.5 shadow-ambient"
-                 style="color: var(--meta); background: var(--surface-container-lowest);">
-                <span class="pulse-dot"></span> Sistema en línea
+    @* ═══════════════════════════════════════════════════════════
+       HERO — Square-style: big greeting + ONE dominant action
+       ═══════════════════════════════════════════════════════════ *@
+    <div class="rounded-3xl p-6 sm:p-8 shadow-ambient overflow-hidden relative"
+         style="background: linear-gradient(135deg, var(--surface-container-lowest) 0%, color-mix(in srgb, var(--primary) 3%, var(--surface-container-lowest)) 100%);">
+        @* Decorative grain texture *@
+        <div class="absolute inset-0 opacity-[0.02]" style="background-image: radial-gradient(circle at 15px 15px, var(--tertiary) 1px, transparent 1px); background-size: 40px 40px;"></div>
+        <div class="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full"
+                          style="background: color-mix(in srgb, var(--success) 10%, transparent); color: var(--success);">
+                        <span class="pulse-dot"></span> Abierto
+                    </span>
+                    <span class="text-xs" style="color: var(--meta);">@todayName</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold" style="color: var(--fg);">
+                    @greeting, <span class="text-gradient">@Model.TenantName</span>
+                </h1>
             </div>
-            @* New sale quick action *@
-            <button hx-get="/sales/create-form" hx-target="#modal-container"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white
-                           shadow-ambient hover:shadow-ambient transition-all duration-200 active:scale-[0.98]"
-                    style="background: var(--gradient-primary);">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Nueva venta
-            </button>
+            @* THE button — the one action that matters *@
+            <a href="/pos"
+               class="inline-flex items-center justify-center gap-3 px-8 py-5 rounded-2xl text-white font-bold text-lg
+                      shadow-modal hover:shadow-lg transition-all duration-200 active:scale-[0.97] flex-shrink-0"
+               style="background: var(--gradient-primary); min-width: 220px;">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                Ir a Cobrar
+            </a>
         </div>
     </div>
 
-    @* ── Daily context bar (HTMX-loaded) ────────────────────── *@
-    <div hx-get="/web/dashboard/widget/daily-context"
-         hx-trigger="load"
-         hx-swap="innerHTML">
-        <div class="skeleton h-10 rounded-xl"></div>
-    </div>
-
-    @* ── KPI stat cards (HTMX-loaded, auto-refresh every 60s) ─ *@
+    @* ═══════════════════════════════════════════════════════════
+       KPI CARDS — 3 key metrics, auto-refresh every 60s
+       ═══════════════════════════════════════════════════════════ *@
     <div hx-get="/web/dashboard/widget/kpi-cards"
          hx-trigger="load"
          hx-swap="outerHTML">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            @for (int i = 0; i < 4; i++)
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            @for (int i = 0; i < 3; i++)
             {
-                <div class="skeleton h-28 rounded-2xl"></div>
+                <div class="skeleton h-32 rounded-2xl"></div>
             }
         </div>
     </div>
@@ -75,85 +73,29 @@
         </div>
     </div>
 
-    @* ── Main content grid ──────────────────────────────────── *@
+    @* ═══════════════════════════════════════════════════════════
+       CHART + RECENT ACTIVITY
+       ═══════════════════════════════════════════════════════════ *@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
         @* Sales trend chart (spans 2 cols on large screens) *@
         <div class="lg:col-span-2" hx-get="/web/dashboard/widget/sales-trend"
              hx-trigger="load" hx-swap="outerHTML">
-            <div class="skeleton h-80 rounded-2xl"></div>
+            <div class="skeleton h-72 rounded-2xl"></div>
         </div>
 
         @* Recent sales *@
         <div hx-get="/web/dashboard/widget/recent-sales"
              hx-trigger="load" hx-swap="outerHTML">
-            <div class="skeleton h-80 rounded-2xl"></div>
+            <div class="skeleton h-72 rounded-2xl"></div>
         </div>
     </div>
 
-    @* ── Bottom row: Low stock + Quick actions ──────────────── *@
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        @* Low stock alerts *@
-        <div hx-get="/web/dashboard/widget/low-stock"
-             hx-trigger="load" hx-swap="outerHTML">
-            <div class="skeleton h-64 rounded-2xl"></div>
-        </div>
-
-        @* Quick actions *@
-        <div class="rounded-2xl shadow-ambient p-6" style="background: var(--surface-container-lowest);">
-            <h2 class="font-semibold mb-4" style="color: var(--fg);">
-                <svg class="w-5 h-5 inline-block mr-1.5 -mt-0.5" style="color: var(--tertiary);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Acciones rápidas
-            </h2>
-            <div class="grid grid-cols-2 gap-3">
-                @* New Sale *@
-                <button hx-get="/sales/create-form" hx-target="#modal-container"
-                   class="flex flex-col items-center gap-2 p-4 rounded-xl
-                          hover:shadow-sm transition-all duration-200 group"
-                   style="background: linear-gradient(135deg, color-mix(in srgb, var(--success) 5%, transparent), color-mix(in srgb, var(--success) 10%, transparent));">
-                    <div class="p-2.5 rounded-xl text-white group-hover:scale-110 transition-transform duration-200"
-                         style="background: var(--success);">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    </div>
-                    <span class="text-sm font-medium" style="color: var(--success);">Nueva venta</span>
-                </button>
-
-                @* New Product *@
-                <a href="/products"
-                   class="flex flex-col items-center gap-2 p-4 rounded-xl
-                          hover:shadow-sm transition-all duration-200 group"
-                   style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 5%, transparent), color-mix(in srgb, var(--primary) 10%, transparent));">
-                    <div class="p-2.5 rounded-xl text-white group-hover:scale-110 transition-transform duration-200"
-                         style="background: var(--gradient-primary);">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                    </div>
-                    <span class="text-sm font-medium" style="color: var(--primary);">Productos</span>
-                </a>
-
-                @* Daily Production *@
-                <button hx-get="/operations/daily-production-form" hx-target="#modal-container"
-                   class="flex flex-col items-center gap-2 p-4 rounded-xl
-                          hover:shadow-sm transition-all duration-200 group"
-                   style="background: linear-gradient(135deg, color-mix(in srgb, var(--tertiary) 5%, transparent), color-mix(in srgb, var(--tertiary) 10%, transparent));">
-                    <div class="p-2.5 rounded-xl text-white group-hover:scale-110 transition-transform duration-200"
-                         style="background: var(--tertiary-fixed); color: var(--on-tertiary-fixed);">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
-                    <span class="text-sm font-medium" style="color: var(--tertiary);">Producción diaria</span>
-                </button>
-
-                @* Inventory *@
-                <a href="/inventory"
-                   class="flex flex-col items-center gap-2 p-4 rounded-xl
-                          hover:shadow-sm transition-all duration-200 group"
-                   style="background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 3%, transparent), color-mix(in srgb, var(--primary) 8%, transparent));">
-                    <div class="p-2.5 rounded-xl text-white group-hover:scale-110 transition-transform duration-200"
-                         style="background: var(--primary-container);">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <span class="text-sm font-medium" style="color: var(--primary);">Inventario</span>
-                </a>
-            </div>
-        </div>
+    @* ═══════════════════════════════════════════════════════════
+       LOW STOCK — only shown when there are alerts
+       ═══════════════════════════════════════════════════════════ *@
+    <div hx-get="/web/dashboard/widget/low-stock"
+         hx-trigger="load" hx-swap="outerHTML">
+        <div class="skeleton h-40 rounded-2xl"></div>
     </div>
 
 </div>
