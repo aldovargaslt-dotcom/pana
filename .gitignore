@@ -22,6 +22,9 @@ deploy/.env
 # MCP config (contains credentials)
 .vscode/mcp.json
 
+# E2E test artifacts
+**/E2E_Screenshots/
+
 # Certbot (SSL)
 deploy/certbot/conf/
 deploy/certbot/www/

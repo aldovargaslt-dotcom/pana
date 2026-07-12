@@ -21,6 +21,7 @@ public class ProductionEventConfiguration : IEntityTypeConfiguration<ProductionE
         builder.Property(e => e.Notes).HasColumnName("notes").HasMaxLength(500);
         builder.Property(e => e.RegisteredByUserId).HasColumnName("registered_by_user_id").IsRequired();
         builder.Property(e => e.CreatedAt).HasColumnName("created_at");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at");
 
         builder.HasIndex(e => new { e.DailyProductionId, e.ProductId, e.EventType });
         builder.HasIndex(e => e.DailyProductionId);
