@@ -312,6 +312,112 @@
         /* ── Table tonal rows (No-Line Rule compliant) ─ */
         tbody.table-tonal tr:nth-child(even) { background: var(--surface-container-low); }
 
+        /* ═══════════════════════════════════════════════════════
+           panaModal — Centralized modal system
+           Replaces per-view .modal-backdrop / .modal-panel
+           ═══════════════════════════════════════════════════════ */
+        .pana-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(28, 28, 25, 0.35);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .pana-modal-panel {
+            width: 100%;
+            max-width: 440px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 1.25rem;
+            background: var(--surface-container-lowest);
+            box-shadow: 0 20px 60px rgba(28, 28, 25, 0.18),
+                        0 0 0 1px rgba(28, 28, 25, 0.06);
+        }
+        .pana-modal-panel-sm { max-width: 360px; }
+        .pana-modal-panel-lg { max-width: 560px; }
+
+        /* ═══════════════════════════════════════════════════════
+           panaBadge — Status badges & chips
+           .pana-badge + .pana-badge-{variant} + .pana-badge-{color}
+           ═══════════════════════════════════════════════════════ */
+        .pana-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.1875rem 0.625rem;
+            border-radius: var(--radius-pill);
+            font-size: var(--text-label-sm);
+            font-weight: var(--weight-emphasis);
+            line-height: 1.5;
+            white-space: nowrap;
+            letter-spacing: var(--tracking-label);
+            transition: all var(--dur-fast) var(--ease-standard);
+            user-select: none;
+        }
+        /* Variants */
+        .pana-badge-solid {
+            color: var(--on-primary);
+        }
+        .pana-badge-soft {
+            background: var(--_badge-bg, var(--surface-container-high));
+            color: var(--_badge-fg, var(--fg-2));
+        }
+        .pana-badge-outline {
+            background: transparent;
+            box-shadow: inset 0 0 0 1px var(--_badge-border, var(--outline-variant));
+            color: var(--_badge-fg, var(--fg-2));
+        }
+        /* Colors (set --_badge-* custom properties) */
+        .pana-badge-success {
+            --_badge-fg: var(--success);
+            --_badge-bg: color-mix(in srgb, var(--success) 12%, transparent);
+            --_badge-border: color-mix(in srgb, var(--success) 30%, transparent);
+        }
+        .pana-badge-warning {
+            --_badge-fg: #92400e;
+            --_badge-bg: color-mix(in srgb, var(--warn) 12%, transparent);
+            --_badge-border: color-mix(in srgb, var(--warn) 30%, transparent);
+        }
+        .pana-badge-danger {
+            --_badge-fg: var(--danger);
+            --_badge-bg: color-mix(in srgb, var(--danger) 10%, transparent);
+            --_badge-border: color-mix(in srgb, var(--danger) 25%, transparent);
+        }
+        .pana-badge-primary {
+            --_badge-fg: var(--primary);
+            --_badge-bg: var(--primary-fixed);
+            --_badge-border: color-mix(in srgb, var(--primary) 30%, transparent);
+        }
+        .pana-badge-tertiary {
+            --_badge-fg: var(--tertiary);
+            --_badge-bg: color-mix(in srgb, var(--tertiary-fixed) 80%, transparent);
+            --_badge-border: color-mix(in srgb, var(--tertiary) 25%, transparent);
+        }
+        .pana-badge-neutral {
+            --_badge-fg: var(--fg-2);
+            --_badge-bg: var(--surface-container-high);
+            --_badge-border: var(--surface-container-highest);
+        }
+        /* Dot indicator */
+        .pana-badge-dot::before {
+            content: '';
+            display: inline-block;
+            width: 0.375rem;
+            height: 0.375rem;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: currentColor;
+        }
+        .pana-badge-dot.pana-badge-success::before { background: var(--success); }
+        .pana-badge-dot.pana-badge-warning::before { background: var(--warn); }
+        .pana-badge-dot.pana-badge-danger::before  { background: var(--danger); }
+        .pana-badge-dot.pana-badge-primary::before { background: var(--primary); }
+
         /* ── Danger variant (Waste module) ──────────── */
         .pana-select-trigger-danger:focus,
         .pana-select-trigger-danger.pana-select-trigger-open {
@@ -837,6 +943,45 @@
                         if (el) el.scrollIntoView({ block: 'nearest' });
                     });
                 },
+            }));
+
+            Alpine.data('panaModal', (modalId = '') => ({
+                open: false,
+
+                init() {
+                    this._id = modalId || this.$el.id || 'pana-modal';
+
+                    // Listen for open/close events from any trigger
+                    this._onOpen = (e) => {
+                        if (e.detail && e.detail.id === this._id) this.open = true;
+                    };
+                    this._onClose = (e) => {
+                        if (e.detail && e.detail.id === this._id) this.open = false;
+                    };
+                    window.addEventListener('pana-modal:open', this._onOpen);
+                    window.addEventListener('pana-modal:close', this._onClose);
+
+                    // Lock body scroll when open
+                    this.$watch('open', (v) => {
+                        document.body.style.overflow = v ? 'hidden' : '';
+                        // Focus first focusable element when opening
+                        if (v) {
+                            this.$nextTick(() => {
+                                const panel = this.$el.querySelector('.pana-modal-panel');
+                                const focusable = panel?.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                                if (focusable) focusable.focus();
+                            });
+                        }
+                    });
+                },
+
+                destroy() {
+                    window.removeEventListener('pana-modal:open', this._onOpen);
+                    window.removeEventListener('pana-modal:close', this._onClose);
+                    document.body.style.overflow = '';
+                },
+
+                close() { this.open = false; }
             }));
 
             Alpine.data('toast', () => ({

@@ -27,20 +27,6 @@
         .action-card:hover { transform: translateY(-1px); }
         .timeline-row { transition: background 0.15s ease; }
         .timeline-row:hover { background: var(--surface-container-low); }
-        .modal-backdrop {
-            position: fixed; inset: 0; z-index: 100;
-            background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .modal-panel {
-            width: 100%; max-width: 440px; border-radius: 1.25rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-            animation: modalIn 0.2s ease-out;
-        }
-        @@keyframes modalIn {
-            from { opacity: 0; transform: translateY(16px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
     </style>
 }
 
@@ -56,17 +42,17 @@
                 @today
                 @if (isClosed)
                 {
-                    <span class="font-medium ml-2" style="color: var(--success);">· Día cerrado</span>
+                    <span class="pana-badge pana-badge-soft pana-badge-success ml-2">Día cerrado</span>
                 }
                 else
                 {
-                    <span class="font-medium ml-2" style="color: var(--primary);">· Abierto</span>
+                    <span class="pana-badge pana-badge-soft pana-badge-primary pana-badge-dot ml-2">Abierto</span>
                 }
             </p>
         </div>
         @if (!isClosed)
         {
-            <button type="button" onclick="document.getElementById('closeDayModal').classList.remove('hidden')"
+            <button type="button" onclick="window.dispatchEvent(new CustomEvent('pana-modal:open',{detail:{id:'closeDayModal'}}))"
                     class="inline-flex items-center gap-2 px-5 py-3 text-white text-sm font-semibold rounded-xl
                            transition-all duration-200 shadow-ambient hover:shadow-lg active:scale-[0.98]"
                     style="background: var(--gradient-primary);">
@@ -235,11 +221,11 @@
 </div>
 
 @* ── Modal: Agregar evento ──────────────────────────────────── *@
-<div id="eventModal" class="modal-backdrop hidden" onclick="if(event.target===this)closeEventModal()">
-    <div class="modal-panel p-6 space-y-4 mx-4" style="background: var(--surface-container-lowest);">
+<div x-data="panaModal('eventModal')" x-show="open" x-transition.opacity.duration.200ms class="pana-modal-backdrop" @@click.self="close" @@keydown.escape.window="close" aria-modal="true" role="dialog">
+    <div class="pana-modal-panel p-6 space-y-4" @@click.stop x-transition.scale.origin.top.duration.200ms>
         <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold" id="eventModalTitle" style="color: var(--fg);">Agregar</h3>
-            <button type="button" onclick="closeEventModal()" class="w-8 h-8 rounded-lg flex items-center justify-center"
+            <button type="button" @@click="close" class="w-8 h-8 rounded-lg flex items-center justify-center"
                     style="background: var(--surface-container-high); color: var(--fg-2);">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -303,7 +289,7 @@
                        placeholder="Ej: Primer lote del día" />
             </div>
             <div class="flex gap-3 pt-2">
-                <button type="button" onclick="closeEventModal()"
+                <button type="button" @@click="close"
                         class="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all"
                         style="background: var(--surface-container-high); color: var(--fg-2);">Cancelar</button>
                 <button type="submit"
@@ -315,8 +301,8 @@
 </div>
 
 @* ── Modal: Cerrar día ─────────────────────────────────────── *@
-<div id="closeDayModal" class="modal-backdrop hidden" onclick="if(event.target===this)document.getElementById('closeDayModal').classList.add('hidden')">
-    <div class="modal-panel p-6 space-y-5 mx-4 text-center" style="background: var(--surface-container-lowest);">
+<div x-data="panaModal('closeDayModal')" x-show="open" x-transition.opacity.duration.200ms class="pana-modal-backdrop" @@click.self="close" @@keydown.escape.window="close" aria-modal="true" role="dialog">
+    <div class="pana-modal-panel p-6 space-y-5 text-center" @@click.stop x-transition.scale.origin.top.duration.200ms>
         <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto"
              style="background: color-mix(in srgb, var(--danger) 12%, transparent);">
             <svg class="w-7 h-7" style="color: var(--danger);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L2.73 16.5C1.96 17.333 2.922 19 4.462 19z"/></svg>
@@ -334,7 +320,7 @@
             <p>🔄 Devolución a descontar: <strong style="color: var(--danger);">@totalDevolucion</strong></p>
         </div>
         <div class="flex gap-3">
-            <button type="button" onclick="document.getElementById('closeDayModal').classList.add('hidden')"
+            <button type="button" @@click="close"
                     class="flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all"
                     style="background: var(--surface-container-high); color: var(--fg-2);">Cancelar</button>
             <form method="post" action="/registro-diario/close" class="flex-1">
@@ -356,22 +342,16 @@
             'Devolucion': '🔄 Registrar devolución'
         };
         document.getElementById('eventModalTitle').textContent = titles[eventType] || 'Agregar';
-        document.getElementById('eventModal').classList.remove('hidden');
+        window.dispatchEvent(new CustomEvent('pana-modal:open',{detail:{id:'eventModal'}}));
     }
-    function closeEventModal() { document.getElementById('eventModal').classList.add('hidden'); }
+    function closeEventModal() { window.dispatchEvent(new CustomEvent('pana-modal:close',{detail:{id:'eventModal'}})); }
     document.addEventListener('DOMContentLoaded', function() {
-        const select = document.querySelector('#eventModal select[name="ProductId"]');
+        const select = document.querySelector('[x-data*="eventModal"] select[name="ProductId"]');
         const nameInput = document.querySelector('#eventModal input[name="ProductName"]');
         if (select && nameInput) {
             select.addEventListener('change', function() {
                 nameInput.value = select.options[select.selectedIndex].text;
             });
         }
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeEventModal();
-                document.getElementById('closeDayModal').classList.add('hidden');
-            }
-        });
     });
 </script>
