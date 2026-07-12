@@ -73,7 +73,7 @@
         {
             @foreach (var p in Model.Products)
             {
-                <div class="product-card group rounded-2xl p-5 shadow-ambient transition-all duration-200
+                <div class="product-card group rounded-2xl overflow-hidden shadow-ambient transition-all duration-200
                             hover:shadow-modal hover:-translate-y-0.5"
                      style="background: var(--surface-container-lowest);"
                      id="product-card-@p.Id">
@@ -90,7 +90,7 @@
                         var prodInit = p.Name.Length >= 2 ? p.Name[..2].ToUpper() : p.Name.ToUpper();
                         var hasImage = !string.IsNullOrEmpty(p.ImageUrl);
                     }
-                    <div class="w-full aspect-square rounded-xl mb-4 flex items-center justify-center relative overflow-hidden"
+                    <div class="w-full aspect-[3/4] flex items-center justify-center relative overflow-hidden"
                          style="@(hasImage ? "" : $"background: linear-gradient(135deg, {prodBg}, {prodFg});")">
                         @if (hasImage)
                         {
@@ -124,22 +124,15 @@
                         </div>
                     </div>
 
-                    @* Product name *@
-                    <h3 class="font-semibold text-lg mb-1" style="color: var(--fg);">@p.Name</h3>
-
-                    @* Price — THE dominant element *@
-                    <div class="flex items-baseline gap-1 mb-3">
-                        <span class="text-2xl font-bold" style="color: var(--primary);">$@p.Price.ToString("N2")</span>
-                    </div>
-
-                    @* Footer row: status + SKU (subtle) *@
-                    <div class="flex items-center justify-between">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-                              style="color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent);">
-                            <span class="w-1.5 h-1.5 rounded-full" style="background: var(--success);"></span>
-                            Activo
-                        </span>
-                        <span class="text-xs font-mono" style="color: var(--meta);">@p.Sku</span>
+                    @* Name + Price + Status — compact row below image *@
+                    <div class="px-3 py-2.5 space-y-1">
+                        <h3 class="font-semibold text-sm leading-tight truncate" style="color: var(--fg);">@p.Name</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-base tabular-nums" style="color: var(--primary);">$@p.Price.ToString("N2")</span>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-medium" style="color: var(--meta);">
+                                <span class="w-1.5 h-1.5 rounded-full" style="background: var(--success);"></span>@p.Sku
+                            </span>
+                        </div>
                     </div>
                 </div>
             }

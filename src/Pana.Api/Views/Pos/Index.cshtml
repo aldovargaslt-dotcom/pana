@@ -97,10 +97,10 @@
 
         @* ── Product grid ────────────────────────────────── *@
         <div class="flex-1 overflow-y-auto pr-1" style="scrollbar-width: thin;">
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="product-grid">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3" id="product-grid">
                 @foreach (var product in Model.Products)
                 {
-                    <div class="product-card rounded-2xl p-4 shadow-ambient cursor-pointer transition-all duration-200
+                    <div class="product-card rounded-2xl overflow-hidden shadow-ambient cursor-pointer transition-all duration-200
                                 hover:shadow-modal hover:-translate-y-1 active:scale-[0.97] group"
                          style="background: var(--surface-container-lowest);"
                          x-show="(activeCategory === 'all' || categoryLabel(activeCategory) === '@product.ProductType')
@@ -108,7 +108,7 @@
                                       || '@(product.Sku?.ToLower() ?? "")'.includes(searchQuery.toLowerCase()))"
                          x-transition.duration.200ms
                          @@click="$dispatch('add-to-cart-item', { productId: '@product.Id', productName: '@(product.Name.Replace("'","\\'"))', unitPrice: @product.Price })">
-                        @* Product image — real photo or bakery placeholder *@
+                        @* Product image — 80% of card, edge-to-edge *@
                         @{
                             var posColors = new[] {
                                 ("#c44b3c", "#f0c9b0"), ("#d4982a", "#fce4b8"),
@@ -121,7 +121,7 @@
                             var posInit = product.Name.Length >= 2 ? product.Name[..2].ToUpper() : product.Name.ToUpper();
                             var posHasImage = !string.IsNullOrEmpty(product.ImageUrl);
                         }
-                        <div class="w-full aspect-square rounded-xl mb-3 flex items-center justify-center relative overflow-hidden"
+                        <div class="w-full aspect-[3/4] flex items-center justify-center relative overflow-hidden"
                              style="@(posHasImage ? "" : $"background: linear-gradient(135deg, {posBg}, {posFg});")">
                             @if (posHasImage)
                             {
@@ -130,22 +130,20 @@
                             else
                             {
                                 <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
-                                <span class="relative text-3xl font-extrabold tracking-tight opacity-80 select-none" style="color: @posBg; filter: brightness(0.4);">@posInit</span>
+                                <span class="relative text-4xl font-extrabold tracking-tight opacity-80 select-none" style="color: @posBg; filter: brightness(0.4);">@posInit</span>
                             }
                             @* Added-to-cart flash *@
                             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-active:opacity-100 transition-opacity duration-150"
                                  style="background: color-mix(in srgb, var(--primary) 20%, transparent);">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             </div>
                         </div>
 
-                        @* Product name *@
-                        <h3 class="font-semibold text-base leading-tight mb-1.5" style="color: var(--fg);">@product.Name</h3>
-
-                        @* Price — big and bold *@
-                        <p class="text-xl font-bold" style="color: var(--primary);">
-                            $@product.Price.ToString("N2")
-                        </p>
+                        @* Name + Price — single row below image *@
+                        <div class="flex items-center justify-between px-3 py-2.5">
+                            <h3 class="font-semibold text-sm leading-tight truncate mr-2" style="color: var(--fg);">@product.Name</h3>
+                            <span class="font-bold text-base tabular-nums flex-shrink-0" style="color: var(--primary);">$@product.Price.ToString("N2")</span>
+                        </div>
                     </div>
                 }
             </div>
