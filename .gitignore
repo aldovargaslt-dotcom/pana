@@ -19,6 +19,9 @@ node_modules/
 .env.*.local
 deploy/.env
 
+# MCP config (contains credentials)
+.vscode/mcp.json
+
 # Certbot (SSL)
 deploy/certbot/conf/
 deploy/certbot/www/

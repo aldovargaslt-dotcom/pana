@@ -1,0 +1,17 @@
+{
+  "name": "pana.api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:css": "npx tailwindcss -i wwwroot/css/tailwind-input.css -o wwwroot/css/tailwind.min.css --minify",
+    "watch:css": "npx tailwindcss -i wwwroot/css/tailwind-input.css -o wwwroot/css/tailwind.min.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}
