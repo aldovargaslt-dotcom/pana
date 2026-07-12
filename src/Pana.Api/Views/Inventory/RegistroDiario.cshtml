@@ -15,12 +15,9 @@
 <style>
 /* KPI compact cards */
 .kpi-card{transition:transform .15s ease}.kpi-card:active{transform:scale(.97)}
-/* Primary action — the big one */
-.action-primary{min-height:56px;cursor:pointer;transition:all .15s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.action-primary:active{transform:scale(.98)}
-/* Secondary actions */
-.action-secondary{min-height:48px;cursor:pointer;transition:all .15s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.action-secondary:active{transform:scale(.97)}
+/* POS action cards — equal touch targets, bakery register style */
+.pos-action-card{cursor:pointer;transition:all .15s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation;min-height:104px}
+.pos-action-card:active{transform:scale(.96);filter:brightness(.94)}
 /* Timeline */
 .timeline-row{transition:background .15s ease}.timeline-row:hover{background:var(--surface-container-low)}
 /* Stepper (modal) */
@@ -51,28 +48,53 @@
 </div>
 @if (!isClosed)
 {
-<div class="space-y-3">
-@* ── Primary action: biggest, most frequent, centered ── *@
-<button type="button" onclick="openEventModal('Produccion')"
-    class="action-primary w-full rounded-2xl p-5 text-center shadow-ambient font-bold text-base flex items-center justify-center gap-3"
-    style="background:var(--primary-fixed);color:var(--primary)">
-    <span class="text-2xl">🍞</span> AGREGAR PRODUCCIÓN
-</button>
-@* ── Secondary actions: smaller, side by side ── *@
-<div class="grid grid-cols-2 gap-3">
+@* ── POS action cards: three equal touch targets ── *@
+<div class="grid grid-cols-3 gap-3">
+@* Inicial *@
 <button type="button" onclick="openEventModal('Inicial')"
-    class="action-secondary rounded-2xl p-4 text-left shadow-ambient flex items-center gap-3"
-    style="background:var(--tertiary-fixed);color:var(--on-tertiary-fixed)">
-    <span class="text-xl flex-shrink-0">🌅</span>
-    <div><p class="font-semibold text-sm">Inicial</p><p class="text-[11px] opacity-70">Conteo mañana</p></div>
+    class="pos-action-card rounded-2xl p-4 text-center shadow-ambient flex flex-col items-center justify-center gap-2"
+    style="background:var(--surface-container);color:var(--fg)">
+    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="16" cy="18" r="5"/>
+        <path d="M16 4v8"/>
+        <path d="M10 12h12"/>
+        <path d="M8 22c-2-1-3-3-3-5"/>
+        <path d="M24 22c2-1 3-3 3-5"/>
+    </svg>
+    <div>
+        <p class="font-semibold text-sm leading-tight">Inicial</p>
+        <p class="text-[10px] leading-tight mt-0.5" style="color:var(--muted)">Conteo mañana</p>
+    </div>
 </button>
+@* Producción *@
+<button type="button" onclick="openEventModal('Produccion')"
+    class="pos-action-card rounded-2xl p-4 text-center shadow-ambient flex flex-col items-center justify-center gap-2"
+    style="background:var(--primary-fixed);color:var(--primary)">
+    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="16" cy="16" rx="10" ry="7"/>
+        <path d="M6 16c0-4 4-7 10-7s10 3 10 7"/>
+        <path d="M11 13h3m-2 3h2"/>
+    </svg>
+    <div>
+        <p class="font-semibold text-sm leading-tight">Producción</p>
+        <p class="text-[10px] leading-tight mt-0.5" style="color:var(--muted)">Lo horneado hoy</p>
+    </div>
+</button>
+@* Devolución *@
 <button type="button" onclick="openEventModal('Devolucion')"
-    class="action-secondary rounded-2xl p-4 text-left shadow-ambient flex items-center gap-3"
-    style="background:color-mix(in srgb,var(--danger) 10%,var(--surface-container-lowest));color:var(--danger)">
-    <span class="text-xl flex-shrink-0">🔄</span>
-    <div><p class="font-semibold text-sm">Devolución</p><p class="text-[11px] opacity-70">Del mostrador</p></div>
+    class="pos-action-card rounded-2xl p-4 text-center shadow-ambient flex flex-col items-center justify-center gap-2"
+    style="background:color-mix(in srgb,var(--danger) 6%,var(--surface-container-lowest));color:var(--danger)">
+    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 10l4-4 4 4"/>
+        <path d="M12 6v10a5 5 0 005 5h0a5 5 0 005-5v-3"/>
+        <path d="M24 20l-4 4-4-4"/>
+        <path d="M20 24V11"/>
+    </svg>
+    <div>
+        <p class="font-semibold text-sm leading-tight">Devolución</p>
+        <p class="text-[10px] leading-tight mt-0.5" style="color:var(--muted)">Del mostrador</p>
+    </div>
 </button>
-</div>
 </div>
 }
 <div class="rounded-2xl shadow-ambient overflow-hidden" style="background:var(--surface-container-lowest)"><div class="px-6 py-4 flex items-center justify-between" style="background:var(--surface-container-low)"><h2 class="font-semibold flex items-center gap-2" style="color:var(--fg)"><svg class="w-5 h-5" style="color:var(--muted)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.5"/><path stroke-linecap="round" stroke-width="1.5" d="M12 6v6l4 2"/></svg>Timeline · Hoy</h2><span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:var(--surface-container-high);color:var(--fg-2)">@(Model?.Events.Count ?? 0) registros</span></div>
