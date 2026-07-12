@@ -5,7 +5,7 @@
             hover:shadow-modal hover:-translate-y-0.5 fade-in"
      style="background: var(--surface-container-lowest);"
      id="product-card-@Model.Id">
-    @* Product image — bakery-themed placeholder *@
+    @* Product image — real photo or bakery placeholder *@
     @{
         var trColors = new[] {
             ("#c44b3c", "#f0c9b0"), ("#d4982a", "#fce4b8"),
@@ -16,11 +16,19 @@
         var trColorIdx = Math.Abs(Model.Name.GetHashCode()) % trColors.Length;
         var (trBg, trFg) = trColors[trColorIdx];
         var trInit = Model.Name.Length >= 2 ? Model.Name[..2].ToUpper() : Model.Name.ToUpper();
+        var trHasImage = !string.IsNullOrEmpty(Model.ImageUrl);
     }
     <div class="w-full aspect-square rounded-xl mb-4 flex items-center justify-center relative overflow-hidden"
-         style="background: linear-gradient(135deg, @trBg, @trFg);">
-        <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
-        <span class="relative text-4xl font-extrabold tracking-tight opacity-80 select-none" style="color: @trBg; filter: brightness(0.4);">@trInit</span>
+         style="@(trHasImage ? "" : $"background: linear-gradient(135deg, {trBg}, {trFg});")">
+        @if (trHasImage)
+        {
+            <img src="@Model.ImageUrl" alt="@Model.Name" class="w-full h-full object-cover" />
+        }
+        else
+        {
+            <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
+            <span class="relative text-4xl font-extrabold tracking-tight opacity-80 select-none" style="color: @trBg; filter: brightness(0.4);">@trInit</span>
+        }
         @* Quick actions overlay on hover *@
         <div class="absolute inset-0 flex items-center justify-center gap-2
                     opacity-0 group-hover:opacity-100 transition-opacity duration-200"

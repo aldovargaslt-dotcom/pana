@@ -9,6 +9,8 @@ namespace Pana.Api.Web.Controllers;
 [Route("products")]
 public class ProductsController : Controller
 {
+    private const string UploadsDir = "wwwroot/uploads/products";
+
     [HttpGet("")]
     public async Task<IActionResult> Index(
         [FromServices] IProductService productService,
@@ -16,7 +18,7 @@ public class ProductsController : Controller
     {
         var products = await productService.GetAllAsync(ct);
         var vm = products.Select(p => new ProductRowViewModel(
-            p.Id, p.Name, p.Sku, p.Price, p.Cost, p.Margin, p.MarginPercentage, p.IsActive, p.CreatedAt
+            p.Id, p.Name, p.Sku, p.Price, p.Cost, p.Margin, p.MarginPercentage, p.IsActive, p.CreatedAt, p.ImageUrl
         )).ToList();
 
         ViewData["Title"] = "Productos";
@@ -33,7 +35,7 @@ public class ProductsController : Controller
     {
         var products = await productService.GetAllAsync(ct);
         var rows = products.Select(p => new ProductRowViewModel(
-            p.Id, p.Name, p.Sku, p.Price, p.Cost, p.Margin, p.MarginPercentage, p.IsActive, p.CreatedAt
+            p.Id, p.Name, p.Sku, p.Price, p.Cost, p.Margin, p.MarginPercentage, p.IsActive, p.CreatedAt, p.ImageUrl
         ));
 
         if (!string.IsNullOrWhiteSpace(q))
@@ -56,6 +58,7 @@ public class ProductsController : Controller
     public async Task<IActionResult> Create(
         [FromServices] IProductService productService,
         [FromForm] ProductFormViewModel form,
+        IFormFile? imageFile,
         CancellationToken ct)
     {
         if (!ModelState.IsValid)
@@ -64,11 +67,15 @@ public class ProductsController : Controller
             return PartialView("_Form", form);
         }
 
-        var request = new ProductRequest { Name = form.Name, Sku = form.Sku, Price = form.Price, Cost = form.Cost, Description = form.Description };
+        var imageUrl = await SaveImageAsync(imageFile);
+        var request = new ProductRequest
+        {
+            Name = form.Name, Sku = form.Sku, Price = form.Price, Cost = form.Cost,
+            Description = form.Description, ImageUrl = imageUrl
+        };
         await productService.CreateAsync(request, ct);
 
         Response.Headers["HX-Trigger"] = "product-created";
-        // Reload the table
         return await TableRows(productService, null, ct);
     }
 
@@ -83,7 +90,7 @@ public class ProductsController : Controller
 
         var form = new ProductFormViewModel(
             product.Id, product.Name, product.Sku,
-            product.Price, product.Cost, product.Description);
+            product.Price, product.Cost, product.Description, product.ImageUrl);
 
         return PartialView("_Form", form);
     }
@@ -93,6 +100,7 @@ public class ProductsController : Controller
         Guid id,
         [FromServices] IProductService productService,
         [FromForm] ProductFormViewModel form,
+        IFormFile? imageFile,
         CancellationToken ct)
     {
         if (!ModelState.IsValid)
@@ -101,15 +109,19 @@ public class ProductsController : Controller
             return PartialView("_Form", form);
         }
 
-        var request = new ProductRequest { Name = form.Name, Sku = form.Sku, Price = form.Price, Cost = form.Cost, Description = form.Description };
+        var imageUrl = await SaveImageAsync(imageFile) ?? form.ImageUrl;
+        var request = new ProductRequest
+        {
+            Name = form.Name, Sku = form.Sku, Price = form.Price, Cost = form.Cost,
+            Description = form.Description, ImageUrl = imageUrl
+        };
         await productService.UpdateAsync(id, request, ct);
 
-        // Refresh just this row
         var product = await productService.GetByIdAsync(id, ct);
         var row = new ProductRowViewModel(
             product!.Id, product.Name, product.Sku, product.Price,
             product.Cost, product.Margin, product.MarginPercentage,
-            product.IsActive, product.CreatedAt);
+            product.IsActive, product.CreatedAt, product.ImageUrl);
 
         return PartialView("_TableRow", row);
     }
@@ -121,6 +133,24 @@ public class ProductsController : Controller
         CancellationToken ct)
     {
         await productService.DeleteAsync(id, ct);
-        return Ok(); // HTMX will remove the row
+        return Ok();
+    }
+
+    private async Task<string?> SaveImageAsync(IFormFile? file)
+    {
+        if (file is null || file.Length == 0) return null;
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (ext is not ".jpg" and not ".jpeg" and not ".png" and not ".webp")
+            return null;
+
+        Directory.CreateDirectory(UploadsDir);
+        var fileName = $"{Guid.NewGuid()}{ext}";
+        var filePath = Path.Combine(UploadsDir, fileName);
+
+        await using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        return $"/uploads/products/{fileName}";
     }
 }

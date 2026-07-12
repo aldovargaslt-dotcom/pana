@@ -77,7 +77,7 @@
                             hover:shadow-modal hover:-translate-y-0.5"
                      style="background: var(--surface-container-lowest);"
                      id="product-card-@p.Id">
-                    @* Product image — bakery-themed placeholder *@
+                    @* Product image — real photo or bakery placeholder *@
                     @{
                         var prodColors = new[] {
                             ("#c44b3c", "#f0c9b0"), ("#d4982a", "#fce4b8"),
@@ -88,11 +88,19 @@
                         var prodColorIdx = Math.Abs(p.Name.GetHashCode()) % prodColors.Length;
                         var (prodBg, prodFg) = prodColors[prodColorIdx];
                         var prodInit = p.Name.Length >= 2 ? p.Name[..2].ToUpper() : p.Name.ToUpper();
+                        var hasImage = !string.IsNullOrEmpty(p.ImageUrl);
                     }
                     <div class="w-full aspect-square rounded-xl mb-4 flex items-center justify-center relative overflow-hidden"
-                         style="background: linear-gradient(135deg, @prodBg, @prodFg);">
-                        <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
-                        <span class="relative text-4xl font-extrabold tracking-tight opacity-80 select-none" style="color: @prodBg; filter: brightness(0.4);">@prodInit</span>
+                         style="@(hasImage ? "" : $"background: linear-gradient(135deg, {prodBg}, {prodFg});")">
+                        @if (hasImage)
+                        {
+                            <img src="@p.ImageUrl" alt="@p.Name" class="w-full h-full object-cover" />
+                        }
+                        else
+                        {
+                            <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
+                            <span class="relative text-4xl font-extrabold tracking-tight opacity-80 select-none" style="color: @prodBg; filter: brightness(0.4);">@prodInit</span>
+                        }
                         @* Quick actions overlay on hover *@
                         <div class="absolute inset-0 flex items-center justify-center gap-2
                                     opacity-0 group-hover:opacity-100 transition-opacity duration-200"

@@ -108,7 +108,7 @@
                                       || '@(product.Sku?.ToLower() ?? "")'.includes(searchQuery.toLowerCase()))"
                          x-transition.duration.200ms
                          @@click="$dispatch('add-to-cart-item', { productId: '@product.Id', productName: '@(product.Name.Replace("'","\\'"))', unitPrice: @product.Price })">
-                        @* Product image — bakery-themed placeholder *@
+                        @* Product image — real photo or bakery placeholder *@
                         @{
                             var posColors = new[] {
                                 ("#c44b3c", "#f0c9b0"), ("#d4982a", "#fce4b8"),
@@ -119,13 +119,19 @@
                             var posColorIdx = Math.Abs(product.Name.GetHashCode()) % posColors.Length;
                             var (posBg, posFg) = posColors[posColorIdx];
                             var posInit = product.Name.Length >= 2 ? product.Name[..2].ToUpper() : product.Name.ToUpper();
+                            var posHasImage = !string.IsNullOrEmpty(product.ImageUrl);
                         }
                         <div class="w-full aspect-square rounded-xl mb-3 flex items-center justify-center relative overflow-hidden"
-                             style="background: linear-gradient(135deg, @posBg, @posFg);">
-                            @* Subtle grain texture *@
-                            <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
-                            @* Product initials — large, bold *@
-                            <span class="relative text-3xl font-extrabold tracking-tight opacity-80 select-none" style="color: @posBg; filter: brightness(0.4);">@posInit</span>
+                             style="@(posHasImage ? "" : $"background: linear-gradient(135deg, {posBg}, {posFg});")">
+                            @if (posHasImage)
+                            {
+                                <img src="@product.ImageUrl" alt="@product.Name" class="w-full h-full object-cover" />
+                            }
+                            else
+                            {
+                                <div class="absolute inset-0 opacity-[0.08]" style="background-image: radial-gradient(circle at 20px 20px, rgba(255,255,255,0.8) 1px, transparent 1px); background-size: 30px 30px;"></div>
+                                <span class="relative text-3xl font-extrabold tracking-tight opacity-80 select-none" style="color: @posBg; filter: brightness(0.4);">@posInit</span>
+                            }
                             @* Added-to-cart flash *@
                             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-active:opacity-100 transition-opacity duration-150"
                                  style="background: color-mix(in srgb, var(--primary) 20%, transparent);">

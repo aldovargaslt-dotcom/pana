@@ -16,6 +16,7 @@ public record ProductDto(
     string ProductType,
     Guid? UnitOfMeasureId,
     Guid? PurchaseUnitOfMeasureId,
+    string? ImageUrl,
     DateTime CreatedAt,
     DateTime? UpdatedAt
 );
@@ -44,6 +45,7 @@ public record ProductRequest
     public decimal Cost { get; init; }
     public string? Description { get; init; }
     public string? ProductType { get; init; }
+    public string? ImageUrl { get; init; }
     public Guid? UnitOfMeasureId { get; init; }
     public Guid? PurchaseUnitOfMeasureId { get; init; }
 }

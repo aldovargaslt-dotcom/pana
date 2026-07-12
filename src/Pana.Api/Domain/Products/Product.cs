@@ -19,6 +19,9 @@ public class Product : TenantEntity
     public Guid? PurchaseUnitOfMeasureId { get; private set; }
 
     // Product type: storable (track inventory) vs service/consumable
+    public string? ImageUrl { get; private set; }
+
+    // Product type: storable (track inventory) vs service/consumable
     public string ProductType { get; private set; } = "Storable";
 
     public static class ProductTypes
@@ -74,6 +77,12 @@ public class Product : TenantEntity
     public void Activate()
     {
         IsActive = true;
+        MarkUpdated();
+    }
+
+    public void SetImageUrl(string? imageUrl)
+    {
+        ImageUrl = imageUrl;
         MarkUpdated();
     }
 

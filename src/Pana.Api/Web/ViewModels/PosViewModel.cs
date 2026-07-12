@@ -21,7 +21,8 @@ public record PosProductCardViewModel(
     string Sku,
     decimal Price,
     string ProductType,
-    bool IsActive
+    bool IsActive,
+    string? ImageUrl = null
 );
 
 public record PosActiveOrderViewModel(

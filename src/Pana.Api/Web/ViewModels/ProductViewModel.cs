@@ -14,7 +14,8 @@ public record ProductRowViewModel(
     decimal Margin,
     decimal MarginPercentage,
     bool IsActive,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    string? ImageUrl = null
 );
 
 public record ProductFormViewModel(
@@ -23,5 +24,6 @@ public record ProductFormViewModel(
     string Sku = "",
     decimal Price = 0,
     decimal Cost = 0,
-    string? Description = null
+    string? Description = null,
+    string? ImageUrl = null
 );

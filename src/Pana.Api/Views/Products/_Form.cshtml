@@ -35,7 +35,7 @@
                   hx-target="@(isCreate ? "#product-grid" : $"#product-card-{Model.Id}")"
                   hx-swap="@(isCreate ? "innerHTML" : "outerHTML")"
                   hx-on::after-request="if(event.detail.successful) document.getElementById('@modalId').remove()"
-                  class="space-y-5">
+                  class="space-y-5" enctype="multipart/form-data">
 
                 @if (!isCreate)
                 {
@@ -95,6 +95,24 @@
                               onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
                               onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
                               placeholder="Opcional...">@Model.Description</textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Imagen del producto</label>
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <div class="mb-2">
+                            <img src="@Model.ImageUrl" alt="@Model.Name" class="w-24 h-24 rounded-xl object-cover shadow-ambient" />
+                        </div>
+                    }
+                    <input type="file" name="imageFile" accept="image/jpeg,image/png,image/webp"
+                           class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0
+                                  file:text-sm file:font-semibold file:text-white file:shadow-ambient
+                                  file:transition-all file:cursor-pointer file:active:scale-[0.98]"
+                           style="color: var(--muted);"
+                           onchange="this.style.color='var(--fg)'"
+                           title="JPG, PNG o WebP — máx 5MB" />
+                    <p class="text-xs mt-1" style="color: var(--meta);">JPG, PNG o WebP. La imagen se recortará a formato cuadrado.</p>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3" style="background: var(--surface-container-low); margin: 0 -1.5rem -1.5rem; padding: 0.75rem 1.5rem; border-radius: 0 0 16px 16px;">

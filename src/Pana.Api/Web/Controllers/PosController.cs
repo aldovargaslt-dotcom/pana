@@ -38,7 +38,7 @@ public class PosController : Controller
         }
 
         var productCards = activeProducts.Select(p => new PosProductCardViewModel(
-            p.Id, p.Name, p.Description, p.Sku, p.Price, p.ProductType, p.IsActive
+            p.Id, p.Name, p.Description, p.Sku, p.Price, p.ProductType, p.IsActive, p.ImageUrl
         )).ToList();
 
         ViewData["Title"] = "Punto de Venta";

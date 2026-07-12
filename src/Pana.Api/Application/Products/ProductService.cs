@@ -74,6 +74,9 @@ public class ProductService : IProductService
         if (request.PurchaseUnitOfMeasureId.HasValue)
             product.SetPurchaseUnitOfMeasure(request.PurchaseUnitOfMeasureId);
 
+        if (request.ImageUrl is not null)
+            product.SetImageUrl(request.ImageUrl);
+
         _db.Products.Add(product);
         await _db.SaveChangesAsync(ct);
 
@@ -95,6 +98,9 @@ public class ProductService : IProductService
 
         product.SetUnitOfMeasure(request.UnitOfMeasureId);
         product.SetPurchaseUnitOfMeasure(request.PurchaseUnitOfMeasureId);
+
+        if (request.ImageUrl is not null)
+            product.SetImageUrl(request.ImageUrl);
 
         await _db.SaveChangesAsync(ct);
         return MapToDto(product);
@@ -123,6 +129,7 @@ public class ProductService : IProductService
         p.ProductType,
         p.UnitOfMeasureId,
         p.PurchaseUnitOfMeasureId,
+        p.ImageUrl,
         p.CreatedAt,
         p.UpdatedAt
     );
