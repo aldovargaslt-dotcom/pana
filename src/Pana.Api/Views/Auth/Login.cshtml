@@ -5,8 +5,6 @@
 
 @section Styles {
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
         @@keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
@@ -18,6 +16,10 @@
         @@keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        @@keyframes bakePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .animate-float { animation: float 6s ease-in-out infinite; }
@@ -31,14 +33,34 @@
                 radial-gradient(circle at 80% 20%, rgba(101, 71, 0, 0.04) 0%, transparent 50%),
                 radial-gradient(circle at 50% 80%, rgba(158, 0, 18, 0.02) 0%, transparent 50%);
         }
+
+        /* ── Input focus ring (replaces inline onfocus/onblur) ── */
+        .input-focus {
+            background: var(--surface-container-high);
+            transition: background .2s ease, box-shadow .2s ease;
+        }
+        .input-focus:focus {
+            outline: none;
+            background: var(--primary-fixed);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent);
+        }
+
+        /* ── Submit loading state ── */
+        .btn-submit { position: relative; overflow: hidden; }
+        .btn-submit .btn-text { transition: opacity .2s ease; }
+        .btn-submit .btn-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: .5rem; opacity: 0; transition: opacity .2s ease; }
+        .btn-submit.loading .btn-text { opacity: 0; }
+        .btn-submit.loading .btn-spinner { opacity: 1; }
+        .btn-submit.loading { pointer-events: none; }
     </style>
 }
 
 <div class="flex items-center justify-center p-4 overflow-hidden relative min-h-screen">
 
-
     @* ── Decorative background elements ─────────────────────── *@
     <div class="absolute inset-0 bg-texture"></div>
+
+    @* ── Warm floating orbs ────────────────────────────────── *@
     <div class="absolute top-1/4 -left-20 w-96 h-96 rounded-full blur-3xl animate-float-slow"
          style="background: color-mix(in srgb, var(--primary) 5%, transparent);"></div>
     <div class="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full blur-3xl animate-float"
@@ -46,27 +68,46 @@
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl"
          style="background: color-mix(in srgb, var(--primary) 3%, transparent);"></div>
 
+    @* ── Subtle wheat grain decorative pattern ─────────────── *@
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 15px 15px, var(--tertiary) 1px, transparent 1px); background-size: 40px 40px;"></div>
+
     @* ── Login card ─────────────────────────────────────────── *@
     <div class="relative z-10 w-full max-w-md animate-fade-up">
 
-        @* Brand header *@
+        @* Brand header — bakery identity *@
         <div class="text-center mb-8">
-            <div class="inline-flex mx-auto w-16 h-16 rounded-2xl items-center justify-center text-white font-extrabold text-3xl mb-5 shadow-ambient"
+            <div class="inline-flex mx-auto w-20 h-20 rounded-2xl items-center justify-center mb-5 shadow-ambient"
                  style="background: var(--gradient-primary);">
-                P
+                @* Stylized wheat/bread loaf icon *@
+                <svg class="w-10 h-10 text-white" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    @* Wheat stalk left *@
+                    <path d="M14 38c0-4 2-10 4-14s2-8 0-12" />
+                    <ellipse cx="14" cy="24" rx="2" ry="4" transform="rotate(-15 14 24)" />
+                    <ellipse cx="12" cy="18" rx="2" ry="4" transform="rotate(-10 12 18)" />
+                    <ellipse cx="16" cy="30" rx="2" ry="4" transform="rotate(-15 16 30)" />
+                    @* Wheat stalk right *@
+                    <path d="M34 38c0-4-2-10-4-14s-2-8 0-12" />
+                    <ellipse cx="34" cy="24" rx="2" ry="4" transform="rotate(15 34 24)" />
+                    <ellipse cx="36" cy="18" rx="2" ry="4" transform="rotate(10 36 18)" />
+                    <ellipse cx="32" cy="30" rx="2" ry="4" transform="rotate(15 32 30)" />
+                    @* Bread loaf base *@
+                    <path d="M10 38h28c2 0 4-2 4-4v-2c0-3-2-5-5-5H11c-3 0-5 2-5 5v2c0 2 2 4 4 4z" stroke-width="2"/>
+                    <path d="M16 32c0-2 1-4 3-4h10c2 0 3 2 3 4" stroke-width="1.5" opacity="0.6"/>
+                </svg>
             </div>
             <h1 class="text-3xl font-bold tracking-tight" style="color: var(--fg);">Pana</h1>
-            <p class="text-sm mt-2" style="color: var(--meta);">Business Management Platform</p>
+            <p class="text-sm mt-2 font-medium" style="color: var(--tertiary);">Tu panadería, en orden</p>
         </div>
 
         @* Form card *@
         <form method="post"
               class="backdrop-blur-xl rounded-2xl p-8 space-y-5 shadow-ambient"
-              style="background: var(--surface-container-lowest);">
+              style="background: var(--surface-container-lowest);"
+              onsubmit="this.classList.add('loading')">
 
             @if (!ViewData.ModelState.IsValid)
             {
-                <div class="text-sm rounded-xl p-4 flex items-start gap-3"
+                <div class="text-sm rounded-xl p-4 flex items-start gap-3 animate-fade-up"
                      style="color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent);">
                     <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <div>
@@ -81,14 +122,12 @@
             <div>
                 <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Correo electrónico</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors duration-200" id="email-icon">
                         <svg class="w-5 h-5" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                     </div>
                     <input type="email" name="email" required autofocus
-                           class="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all duration-200"
-                           style="background: var(--surface-container-high); color: var(--fg);"
-                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
+                           class="input-focus w-full pl-10 pr-4 py-3 rounded-xl text-sm"
+                           style="color: var(--fg);"
                            placeholder="tu@email.com" />
                 </div>
             </div>
@@ -96,27 +135,34 @@
             <div>
                 <label class="block text-sm font-medium mb-1.5" style="color: var(--fg-2);">Contraseña</label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none transition-colors duration-200">
                         <svg class="w-5 h-5" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                     </div>
                     <input type="password" name="password" required
-                           class="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all duration-200"
-                           style="background: var(--surface-container-high); color: var(--fg);"
-                           onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
-                           onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'"
+                           class="input-focus w-full pl-10 pr-4 py-3 rounded-xl text-sm"
+                           style="color: var(--fg);"
                            placeholder="••••••••" />
                 </div>
             </div>
 
             <button type="submit"
-                    class="w-full text-white py-3 rounded-xl text-sm font-semibold
-                           transition-all duration-200 shadow-ambient hover:shadow-ambient
+                    class="btn-submit w-full text-white py-3 rounded-xl text-sm font-semibold
+                           transition-all duration-200 shadow-ambient
                            active:scale-[0.98] tracking-wide"
                     style="background: var(--gradient-primary);">
-                Iniciar sesión
+                <span class="btn-text">Iniciar sesión</span>
+                <span class="btn-spinner">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                    Ingresando...
+                </span>
             </button>
         </form>
 
-        <p class="text-center text-xs mt-6" style="color: var(--meta);">Pana v2.0 · The Modern Hearth</p>
+        <p class="text-center text-xs mt-6 flex items-center justify-center gap-2" style="color: var(--meta);">
+            <span class="inline-flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </span>
+            Pana v2.0 · The Modern Hearth
+        </p>
     </div>
 </div>
