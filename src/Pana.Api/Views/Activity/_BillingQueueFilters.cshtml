@@ -1,0 +1,32 @@
+@* _BillingQueueFilters.cshtml — HTMX-aware filter pills *@
+@model Pana.Api.Web.ViewModels.ActivityViewModel
+@{
+    var filter = ViewBag.ActiveFilter as string ?? "all";
+}
+<div class="flex items-center gap-2 flex-wrap">
+    <button hx-get="/activity?filter=all"
+            hx-target="#billing-queue-content"
+            class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200"
+            style="@(filter == "all"
+                ? "background: var(--gradient-primary); color: white; box-shadow: var(--elev-ambient);"
+                : "color: var(--fg-2); background: var(--surface-container-low);")">
+        Todos
+    </button>
+    <button hx-get="/activity?filter=active"
+            hx-target="#billing-queue-content"
+            class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200"
+            style="@(filter == "active"
+                ? "background: var(--gradient-primary); color: white; box-shadow: var(--elev-ambient);"
+                : "color: var(--fg-2); background: var(--surface-container-low);")">
+        Activos
+    </button>
+    <button hx-get="/activity?filter=closed"
+            hx-target="#billing-queue-content"
+            class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200"
+            style="@(filter == "closed"
+                ? "background: var(--gradient-primary); color: white; box-shadow: var(--elev-ambient);"
+                : "color: var(--fg-2); background: var(--surface-container-low);")">
+        Cerrados
+    </button>
+    <span class="text-xs ml-1" style="color: var(--meta);">@Model.QueueItems.Count en cola</span>
+</div>

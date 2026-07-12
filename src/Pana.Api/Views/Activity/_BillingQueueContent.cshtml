@@ -1,0 +1,7 @@
+@* _BillingQueueContent.cshtml — HTMX response: filters + table *@
+@model Pana.Api.Web.ViewModels.ActivityViewModel
+
+@await Html.PartialAsync("_BillingQueueFilters", Model)
+<div class="rounded-2xl shadow-ambient overflow-hidden mt-3" style="background: var(--surface-container-lowest);">
+    @await Html.PartialAsync("_BillingQueueTable", Model)
+</div>

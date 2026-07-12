@@ -33,98 +33,18 @@
                            hx-get="/activity"
                            hx-trigger="keyup changed delay:300ms"
                            hx-target="#billing-queue-content"
+                           hx-include="[name='q']"
                            class="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm
                                   focus:outline-none focus:ring-2 transition-all duration-200"
                            style="background: var(--surface-container-high); color: var(--fg);"
                            onfocus="this.style.background='var(--primary-fixed)'; this.style.boxShadow='0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent)'"
                            onblur="this.style.background='var(--surface-container-high)'; this.style.boxShadow='none'" />
                 </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button class="px-3 py-1.5 rounded-xl text-xs font-medium text-white shadow-ambient"
-                            style="background: var(--gradient-primary);">Todos</button>
-                    <button class="px-3 py-1.5 rounded-xl text-xs font-medium transition-colors"
-                            style="color: var(--fg-2); background: var(--surface-container-low);">Activos</button>
-                    <button class="px-3 py-1.5 rounded-xl text-xs font-medium transition-colors"
-                            style="color: var(--fg-2); background: var(--surface-container-low);">Cerrados</button>
-                    <span class="text-xs ml-1" style="color: var(--meta);">@Model.QueueItems.Count en cola</span>
-                </div>
             </div>
 
-            @* ── Billing queue list ──────────────────────────── *@
-            <div class="rounded-2xl shadow-ambient overflow-hidden" style="background: var(--surface-container-lowest);">
-                @if (!Model.QueueItems.Any())
-                {
-                    <div class="text-center py-16">
-                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                             style="background: var(--surface-container);">
-                            <svg class="w-8 h-8" style="color: var(--meta);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                        </div>
-                        <p class="font-medium" style="color: var(--meta);">Cola vacía</p>
-                        <p class="text-xs mt-1" style="color: var(--meta);">No hay órdenes pendientes de facturación</p>
-                    </div>
-                }
-                else
-                {
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr style="background: var(--surface-container-low);">
-                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Orden</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Mesa</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Fecha</th>
-                                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Total</th>
-                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider" style="color: var(--muted);">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody class="table-tonal">
-                                @foreach (var item in Model.QueueItems)
-                                {
-                                    var (statusColor, statusBg) = item.Status switch
-                                    {
-                                        "Delivered" or "Completed" => ("var(--success)", "color-mix(in srgb, var(--success) 12%, transparent)"),
-                                        "Cancelled" => ("var(--danger)", "color-mix(in srgb, var(--danger) 12%, transparent)"),
-                                        "Draft" => ("var(--tertiary)", "color-mix(in srgb, var(--tertiary) 12%, transparent)"),
-                                        _ => ("var(--primary)", "color-mix(in srgb, var(--primary) 12%, transparent)")
-                                    };
-                                    var statusLabel = item.Status switch
-                                    {
-                                        "Delivered" => "Entregada",
-                                        "Completed" => "Completada",
-                                        "Cancelled" => "Cancelada",
-                                        "Confirmed" => "Confirmada",
-                                        "InProduction" => "En producción",
-                                        "Ready" => "Lista",
-                                        "Draft" => "Borrador",
-                                        _ => item.Status
-                                    };
-
-                                    <tr class="transition-colors cursor-pointer"
-                                        onmouseover="this.style.background='var(--surface-container-low)'"
-                                        onmouseout="this.style.background='transparent'"
-                                        hx-get="/sales/@item.Id"
-                                        hx-target="#modal-container">
-                                        <td class="px-6 py-3.5">
-                                            <p class="font-medium" style="color: var(--fg);">@item.OrderLabel</p>
-                                        </td>
-                                        <td class="px-6 py-3.5">
-                                            <span style="color: var(--fg-2);">@(item.TableNumber ?? "—")</span>
-                                        </td>
-                                        <td class="px-6 py-3.5">
-                                            <span style="color: var(--muted);">@item.CreatedAt.ToString("dd/MM HH:mm")</span>
-                                        </td>
-                                        <td class="px-6 py-3.5 text-right">
-                                            <span class="font-semibold" style="color: var(--fg);">$@item.TotalAmount.ToString("N2")</span>
-                                        </td>
-                                        <td class="px-6 py-3.5 text-center">
-                                            <span class="inline-block text-xs px-2.5 py-1 rounded-full font-medium"
-                                                  style="color: @statusColor; background: @statusBg;">@statusLabel</span>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
+            @* ── Billing queue (filter pills + table, HTMX target) *@
+            <div id="billing-queue-content">
+                @await Html.PartialAsync("_BillingQueueContent", Model)
             </div>
 
             @* ── Track-order cards ────────────────────────────── *@

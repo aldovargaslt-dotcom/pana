@@ -12,7 +12,8 @@ public class ActivityController : Controller
     [HttpGet("")]
     public async Task<IActionResult> BillingQueue(
         [FromServices] ISalesService salesService,
-        CancellationToken ct)
+        [FromQuery] string? filter = null,
+        CancellationToken ct = default)
     {
         var sales = await salesService.GetAllAsync(ct);
 
@@ -28,14 +29,30 @@ public class ActivityController : Controller
             s.PaymentStatus
         )).ToList();
 
+        // Apply filter
+        var filtered = filter switch
+        {
+            "active" => queueItems.Where(q => q.Status is "Draft" or "Confirmed" or "InProduction" or "Ready").ToList(),
+            "closed" => queueItems.Where(q => q.Status is "Delivered" or "Cancelled").ToList(),
+            _ => queueItems
+        };
+
         var activeCount = queueItems.Count(q => q.Status is "Draft" or "Confirmed" or "InProduction" or "Ready");
         var closedCount = queueItems.Count(q => q.Status is "Delivered" or "Cancelled");
 
         ViewData["Title"] = "Actividad — Cola de Facturación";
         ViewData["ActiveNav"] = "activity";
+        ViewBag.ActiveFilter = filter ?? "all";
 
         var vm = new ActivityViewModel(
-            "billing-queue", queueItems, new(), new(), activeCount, closedCount);
+            "billing-queue", filtered, new(), new(), activeCount, closedCount);
+
+        // HTMX requests get filters + table partials
+        if (Request.Headers["HX-Request"] == "true")
+        {
+            return PartialView("_BillingQueueContent", vm);
+        }
+
         return View("BillingQueue", vm);
     }
 
