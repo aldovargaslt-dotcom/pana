@@ -949,14 +949,15 @@
                 open: false,
 
                 init() {
-                    this._id = modalId || this.$el.id || 'pana-modal';
+                    // Capture id in closure — more reliable than this._id
+                    const id = modalId || this.$el.id || 'pana-modal';
 
                     // Listen for open/close events from any trigger
                     this._onOpen = (e) => {
-                        if (e.detail && e.detail.id === this._id) this.open = true;
+                        if (e.detail && e.detail.id === id) this.open = true;
                     };
                     this._onClose = (e) => {
-                        if (e.detail && e.detail.id === this._id) this.open = false;
+                        if (e.detail && e.detail.id === id) this.open = false;
                     };
                     window.addEventListener('pana-modal:open', this._onOpen);
                     window.addEventListener('pana-modal:close', this._onClose);
